@@ -55,4 +55,20 @@ If you make changes to the React code, simply run:
 npm run build
 npx cap sync
 ```
-Then run the app from Android Studio again.
+## iOS App Build
+
+To build the iOS application, executed the following commands in the `frontend` directory:
+
+1.  **Open in Xcode**:
+    ```bash
+    npx cap open ios
+    ```
+2.  **Configuration**:
+    - Select your Team in Xcode (Signing & Capabilities).
+    - Ensure your Bundle Identifier matches what is set in `capacitor.config.json` (`com.buysial.app`).
+3.  **Run/Archive**:
+    - Connect your iPhone or select a Simulator.
+    - Click the Play button to Run.
+    - To publish: **Product > Archive**.
+
+**Note**: You must have Xcode installed on your Mac.
