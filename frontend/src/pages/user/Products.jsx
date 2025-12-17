@@ -153,30 +153,54 @@ export default function UserProducts() {
     <div style={{ display: 'grid', gap: 32, padding: '32px 24px' }}>
       {/* Premium Header */}
       <div
-        style={{ position: 'relative', paddingBottom: 20, borderBottom: '2px solid var(--border)' }}
+        style={{
+          position: 'relative',
+          paddingBottom: 20,
+          borderBottom: '2px solid var(--border)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'end',
+        }}
       >
-        <h1
-          className="gradient heading-orange"
+        <div>
+          <h1
+            className="gradient heading-orange"
+            style={{
+              fontSize: 36,
+              fontWeight: 800,
+              margin: 0,
+              marginBottom: 12,
+              letterSpacing: '-0.5px',
+            }}
+          >
+            Products
+          </h1>
+          <p
+            style={{
+              margin: 0,
+              opacity: 0.7,
+              fontSize: 16,
+              fontWeight: 500,
+            }}
+          >
+            View product performance and order analytics
+          </p>
+        </div>
+        <button
+          className="btn primary"
+          onClick={() => navigate('/user/inhouse-products')}
           style={{
-            fontSize: 36,
-            fontWeight: 800,
-            margin: 0,
-            marginBottom: 12,
-            letterSpacing: '-0.5px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 24px',
+            fontSize: 15,
+            fontWeight: 600,
+            borderRadius: 12,
           }}
         >
-          Products
-        </h1>
-        <p
-          style={{
-            margin: 0,
-            opacity: 0.7,
-            fontSize: 16,
-            fontWeight: 500,
-          }}
-        >
-          View product performance and order analytics
-        </p>
+          <span style={{ fontSize: 18 }}>+</span> Create Product
+        </button>
       </div>
 
       {/* Search and Filters */}
