@@ -26,7 +26,7 @@ export default function AgentInhouseProducts(){
           <div style={{display:'flex', alignItems:'center', gap:10}}>
             <div style={{width:28,height:28,borderRadius:8,background:'linear-gradient(135deg,#34d399,#60a5fa)',display:'grid',placeItems:'center',color:'#fff',fontWeight:800}}>🏷️</div>
             <div>
-              <div style={{fontWeight:800, fontSize:18}}>Inhouse Products</div>
+              <div style={{fontWeight:800, fontSize:18}}>Create Product</div>
               <div className="helper">Agents can view products and prices but cannot create or edit products.</div>
             </div>
           </div>

@@ -2001,7 +2001,7 @@ export default function InhouseProducts() {
       <div id="products-list" className="card" style={{ marginTop: 12 }}>
         <div className="page-header">
           <div>
-            <div className="page-title gradient heading-green">Inhouse Products</div>
+            <div className="page-title gradient heading-green">Create Product</div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <input
