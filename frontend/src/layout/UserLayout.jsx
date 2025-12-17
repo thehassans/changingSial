@@ -383,7 +383,7 @@ export default function UserLayout() {
             </svg>
           ),
         },
-        },
+
         {
           to: '/user/investor-products',
           label: 'Investor Products',
