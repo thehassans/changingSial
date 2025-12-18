@@ -31,14 +31,7 @@ import ManagerCreateDriver from './pages/manager/CreateDriver.jsx'
 import AgentRemitHistory from './pages/manager/AgentRemitHistory.jsx'
 import ManagerExpenses from './pages/manager/Expenses.jsx'
 import AgentInhouseProducts from './pages/agent/AgentInhouseProducts.jsx'
-import InvestorPlans from './pages/investor/Plans.jsx'
-import InvestorProfile from './pages/investor/Profile.jsx'
-import InvestorReferrals from './pages/investor/Referrals.jsx'
-import MyInvestments from './pages/investor/MyInvestments.jsx'
-import InvestorWithdraw from './pages/investor/Withdraw.jsx'
-import InvestorLayout from './layout/InvestorLayout.jsx'
-import DriverLayout from './layout/DriverLayout.jsx'
-import InvestorRegister from './pages/investor/Register.jsx'
+
 import AgentOrdersHistory from './pages/agent/OrdersHistory.jsx'
 import AgentProfile from './pages/agent/Profile.jsx'
 import AgentPayout from './pages/agent/Payout.jsx'
@@ -58,12 +51,11 @@ import WhatsAppInbox from './pages/inbox/WhatsAppInbox.jsx'
 
 import Agents from './pages/user/Agents.jsx'
 import Managers from './pages/user/Managers.jsx'
-import Investors from './pages/user/Investors.jsx'
+
 import Drivers from './pages/user/Drivers.jsx'
 import Dropshippers from './pages/user/Dropshippers.jsx'
 import Notifications from './pages/user/Notifications.jsx'
-import UserInvestorProducts from './pages/user/InvestorProducts.jsx'
-import InvestorRequests from './pages/user/InvestorRequests.jsx'
+
 import UserOrders from './pages/user/Orders.jsx'
 import UserAPISetup from './pages/user/APISetup.jsx'
 import ProfileSettings from './pages/user/ProfileSettings.jsx'
@@ -96,11 +88,7 @@ import Privacy from './pages/site/Privacy.jsx'
 import UserFinances from './pages/user/Finances.jsx'
 import UserManagerFinances from './pages/user/ManagerFinances.jsx'
 import AgentAmounts from './pages/user/AgentAmounts.jsx'
-import InvestorAmounts from './pages/user/InvestorAmounts.jsx'
-import InvestorDaily from './pages/user/InvestorDaily.jsx'
-import DriverAmounts from './pages/user/DriverAmounts.jsx'
-import ReferralDetails from './pages/user/ReferralDetails.jsx'
-import ReferralAmounts from './pages/user/ReferralAmounts.jsx'
+
 import CurrencySettings from './pages/user/CurrencySettings.jsx'
 import UserReturnedOrders from './pages/user/ReturnedOrders.jsx'
 import ManagerReturnedOrders from './pages/manager/ReturnedOrders.jsx'
@@ -221,7 +209,7 @@ function RequireRole({ roles = [], children }) {
   if (!roles.includes(role)) {
     if (role === 'agent') return <Navigate to="/agent" replace />
     if (role === 'manager') return <Navigate to="/manager" replace />
-    if (role === 'investor') return <Navigate to="/investor" replace />
+
     if (role === 'dropshipper') return <Navigate to="/dropshipper" replace />
     if (role === 'admin' || role === 'user') return <Navigate to="/user" replace />
     return <Navigate to="/login" replace />
@@ -357,9 +345,7 @@ export default function App() {
 
             {/* Staff/Admin Login */}
             <Route path="/login" element={<UserLogin />} />
-            <Route path="/investor/signup" element={<InvestorRegister />} />
-            <Route path="/investorsignup" element={<Navigate to="/investor/signup" replace />} />
-            <Route path="/investor-register" element={<Navigate to="/investor/signup" replace />} />
+
 
             {/* Print Label (standalone, minimal UI) */}
             <Route
@@ -424,22 +410,7 @@ export default function App() {
               <Route path="payout" element={<DriverPayout />} />
             </Route>
 
-            <Route
-              path="/investor"
-              element={
-                <RequireAuth>
-                  <RequireRole roles={['investor']}>
-                    <InvestorLayout />
-                  </RequireRole>
-                </RequireAuth>
-              }
-            >
-              <Route index element={<InvestorPlans />} />
-              <Route path="referrals" element={<InvestorReferrals />} />
-              <Route path="my-invest" element={<MyInvestments />} />
-              <Route path="withdraw" element={<InvestorWithdraw />} />
-              <Route path="profile" element={<InvestorProfile />} />
-            </Route>
+
 
             <Route
               path="/manager"
@@ -480,9 +451,7 @@ export default function App() {
               <Route path="inbox/whatsapp" element={<WhatsAppInbox />} />
               <Route path="agents" element={<Agents />} />
               <Route path="managers" element={<Managers />} />
-              <Route path="investors" element={<Investors />} />
-              <Route path="investor-products" element={<UserInvestorProducts />} />
-              <Route path="investor-requests" element={<InvestorRequests />} />
+
               <Route path="drivers" element={<Drivers />} />
               <Route path="dropshippers" element={<Dropshippers />} />
               <Route path="notifications" element={<Notifications />} />
@@ -502,10 +471,7 @@ export default function App() {
               <Route path="transactions" element={<Transactions />} />
               <Route path="manager-finances" element={<UserManagerFinances />} />
               <Route path="agent-amounts" element={<AgentAmounts />} />
-              <Route path="investor-amounts" element={<InvestorAmounts />} />
-              <Route path="investor-daily" element={<InvestorDaily />} />
-              <Route path="referral-details" element={<ReferralDetails />} />
-              <Route path="referral-amounts" element={<ReferralAmounts />} />
+
               <Route path="driver-amounts" element={<DriverAmounts />} />
               <Route path="finances" element={<UserFinances />} />
               <Route path="currency" element={<CurrencySettings />} />
