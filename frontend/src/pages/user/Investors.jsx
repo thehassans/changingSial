@@ -26,7 +26,7 @@ export default function Investors() {
   const loadInvestors = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await apiGet('/user/investors')
+      const res = await apiGet('/users/investors')
       setInvestors(res.users || [])
     } catch (err) {
       console.error('Failed to load investors:', err)
@@ -90,9 +90,9 @@ export default function Investors() {
       }
 
       if (editingInvestor) {
-        await apiPatch(`/user/investors/${editingInvestor._id}`, payload)
+        await apiPatch(`/users/investors/${editingInvestor._id}`, payload)
       } else {
-        await apiPost('/user/investors', payload)
+        await apiPost('/users/investors', payload)
       }
 
       setShowForm(false)
@@ -107,7 +107,7 @@ export default function Investors() {
 
   const handleToggleProfit = async (investor) => {
     try {
-      await apiPost(`/user/investors/${investor._id}/toggle-profit`)
+      await apiPost(`/users/investors/${investor._id}/toggle-profit`)
       loadInvestors()
     } catch (err) {
       console.error('Failed to toggle profit:', err)
@@ -117,7 +117,7 @@ export default function Investors() {
   const handleDelete = async () => {
     if (!deleteConfirm) return
     try {
-      await apiDelete(`/user/investors/${deleteConfirm._id}`)
+      await apiDelete(`/users/investors/${deleteConfirm._id}`)
       setDeleteConfirm(null)
       loadInvestors()
     } catch (err) {
