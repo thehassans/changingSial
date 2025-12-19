@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema(
         "user",
         "agent",
         "manager",
+        "investor",
         "driver",
         "customer",
         "dropshipper",
@@ -32,6 +33,11 @@ const UserSchema = new mongoose.Schema(
       index: true,
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    referralCode: { type: String, default: "", index: true },
+    refCode: { type: String, default: "", index: true },
+    inviteCode: { type: String, default: "" },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    referredByCode: { type: String, default: "" },
     managerPermissions: {
       canCreateAgents: { type: Boolean, default: false },
       canManageProducts: { type: Boolean, default: false },
@@ -70,6 +76,25 @@ const UserSchema = new mongoose.Schema(
     welcomeSent: { type: Boolean, default: false },
     welcomeSentAt: { type: Date },
     welcomeError: { type: String, default: "" },
+    // Investor specific profile (only applicable when role === 'investor')
+    investorProfile: {
+      investmentAmount: { type: Number, default: 0 }, // Initial investment
+      profitAmount: { type: Number, default: 0 }, // Total profit amount to earn (user-defined)
+      profitPercentage: { type: Number, default: 15 }, // Profit % per order (e.g., 15%)
+      earnedProfit: { type: Number, default: 0 }, // Profit earned so far from orders
+      totalReturn: { type: Number, default: 0 }, // investmentAmount + earnedProfit
+      currency: {
+        type: String,
+        enum: ["AED", "SAR", "OMR", "BHD", "INR", "KWD", "QAR", "USD", "CNY"],
+        default: "SAR",
+      },
+      status: {
+        type: String,
+        enum: ["active", "completed", "inactive"],
+        default: "active",
+      }, // Investment status
+      completedAt: { type: Date }, // When profit amount target was reached
+    },
     // Agent payout profile (withdrawal method and details)
     payoutProfile: {
       method: {
