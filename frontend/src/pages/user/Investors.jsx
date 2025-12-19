@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../api'
+import './Investors.css'
 
 const CURRENCIES = ['SAR', 'AED', 'OMR', 'BHD', 'INR', 'KWD', 'QAR', 'USD', 'CNY']
 
@@ -125,29 +126,6 @@ export default function Investors() {
     }
   }
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      active: { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', text: 'Active' },
-      inactive: { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', text: 'Paused' },
-      completed: { bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', text: 'Completed' },
-    }
-    const s = styles[status] || styles.inactive
-    return (
-      <span style={{
-        background: s.bg,
-        color: '#fff',
-        padding: '4px 12px',
-        borderRadius: '20px',
-        fontSize: '12px',
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-      }}>
-        {s.text}
-      </span>
-    )
-  }
-
   const getProgress = (investor) => {
     const earned = investor.investorProfile?.earnedProfit || 0
     const target = investor.investorProfile?.profitAmount || 1
@@ -163,66 +141,23 @@ export default function Investors() {
     }).format(amount || 0)
   }
 
-  // Theme-aware styles using CSS variables
-  const styles = {
-    container: {
-      padding: '24px',
-      minHeight: '100vh',
-      background: 'var(--bg-primary, #ffffff)',
-    },
-    card: {
-      background: 'var(--bg-secondary, #f8fafc)',
-      border: '1px solid var(--border-color, #e2e8f0)',
-      borderRadius: '16px',
-      padding: '20px',
-    },
-    text: {
-      color: 'var(--text-primary, #1e293b)',
-    },
-    textMuted: {
-      color: 'var(--text-secondary, #64748b)',
-    },
-    input: {
-      width: '100%',
-      padding: '12px 16px',
-      borderRadius: '12px',
-      border: '1px solid var(--border-color, #e2e8f0)',
-      background: 'var(--bg-primary, #ffffff)',
-      color: 'var(--text-primary, #1e293b)',
-      fontSize: '14px',
-      outline: 'none',
-    },
-  }
+  const statsData = [
+    { label: 'Total Investors', value: investors.length, color: '#3b82f6', icon: '👥' },
+    { label: 'Active', value: investors.filter(i => i.investorProfile?.status === 'active').length, color: '#10b981', icon: '✅' },
+    { label: 'Completed', value: investors.filter(i => i.investorProfile?.status === 'completed').length, color: '#8b5cf6', icon: '🏆' },
+    { label: 'Total Invested', value: formatCurrency(investors.reduce((s, i) => s + (i.investorProfile?.investmentAmount || 0), 0), 'SAR'), color: '#f59e0b', icon: '💰' },
+  ]
 
   return (
-    <div style={styles.container}>
+    <div className="investors-container">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h1 style={{ ...styles.text, fontSize: '28px', fontWeight: '700', marginBottom: '4px' }}>
-            Investor Management
-          </h1>
-          <p style={styles.textMuted}>
-            Manage your investors and track profit distribution
-          </p>
+      <div className="investors-header">
+        <div className="investors-header-text">
+          <h1 className="investors-title">Investor Management</h1>
+          <p className="investors-subtitle">Manage your investors and track profit distribution</p>
         </div>
         {!showForm && (
-          <button
-            onClick={openCreate}
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              color: '#fff',
-              border: 'none',
-              padding: '12px 24px',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
+          <button className="investors-add-btn" onClick={openCreate}>
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M12 5v14M5 12h14" />
             </svg>
@@ -233,130 +168,103 @@ export default function Investors() {
 
       {/* Inline Create/Edit Form */}
       {showForm && (
-        <div style={{ ...styles.card, marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <h2 style={{ ...styles.text, fontSize: '20px', fontWeight: '600' }}>
+        <div className="investors-form-card">
+          <div className="investors-form-header">
+            <h2 className="investors-form-title">
               {editingInvestor ? 'Edit Investor' : 'Add New Investor'}
             </h2>
-            <button
-              onClick={() => { setShowForm(false); resetForm() }}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '24px',
-                cursor: 'pointer',
-                color: 'var(--text-secondary, #64748b)',
-              }}
-            >
-              ×
-            </button>
+            <button className="investors-form-close" onClick={() => { setShowForm(false); resetForm() }}>×</button>
           </div>
 
-          {error && (
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '12px',
-              padding: '12px',
-              marginBottom: '20px',
-              color: '#ef4444',
-              fontSize: '14px',
-            }}>
-              {error}
-            </div>
-          )}
+          {error && <div className="investors-form-error">{error}</div>}
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>First Name *</label>
+          <form onSubmit={handleSubmit} className="investors-form">
+            <div className="investors-form-grid">
+              <div className="investors-form-field">
+                <label>First Name *</label>
                 <input
                   type="text"
                   value={form.firstName}
                   onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                   required
-                  style={styles.input}
+                  placeholder="John"
                 />
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Last Name *</label>
+              <div className="investors-form-field">
+                <label>Last Name *</label>
                 <input
                   type="text"
                   value={form.lastName}
                   onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                   required
-                  style={styles.input}
+                  placeholder="Doe"
                 />
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Phone Number</label>
+              <div className="investors-form-field">
+                <label>Phone Number</label>
                 <input
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   placeholder="+966 XXX XXX XXXX"
-                  style={styles.input}
                 />
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Email *</label>
+              <div className="investors-form-field">
+                <label>Email *</label>
                 <input
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
-                  style={styles.input}
+                  placeholder="john@example.com"
                 />
               </div>
               {!editingInvestor && (
-                <div>
-                  <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Password *</label>
+                <div className="investors-form-field">
+                  <label>Password *</label>
                   <input
                     type="password"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required={!editingInvestor}
                     minLength={6}
-                    style={styles.input}
+                    placeholder="••••••••"
                   />
                 </div>
               )}
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Investment Amount *</label>
+              <div className="investors-form-field">
+                <label>Investment Amount *</label>
                 <input
                   type="number"
                   value={form.investmentAmount}
                   onChange={(e) => setForm({ ...form, investmentAmount: e.target.value })}
                   required
                   min="1"
-                  style={styles.input}
+                  placeholder="10000"
                 />
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Currency</label>
+              <div className="investors-form-field">
+                <label>Currency</label>
                 <select
                   value={form.currency}
                   onChange={(e) => setForm({ ...form, currency: e.target.value })}
-                  style={styles.input}
                 >
-                  {CURRENCIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Total Profit Amount *</label>
+              <div className="investors-form-field">
+                <label>Total Profit Amount *</label>
                 <input
                   type="number"
                   value={form.profitAmount}
                   onChange={(e) => setForm({ ...form, profitAmount: e.target.value })}
                   required
                   min="1"
-                  style={styles.input}
+                  placeholder="5000"
                 />
               </div>
-              <div>
-                <label style={{ ...styles.textMuted, fontSize: '13px', display: 'block', marginBottom: '8px' }}>Profit % Per Order</label>
+              <div className="investors-form-field">
+                <label>Profit % Per Order</label>
                 <input
                   type="number"
                   value={form.profitPercentage}
@@ -364,43 +272,16 @@ export default function Investors() {
                   min="0"
                   max="100"
                   step="0.1"
-                  style={styles.input}
+                  placeholder="15"
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={() => { setShowForm(false); resetForm() }}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border-color, #e2e8f0)',
-                  background: 'transparent',
-                  color: 'var(--text-secondary, #64748b)',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
+            <div className="investors-form-actions">
+              <button type="button" className="investors-btn-secondary" onClick={() => { setShowForm(false); resetForm() }}>
                 Cancel
               </button>
-              <button
-                type="submit"
-                disabled={saving}
-                style={{
-                  padding: '12px 32px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                  opacity: saving ? 0.7 : 1,
-                }}
-              >
+              <button type="submit" className="investors-btn-primary" disabled={saving}>
                 {saving ? 'Saving...' : editingInvestor ? 'Update Investor' : 'Create Investor'}
               </button>
             </div>
@@ -409,252 +290,111 @@ export default function Investors() {
       )}
 
       {/* Stats Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-        {[
-          { label: 'Total Investors', value: investors.length, color: '#3b82f6', icon: '👥' },
-          { label: 'Active', value: investors.filter(i => i.investorProfile?.status === 'active').length, color: '#10b981', icon: '✅' },
-          { label: 'Completed', value: investors.filter(i => i.investorProfile?.status === 'completed').length, color: '#8b5cf6', icon: '🏆' },
-          { label: 'Total Invested', value: formatCurrency(investors.reduce((s, i) => s + (i.investorProfile?.investmentAmount || 0), 0), 'SAR'), color: '#f59e0b', icon: '💰' },
-        ].map((stat, i) => (
-          <div key={i} style={styles.card}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <span style={{ fontSize: '20px' }}>{stat.icon}</span>
-              <span style={{ ...styles.textMuted, fontSize: '13px' }}>{stat.label}</span>
+      <div className="investors-stats">
+        {statsData.map((stat, i) => (
+          <div key={i} className="investors-stat-card">
+            <div className="investors-stat-header">
+              <span className="investors-stat-icon">{stat.icon}</span>
+              <span className="investors-stat-label">{stat.label}</span>
             </div>
-            <div style={{ fontSize: '24px', fontWeight: '700', color: stat.color }}>{stat.value}</div>
+            <div className="investors-stat-value" style={{ color: stat.color }}>{stat.value}</div>
           </div>
         ))}
       </div>
 
       {/* Investors Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', ...styles.textMuted }}>Loading investors...</div>
+        <div className="investors-loading">
+          <div className="investors-loading-spinner"></div>
+          <p>Loading investors...</p>
+        </div>
       ) : investors.length === 0 && !showForm ? (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px',
-          ...styles.card,
-          border: '2px dashed var(--border-color, #e2e8f0)',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>💼</div>
-          <p style={{ ...styles.textMuted, fontSize: '16px', marginBottom: '24px' }}>No investors yet. Add your first investor to start tracking profits!</p>
-          <button onClick={openCreate} style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-            color: '#fff',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '12px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}>
-            Add First Investor
-          </button>
+        <div className="investors-empty">
+          <div className="investors-empty-icon">💼</div>
+          <p>No investors yet. Add your first investor to start tracking profits!</p>
+          <button className="investors-btn-primary" onClick={openCreate}>Add First Investor</button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
+        <div className="investors-grid">
           {investors.map((inv) => (
-            <div key={inv._id} style={{
-              ...styles.card,
-              transition: 'box-shadow 0.2s',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)'}
-            onMouseOut={(e) => e.currentTarget.style.boxShadow = 'none'}>
-              {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '18px',
-                    fontWeight: '700',
-                    color: '#fff',
-                  }}>
-                    {inv.firstName?.[0]?.toUpperCase() || '?'}
-                  </div>
-                  <div>
-                    <div style={{ ...styles.text, fontWeight: '600', fontSize: '15px' }}>
-                      {inv.firstName} {inv.lastName}
-                    </div>
-                    <div style={{ ...styles.textMuted, fontSize: '12px' }}>{inv.email}</div>
-                  </div>
+            <div key={inv._id} className="investor-card">
+              <div className="investor-card-header">
+                <div className="investor-card-avatar">
+                  {inv.firstName?.[0]?.toUpperCase() || '?'}
                 </div>
-                {getStatusBadge(inv.investorProfile?.status)}
+                <div className="investor-card-info">
+                  <div className="investor-card-name">{inv.firstName} {inv.lastName}</div>
+                  <div className="investor-card-email">{inv.email}</div>
+                  {inv.phone && <div className="investor-card-phone">{inv.phone}</div>}
+                </div>
+                <span className={`investor-status investor-status-${inv.investorProfile?.status || 'inactive'}`}>
+                  {inv.investorProfile?.status === 'active' ? 'Active' : 
+                   inv.investorProfile?.status === 'completed' ? 'Completed' : 'Paused'}
+                </span>
               </div>
 
-              {/* Investment Details */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                <div style={{ background: 'rgba(59, 130, 246, 0.1)', borderRadius: '10px', padding: '10px' }}>
-                  <div style={{ ...styles.textMuted, fontSize: '11px', textTransform: 'uppercase', marginBottom: '2px' }}>Investment</div>
-                  <div style={{ color: '#3b82f6', fontSize: '16px', fontWeight: '700' }}>
+              <div className="investor-card-details">
+                <div className="investor-detail-box investor-detail-investment">
+                  <span className="investor-detail-label">Investment</span>
+                  <span className="investor-detail-value">
                     {formatCurrency(inv.investorProfile?.investmentAmount, inv.investorProfile?.currency)}
-                  </div>
-                </div>
-                <div style={{ background: 'rgba(139, 92, 246, 0.1)', borderRadius: '10px', padding: '10px' }}>
-                  <div style={{ ...styles.textMuted, fontSize: '11px', textTransform: 'uppercase', marginBottom: '2px' }}>Profit/Order</div>
-                  <div style={{ color: '#8b5cf6', fontSize: '16px', fontWeight: '700' }}>
-                    {inv.investorProfile?.profitPercentage || 0}%
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ ...styles.textMuted, fontSize: '12px' }}>Profit Progress</span>
-                  <span style={{ ...styles.textMuted, fontSize: '12px' }}>
-                    {formatCurrency(inv.investorProfile?.earnedProfit, inv.investorProfile?.currency)} / {formatCurrency(inv.investorProfile?.profitAmount, inv.investorProfile?.currency)}
                   </span>
                 </div>
-                <div style={{ height: '6px', background: 'var(--border-color, #e2e8f0)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%',
-                    width: `${getProgress(inv)}%`,
-                    background: inv.investorProfile?.status === 'completed'
-                      ? 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%)'
-                      : 'linear-gradient(90deg, #10b981 0%, #34d399 100%)',
-                    borderRadius: '3px',
-                    transition: 'width 0.5s ease',
-                  }} />
+                <div className="investor-detail-box investor-detail-profit">
+                  <span className="investor-detail-label">Profit/Order</span>
+                  <span className="investor-detail-value">{inv.investorProfile?.profitPercentage || 0}%</span>
+                </div>
+              </div>
+
+              <div className="investor-progress">
+                <div className="investor-progress-header">
+                  <span>Profit Progress</span>
+                  <span>
+                    {formatCurrency(inv.investorProfile?.earnedProfit, inv.investorProfile?.currency)} / 
+                    {formatCurrency(inv.investorProfile?.profitAmount, inv.investorProfile?.currency)}
+                  </span>
+                </div>
+                <div className="investor-progress-bar">
+                  <div 
+                    className={`investor-progress-fill ${inv.investorProfile?.status === 'completed' ? 'completed' : ''}`}
+                    style={{ width: `${getProgress(inv)}%` }}
+                  />
                 </div>
                 {inv.investorProfile?.status === 'completed' && (
-                  <div style={{
-                    marginTop: '10px',
-                    padding: '6px 10px',
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    borderRadius: '6px',
-                    textAlign: 'center',
-                    color: '#8b5cf6',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                  }}>
-                    🎉 Investment Completed!
-                  </div>
+                  <div className="investor-completed-badge">🎉 Investment Completed!</div>
                 )}
               </div>
 
-              {/* Actions */}
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="investor-card-actions">
                 {inv.investorProfile?.status !== 'completed' && (
-                  <button
+                  <button 
+                    className={`investor-action-btn ${inv.investorProfile?.status === 'active' ? 'pause' : 'start'}`}
                     onClick={() => handleToggleProfit(inv)}
-                    style={{
-                      flex: 1,
-                      padding: '8px',
-                      borderRadius: '8px',
-                      border: 'none',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      background: inv.investorProfile?.status === 'active'
-                        ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
-                        : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                      color: '#fff',
-                    }}
                   >
                     {inv.investorProfile?.status === 'active' ? '⏸️ Pause' : '▶️ Start'}
                   </button>
                 )}
-                <button
-                  onClick={() => openEdit(inv)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color, #e2e8f0)',
-                    background: 'transparent',
-                    color: 'var(--text-secondary, #64748b)',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  ✏️ Edit
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(inv)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    background: 'transparent',
-                    color: '#ef4444',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  🗑️
-                </button>
+                <button className="investor-action-btn edit" onClick={() => openEdit(inv)}>✏️ Edit</button>
+                <button className="investor-action-btn delete" onClick={() => setDeleteConfirm(inv)}>🗑️</button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Delete Confirmation Modal - keeping as modal since it's a destructive action */}
+      {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(4px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }} onClick={() => setDeleteConfirm(null)}>
-          <div style={{
-            background: 'var(--bg-primary, #ffffff)',
-            borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '400px',
-            width: '90%',
-            textAlign: 'center',
-            border: '1px solid rgba(239, 68, 68, 0.2)',
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
-            <h3 style={{ ...styles.text, fontSize: '18px', marginBottom: '8px' }}>Delete Investor?</h3>
-            <p style={{ ...styles.textMuted, fontSize: '14px', marginBottom: '20px' }}>
-              Are you sure you want to delete <strong style={styles.text}>{deleteConfirm.firstName} {deleteConfirm.lastName}</strong>? This action cannot be undone.
+        <div className="investors-modal-overlay" onClick={() => setDeleteConfirm(null)}>
+          <div className="investors-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="investors-modal-icon">⚠️</div>
+            <h3>Delete Investor?</h3>
+            <p>
+              Are you sure you want to delete <strong>{deleteConfirm.firstName} {deleteConfirm.lastName}</strong>? 
+              This action cannot be undone.
             </p>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color, #e2e8f0)',
-                  background: 'transparent',
-                  color: 'var(--text-secondary, #64748b)',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  color: '#fff',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                Delete
-              </button>
+            <div className="investors-modal-actions">
+              <button className="investors-btn-secondary" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+              <button className="investors-btn-danger" onClick={handleDelete}>Delete</button>
             </div>
           </div>
         </div>
