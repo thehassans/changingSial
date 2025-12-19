@@ -1,63 +1,32 @@
-import React, { useState, useEffect } from 'react'
-import { apiGet } from '../../api'
+import React from 'react'
+import { useOutletContext } from 'react-router-dom'
 import './Dashboard.css'
 
 export default function InvestorDashboard() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { user } = useOutletContext()
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  async function loadData() {
-    try {
-      const res = await apiGet('/users/me')
-      setData(res?.user || res) 
-    } catch (err) {
-      console.error('Failed to load investor data:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function handleLogout() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('me')
-    window.location.href = '/login'
-  }
-
-  if (loading) {
-    return (
-      <div className="investor-dashboard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      </div>
-    )
-  }
-
-  if (!data?.investorProfile) {
+  if (!user?.investorProfile) {
     return (
       <div className="investor-dashboard">
         <div className="id-progress-card" style={{ textAlign: 'center' }}>
-           <p className="id-stat-label">Profile not active</p>
-           <button onClick={handleLogout} className="id-logout-btn" style={{ margin: '20px auto' }}>Log Out</button>
+           <p className="id-stat-label">Loading...</p>
         </div>
       </div>
     )
   }
 
-  const { investorProfile, firstName } = data
+  const { investorProfile, firstName } = user
   const { 
     investmentAmount, 
     earnedProfit, 
     profitAmount, 
     profitPercentage, 
     currency, 
-    status,
-    createdAt
+    status
   } = investorProfile
 
-  const progress = Math.min(100, (earnedProfit / profitAmount) * 100)
+  const progress = Math.min(100, profitAmount > 0 ? (earnedProfit / profitAmount) * 100 : 0)
+  const remaining = Math.max(0, profitAmount - earnedProfit)
   const isCompleted = status === 'completed'
 
   return (
@@ -68,14 +37,28 @@ export default function InvestorDashboard() {
            <div className="id-welcome-label">Welcome back</div>
            <h1 className="id-user-name">{firstName}</h1>
         </div>
-        <button onClick={handleLogout} className="id-logout-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Sign Out
-        </button>
+      </div>
+
+      {/* Target Profit Hero Card */}
+      <div className="id-target-hero">
+        <div className="id-target-glow" />
+        <div className="id-target-content">
+          <div className="id-target-icon">🎯</div>
+          <div className="id-target-label">Target Profit</div>
+          <div className="id-target-value">
+            {Number(profitAmount).toLocaleString()}
+            <span className="id-target-currency">{currency}</span>
+          </div>
+          <div className="id-target-remaining">
+            {isCompleted ? (
+              <span className="id-target-complete">🎉 Target Achieved!</span>
+            ) : (
+              <>
+                <span>{Number(remaining).toLocaleString()} {currency}</span> remaining
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -102,56 +85,56 @@ export default function InvestorDashboard() {
           </div>
         </div>
 
-        <div className="id-stat-card" style={{ '--card-color-1': '#8b5cf6', '--card-color-2': '#a78bfa', '--card-bg-1': '#8b5cf6', '--card-bg-2': '#7c3aed' }}>
+        <div className="id-stat-card" style={{ '--card-color-1': '#f59e0b', '--card-color-2': '#fbbf24', '--card-bg-1': '#f59e0b', '--card-bg-2': '#d97706' }}>
           <div className="id-stat-icon-wrapper">
-            <span>🎯</span>
+            <span>⚡</span>
           </div>
-          <div className="id-stat-label">Target Profit</div>
+          <div className="id-stat-label">Profit Rate</div>
           <div className="id-stat-value">
-            {Number(profitAmount).toLocaleString()}
-            <span className="id-stat-currency">{currency}</span>
+            {profitPercentage}%
+            <span className="id-stat-currency">per order</span>
           </div>
         </div>
       </div>
 
-      {/* Progress & Details */}
+      {/* Progress Card */}
       <div className="id-progress-card">
         <div className="id-progress-header">
-           <h2 className="id-card-title">Investment Progress</h2>
-           <span style={{ fontSize: '24px', fontWeight: '800', color: '#3b82f6' }}>{progress.toFixed(1)}%</span>
+           <h2 className="id-card-title">Progress to Target</h2>
+           <span style={{ fontSize: '24px', fontWeight: '800', color: '#8b5cf6' }}>{progress.toFixed(1)}%</span>
         </div>
         
         <div className="id-progress-track">
           <div 
             className="id-progress-fill"
-            style={{ width: `${Math.max(2, progress)}%` }} // Ensure at least tiny bit visible
+            style={{ width: `${Math.max(2, progress)}%` }}
           />
         </div>
 
         <div className={`id-status-badge ${status === 'active' ? 'active' : ''}`}>
           <div className="id-status-dot" />
-          STATUS: {status}
-          {isCompleted && ' - COMPLETED 🎉'}
+          STATUS: {status?.toUpperCase()}
+          {isCompleted && ' 🎉'}
         </div>
 
         <div className="id-details-grid">
            <div className="id-detail-item">
-              <span className="id-detail-label">Profit Rate</span>
-              <span className="id-detail-value">{profitPercentage}% <span style={{fontSize: '14px', fontWeight: '400', color: '#94a3b8'}}>per order</span></span>
+              <span className="id-detail-label">Invested</span>
+              <span className="id-detail-value" style={{ color: '#3b82f6' }}>{Number(investmentAmount).toLocaleString()} {currency}</span>
            </div>
            
            <div className="id-detail-item">
-              <span className="id-detail-label">Started Date</span>
-              <span className="id-detail-value">{new Date(createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span className="id-detail-label">Earned</span>
+              <span className="id-detail-value" style={{ color: '#10b981' }}>{Number(earnedProfit).toLocaleString()} {currency}</span>
            </div>
 
            <div className="id-detail-item">
-              <span className="id-detail-label">Account ID</span>
-              <span className="id-detail-value" style={{ fontFamily: 'monospace', fontSize: '14px' }}>{data._id}</span>
+              <span className="id-detail-label">Target</span>
+              <span className="id-detail-value" style={{ color: '#8b5cf6' }}>{Number(profitAmount).toLocaleString()} {currency}</span>
            </div>
         </div>
-
       </div>
     </div>
   )
 }
+

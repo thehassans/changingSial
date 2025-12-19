@@ -39,6 +39,9 @@ import DriverProfile from './pages/driver/Profile.jsx'
 import DriverDashboard from './pages/driver/Dashboard.jsx'
 import DriverPanel from './pages/driver/DriverPanel.jsx'
 import InvestorDashboard from './pages/investor/Dashboard.jsx'
+import InvestorLayout from './layout/InvestorLayout.jsx'
+import InvestorTransactions from './pages/investor/Transactions.jsx'
+import InvestorProfile from './pages/investor/Profile.jsx'
 import DriverMe from './pages/driver/Me.jsx'
 import DriverPayout from './pages/driver/Payout.jsx'
 import DriverAssigned from './pages/driver/Assigned.jsx'
@@ -348,17 +351,21 @@ export default function App() {
             {/* Staff/Admin Login */}
             <Route path="/login" element={<UserLogin />} />
 
-            {/* Investor Dashboard */}
+            {/* Investor Portal with Layout */}
             <Route
               path="/investor"
               element={
                 <RequireAuth>
                   <RequireRole roles={['investor']}>
-                    <InvestorDashboard />
+                    <InvestorLayout />
                   </RequireRole>
                 </RequireAuth>
               }
-            />
+            >
+              <Route index element={<InvestorDashboard />} />
+              <Route path="transactions" element={<InvestorTransactions />} />
+              <Route path="profile" element={<InvestorProfile />} />
+            </Route>
 
             {/* Redirects for Admin Shortcuts */}
             <Route path="/investors" element={<Navigate to="/user/investors" replace />} />
