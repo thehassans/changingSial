@@ -58,7 +58,7 @@ import WhatsAppInbox from './pages/inbox/WhatsAppInbox.jsx'
 
 import Agents from './pages/user/Agents.jsx'
 import Managers from './pages/user/Managers.jsx'
-import Investors from './pages/user/Investors.jsx'
+import Investors from './pages/user/Investors.jsx.old'
 import Drivers from './pages/user/Drivers.jsx'
 import Dropshippers from './pages/user/Dropshippers.jsx'
 import Notifications from './pages/user/Notifications.jsx'
