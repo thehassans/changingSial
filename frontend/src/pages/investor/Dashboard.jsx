@@ -12,15 +12,10 @@ export default function InvestorDashboard() {
 
   async function loadData() {
     try {
-      // Fetch specifically for the logged-in investor
-      const res = await apiGet('/users/investors/me/metrics')
-      // Response structure from backend: { user: { ... } } or just user object? 
-      // Checking backend users.js: res.json({ user: list[0] }) or logic?
-      // Actually backend snippet 2157 calls User.findById... then res.json(inv) ?? 
-      // Snippet was cut off. Usually standard is res.json({ ... }).
-      // Let's assume it returns the user object directly or wrapped.
-      // I'll check response structure safely.
-      setData(res?.user || res) // Handle both { user: ... } and direct user object
+      // Fetch specifically for the logged-in investor using standard /me endpoint
+      const res = await apiGet('/users/me')
+      // Response is { user: ... }
+      setData(res?.user || res) 
     } catch (err) {
       console.error('Failed to load investor data:', err)
     } finally {
