@@ -3,8 +3,16 @@
 .investors-container {
   padding: 20px;
   min-height: 100vh;
-  background: var(--bg-primary, #f8fafc);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: transparent; /* Inherit from parent layout */
+  font-family: var(--theme-body-font, 'Inter'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Theme variables - inherit from app's theme system */
+  --bg-primary: var(--theme-card-bg, #f8fafc);
+  --bg-secondary: var(--theme-card-bg, #ffffff);
+  --text-primary: var(--theme-header-text, #1e293b);
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: var(--theme-border, 1px solid #e2e8f0);
 }
 
 /* Header */
@@ -676,28 +684,7 @@
   flex: 1;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .investors-container {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-color: #334155;
-  }
-}
-
-/* Manual Dark Mode via body class */
-body.dark-mode .investors-container,
-[data-theme="dark"] .investors-container {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --border-color: #334155;
-}
+/* Theme now inherits from app's ThemeContext via CSS variables */
 
 /* ============================================
    COMPREHENSIVE MOBILE RESPONSIVE BREAKPOINTS
