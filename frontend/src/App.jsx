@@ -274,11 +274,9 @@ function CustomDomainRouter({ children }) {
       try {
         const hostname = window.location.hostname.toLowerCase()
 
-        // Skip check for web.buysial.com, hassanscode.com and localhost
+        // Skip check for web.buysial.com and localhost
         if (
           hostname === 'web.buysial.com' ||
-          hostname === 'hassanscode.com' ||
-          hostname === 'www.hassanscode.com' ||
           hostname === 'localhost' ||
           hostname === '127.0.0.1'
         ) {
@@ -318,10 +316,10 @@ function CustomDomainRouter({ children }) {
 
   if (checking) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-gray-500">
-        <div className="flex flex-col items-center gap-3">
-          <div className="spinner border-4 border-gray-300 border-t-primary w-8 h-8 rounded-full animate-spin" />
-          <div className="font-medium animate-pulse">Loading store...</div>
+      <div style={{ display: 'grid', placeItems: 'center', height: '100vh', color: '#9aa4b2' }}>
+        <div style={{ display: 'grid', gap: 8, justifyItems: 'center' }}>
+          <div className="spinner" />
+          <div>Loading store...</div>
         </div>
       </div>
     )
