@@ -3,16 +3,9 @@
 .investors-container {
   padding: 20px;
   min-height: 100vh;
-  background: transparent; /* Inherit from parent layout */
-  font-family: var(--theme-body-font, 'Inter'), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  /* Theme variables - inherit from app's theme system */
-  --bg-primary: var(--theme-card-bg, #f8fafc);
-  --bg-secondary: var(--theme-card-bg, #ffffff);
-  --text-primary: var(--theme-header-text, #1e293b);
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --border-color: var(--theme-border, 1px solid #e2e8f0);
+  background: inherit;
+  color: inherit;
+  font-family: inherit;
 }
 
 /* Header */
@@ -37,7 +30,7 @@
 }
 
 .investors-subtitle {
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-size: 14px;
   margin: 0;
 }
@@ -84,8 +77,8 @@
 }
 
 .investors-stat-card {
-  background: var(--bg-secondary, #fff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 20px;
   transition: all 0.3s ease;
@@ -126,7 +119,7 @@
 }
 
 .investors-stat-label {
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-size: 13px;
   font-weight: 500;
 }
@@ -138,8 +131,8 @@
 
 /* Form Card */
 .investors-form-card {
-  background: var(--bg-secondary, #fff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 24px;
@@ -168,7 +161,7 @@
 .investors-form-title {
   font-size: 20px;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: #1e293b;
   margin: 0;
 }
 
@@ -177,7 +170,7 @@
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   width: 40px;
   height: 40px;
   display: flex;
@@ -188,8 +181,8 @@
 }
 
 .investors-form-close:hover {
-  background: var(--bg-primary, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 .investors-form-error {
@@ -217,7 +210,7 @@
 }
 
 .investors-form-field label {
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
@@ -229,9 +222,9 @@
   width: 100%;
   padding: 14px 18px;
   border-radius: 12px;
-  border: 2px solid var(--border-color, #e2e8f0);
-  background: var(--bg-primary, #f8fafc);
-  color: var(--text-primary, #1e293b);
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  color: #1e293b;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.2s ease;
@@ -241,12 +234,12 @@
 .investors-form-field input:focus,
 .investors-form-field select:focus {
   border-color: #3b82f6;
-  background: var(--bg-secondary, #fff);
+  background: #ffffff;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .investors-form-field input::placeholder {
-  color: var(--text-muted, #94a3b8);
+  color: #94a3b8;
 }
 
 .investors-form-actions {
@@ -280,8 +273,8 @@
 
 .investors-btn-secondary {
   background: transparent;
-  color: var(--text-secondary, #64748b);
-  border: 2px solid var(--border-color, #e2e8f0);
+  color: #64748b;
+  border: 2px solid #e2e8f0;
   padding: 14px 24px;
   border-radius: 12px;
   font-size: 14px;
@@ -291,8 +284,8 @@
 }
 
 .investors-btn-secondary:hover {
-  background: var(--bg-primary, #f1f5f9);
-  border-color: var(--text-secondary, #94a3b8);
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 .investors-btn-danger {
@@ -319,13 +312,13 @@
   align-items: center;
   justify-content: center;
   padding: 80px 20px;
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
 }
 
 .investors-loading-spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid var(--border-color, #e2e8f0);
+  border: 4px solid #e2e8f0;
   border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -340,8 +333,8 @@
 .investors-empty {
   text-align: center;
   padding: 80px 24px;
-  background: var(--bg-secondary, #fff);
-  border: 2px dashed var(--border-color, #e2e8f0);
+  background: #ffffff;
+  border: 2px dashed #e2e8f0;
   border-radius: 20px;
 }
 
@@ -351,7 +344,7 @@
 }
 
 .investors-empty p {
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-size: 16px;
   margin-bottom: 24px;
   max-width: 400px;
@@ -374,8 +367,8 @@
 
 /* Investor Card */
 .investor-card {
-  background: var(--bg-secondary, #fff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
   padding: 24px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -434,18 +427,18 @@
 .investor-card-name {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: #1e293b;
   margin-bottom: 2px;
 }
 
 .investor-card-email {
   font-size: 13px;
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
 }
 
 .investor-card-phone {
   font-size: 12px;
-  color: var(--text-muted, #94a3b8);
+  color: #94a3b8;
   margin-top: 2px;
 }
 
@@ -503,7 +496,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-weight: 600;
 }
 
@@ -530,12 +523,12 @@
   justify-content: space-between;
   margin-bottom: 8px;
   font-size: 12px;
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
 }
 
 .investor-progress-bar {
   height: 8px;
-  background: var(--border-color, #e2e8f0);
+  background: #e2e8f0;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -593,13 +586,13 @@
 
 .investor-action-btn.edit {
   background: transparent;
-  border: 2px solid var(--border-color, #e2e8f0);
-  color: var(--text-secondary, #64748b);
+  border: 2px solid #e2e8f0;
+  color: #64748b;
 }
 
 .investor-action-btn.edit:hover {
-  background: var(--bg-primary, #f1f5f9);
-  color: var(--text-primary, #1e293b);
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
 .investor-action-btn.delete {
@@ -632,7 +625,7 @@
 }
 
 .investors-modal {
-  background: var(--bg-secondary, #fff);
+  background: #ffffff;
   border-radius: 20px;
   padding: 32px;
   max-width: 420px;
@@ -660,19 +653,19 @@
 .investors-modal h3 {
   font-size: 22px;
   font-weight: 700;
-  color: var(--text-primary, #1e293b);
+  color: #1e293b;
   margin: 0 0 12px 0;
 }
 
 .investors-modal p {
-  color: var(--text-secondary, #64748b);
+  color: #64748b;
   font-size: 14px;
   margin-bottom: 24px;
   line-height: 1.6;
 }
 
 .investors-modal p strong {
-  color: var(--text-primary, #1e293b);
+  color: #1e293b;
 }
 
 .investors-modal-actions {
