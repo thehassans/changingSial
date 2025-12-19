@@ -107,11 +107,26 @@ export default function Investors() {
   }
 
   const handleToggleProfit = async (investor) => {
+    // Optimistic update - update UI immediately
+    const newStatus = investor.investorProfile?.status === 'active' ? 'inactive' : 'active'
+    setInvestors(prev => prev.map(inv => 
+      inv._id === investor._id 
+        ? { ...inv, investorProfile: { ...inv.investorProfile, status: newStatus } }
+        : inv
+    ))
+    
     try {
       await apiPost(`/users/investors/${investor._id}/toggle-profit`)
+      // Refresh to get accurate data from server
       loadInvestors()
     } catch (err) {
       console.error('Failed to toggle profit:', err)
+      // Revert on error
+      setInvestors(prev => prev.map(inv => 
+        inv._id === investor._id 
+          ? { ...inv, investorProfile: { ...inv.investorProfile, status: investor.investorProfile?.status } }
+          : inv
+      ))
     }
   }
 
