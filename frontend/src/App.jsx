@@ -38,6 +38,7 @@ import AgentPayout from './pages/agent/Payout.jsx'
 import DriverProfile from './pages/driver/Profile.jsx'
 import DriverDashboard from './pages/driver/Dashboard.jsx'
 import DriverPanel from './pages/driver/DriverPanel.jsx'
+import InvestorDashboard from './pages/investor/Dashboard.jsx'
 import DriverMe from './pages/driver/Me.jsx'
 import DriverPayout from './pages/driver/Payout.jsx'
 import DriverAssigned from './pages/driver/Assigned.jsx'
@@ -213,6 +214,7 @@ function RequireRole({ roles = [], children }) {
     if (role === 'manager') return <Navigate to="/manager" replace />
 
     if (role === 'dropshipper') return <Navigate to="/dropshipper" replace />
+    if (role === 'investor') return <Navigate to="/investor" replace />
     if (role === 'admin' || role === 'user') return <Navigate to="/user" replace />
     return <Navigate to="/login" replace />
   }
@@ -346,8 +348,19 @@ export default function App() {
             {/* Staff/Admin Login */}
             <Route path="/login" element={<UserLogin />} />
 
-            {/* Redirects for Investor shortcuts */}
-            <Route path="/investor" element={<Navigate to="/user/investors" replace />} />
+            {/* Investor Dashboard */}
+            <Route
+              path="/investor"
+              element={
+                <RequireAuth>
+                  <RequireRole roles={['investor']}>
+                    <InvestorDashboard />
+                  </RequireRole>
+                </RequireAuth>
+              }
+            />
+
+            {/* Redirects for Admin Shortcuts */}
             <Route path="/investors" element={<Navigate to="/user/investors" replace />} />
 
 
