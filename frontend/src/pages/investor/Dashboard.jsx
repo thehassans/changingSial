@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { apiGet } from '../../api'
-import '../user/Investors.css'
+import './Dashboard.css'
 
 export default function InvestorDashboard() {
   const [data, setData] = useState(null)
@@ -12,9 +12,7 @@ export default function InvestorDashboard() {
 
   async function loadData() {
     try {
-      // Fetch specifically for the logged-in investor using standard /me endpoint
       const res = await apiGet('/users/me')
-      // Response is { user: ... }
       setData(res?.user || res) 
     } catch (err) {
       console.error('Failed to load investor data:', err)
@@ -31,19 +29,18 @@ export default function InvestorDashboard() {
 
   if (loading) {
     return (
-      <div className="investors-loading">
-        <div className="investors-loading-spinner" />
-        <p>Loading your dashboard...</p>
+      <div className="investor-dashboard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ width: '40px', height: '40px', border: '3px solid #e2e8f0', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
       </div>
     )
   }
 
   if (!data?.investorProfile) {
     return (
-      <div className="investors-container">
-        <div className="investors-empty">
-           <p>Profile not found or not active.</p>
-           <button onClick={handleLogout} className="investors-btn-secondary">Log Out</button>
+      <div className="investor-dashboard">
+        <div className="id-progress-card" style={{ textAlign: 'center' }}>
+           <p className="id-stat-label">Profile not active</p>
+           <button onClick={handleLogout} className="id-logout-btn" style={{ margin: '20px auto' }}>Log Out</button>
         </div>
       </div>
     )
@@ -56,22 +53,23 @@ export default function InvestorDashboard() {
     profitAmount, 
     profitPercentage, 
     currency, 
-    status 
+    status,
+    createdAt
   } = investorProfile
 
   const progress = Math.min(100, (earnedProfit / profitAmount) * 100)
   const isCompleted = status === 'completed'
 
   return (
-    <div className="investors-container" style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Custom Header for Investor */}
-      <div className="investors-header">
+    <div className="investor-dashboard">
+      {/* Header */}
+      <div className="id-header">
         <div>
-           <div className="investors-subtitle">Welcome back,</div>
-           <h1 className="investors-title">{firstName}</h1>
+           <div className="id-welcome-label">Welcome back</div>
+           <h1 className="id-user-name">{firstName}</h1>
         </div>
-        <button onClick={handleLogout} className="investors-btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <button onClick={handleLogout} className="id-logout-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
@@ -80,80 +78,76 @@ export default function InvestorDashboard() {
         </button>
       </div>
 
-      {/* Main Stats Grid */}
-      <div className="investors-stats" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-        <div className="investors-stat-card">
-          <div className="investors-stat-header">
-            <span className="investors-stat-icon">💰</span>
-            <span className="investors-stat-label">TOTAL INVESTMENT</span>
+      {/* Stats Grid */}
+      <div className="id-stats-grid">
+        <div className="id-stat-card" style={{ '--card-color-1': '#3b82f6', '--card-color-2': '#60a5fa', '--card-bg-1': '#3b82f6', '--card-bg-2': '#2563eb' }}>
+          <div className="id-stat-icon-wrapper">
+            <span>💰</span>
           </div>
-          <div className="investors-stat-value" style={{ color: '#3b82f6' }}>
-            {Number(investmentAmount).toLocaleString()} <span style={{ fontSize: '0.6em', opacity: 0.7 }}>{currency}</span>
-          </div>
-        </div>
-
-        <div className="investors-stat-card">
-          <div className="investors-stat-header">
-            <span className="investors-stat-icon">📈</span>
-            <span className="investors-stat-label">PROFIT EARNED</span>
-          </div>
-          <div className="investors-stat-value" style={{ color: '#10b981' }}>
-            {Number(earnedProfit).toLocaleString()} <span style={{ fontSize: '0.6em', opacity: 0.7 }}>{currency}</span>
+          <div className="id-stat-label">Total Investment</div>
+          <div className="id-stat-value">
+            {Number(investmentAmount).toLocaleString()}
+            <span className="id-stat-currency">{currency}</span>
           </div>
         </div>
 
-        <div className="investors-stat-card">
-          <div className="investors-stat-header">
-            <span className="investors-stat-icon">🎯</span>
-            <span className="investors-stat-label">TARGET PROFIT</span>
+        <div className="id-stat-card" style={{ '--card-color-1': '#10b981', '--card-color-2': '#34d399', '--card-bg-1': '#10b981', '--card-bg-2': '#059669' }}>
+          <div className="id-stat-icon-wrapper">
+            <span>📈</span>
           </div>
-          <div className="investors-stat-value" style={{ color: '#8b5cf6' }}>
-            {Number(profitAmount).toLocaleString()} <span style={{ fontSize: '0.6em', opacity: 0.7 }}>{currency}</span>
+          <div className="id-stat-label">Profit Earned</div>
+          <div className="id-stat-value">
+            {Number(earnedProfit).toLocaleString()}
+            <span className="id-stat-currency">{currency}</span>
+          </div>
+        </div>
+
+        <div className="id-stat-card" style={{ '--card-color-1': '#8b5cf6', '--card-color-2': '#a78bfa', '--card-bg-1': '#8b5cf6', '--card-bg-2': '#7c3aed' }}>
+          <div className="id-stat-icon-wrapper">
+            <span>🎯</span>
+          </div>
+          <div className="id-stat-label">Target Profit</div>
+          <div className="id-stat-value">
+            {Number(profitAmount).toLocaleString()}
+            <span className="id-stat-currency">{currency}</span>
           </div>
         </div>
       </div>
 
-      {/* Progress Section */}
-      <div className="investors-form-card">
-        <div className="investor-progress">
-          <div className="investor-progress-header">
-             <span>Profit Progress</span>
-             <span>{progress.toFixed(1)}%</span>
-          </div>
-          <div className="investor-progress-bar">
-            <div 
-              className={`investor-progress-fill ${isCompleted ? 'completed' : ''}`}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-           {isCompleted ? (
-             <div className="investor-completed-badge mt-4">
-               🎉 Investment Completed! You have reached your profit target.
-             </div>
-           ) : (
-             <div className="investor-status-active" style={{ display: 'inline-block', marginTop: '16px', borderRadius: '8px' }}>
-                STATUS: {status.toUpperCase()}
-             </div>
-           )}
+      {/* Progress & Details */}
+      <div className="id-progress-card">
+        <div className="id-progress-header">
+           <h2 className="id-card-title">Investment Progress</h2>
+           <span style={{ fontSize: '24px', fontWeight: '800', color: '#3b82f6' }}>{progress.toFixed(1)}%</span>
         </div>
         
-        <div className="investors-grid" style={{ marginTop: '30px', gridTemplateColumns: '1fr' }}>
-           <div style={{ padding: '20px', background: '#f8fafc', borderRadius: '12px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px', color: '#1e293b' }}>Investment Details</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                 <div>
-                    <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Profit Rate</span>
-                    <div style={{ fontSize: '18px', fontWeight: '600' }}>{profitPercentage}% <span style={{ fontSize: '12px', fontWeight: 'normal' }}>per order</span></div>
-                 </div>
-                 <div>
-                    <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Started Date</span>
-                    <div style={{ fontSize: '18px', fontWeight: '600' }}>{new Date(data.createdAt).toLocaleDateString()}</div>
-                 </div>
-                 <div>
-                   <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Account ID</span>
-                   <div style={{ fontSize: '14px', fontFamily: 'monospace', color: '#64748b' }}>{data._id}</div>
-                 </div>
-              </div>
+        <div className="id-progress-track">
+          <div 
+            className="id-progress-fill"
+            style={{ width: `${Math.max(2, progress)}%` }} // Ensure at least tiny bit visible
+          />
+        </div>
+
+        <div className={`id-status-badge ${status === 'active' ? 'active' : ''}`}>
+          <div className="id-status-dot" />
+          STATUS: {status}
+          {isCompleted && ' - COMPLETED 🎉'}
+        </div>
+
+        <div className="id-details-grid">
+           <div className="id-detail-item">
+              <span className="id-detail-label">Profit Rate</span>
+              <span className="id-detail-value">{profitPercentage}% <span style={{fontSize: '14px', fontWeight: '400', color: '#94a3b8'}}>per order</span></span>
+           </div>
+           
+           <div className="id-detail-item">
+              <span className="id-detail-label">Started Date</span>
+              <span className="id-detail-value">{new Date(createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+           </div>
+
+           <div className="id-detail-item">
+              <span className="id-detail-label">Account ID</span>
+              <span className="id-detail-value" style={{ fontFamily: 'monospace', fontSize: '14px' }}>{data._id}</span>
            </div>
         </div>
 
