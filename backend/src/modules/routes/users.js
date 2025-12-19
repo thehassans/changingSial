@@ -1505,7 +1505,272 @@ router.patch(
   }
 );
 
-// Investor routes removed - investor feature deprecated
+// ====== INVESTOR CRUD ======
+
+// List investors (admin => all, user => own)
+router.get(
+  "/investors",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { q = "" } = req.query || {};
+      const cond = { role: "investor" };
+      
+      // Scope to owner's investors
+      if (req.user.role !== "admin") {
+        cond.createdBy = req.user.id;
+      }
+
+      const text = q.trim();
+      if (text) {
+        cond.$or = [
+          { firstName: { $regex: text, $options: "i" } },
+          { lastName: { $regex: text, $options: "i" } },
+          { email: { $regex: text, $options: "i" } },
+          { phone: { $regex: text, $options: "i" } },
+        ];
+      }
+
+      const users = await User.find(cond, "-password").sort({ createdAt: -1 });
+      res.json({ users });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to load investors" });
+    }
+  }
+);
+
+// Create investor (user only)
+router.post(
+  "/investors",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const {
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        investmentAmount,
+        profitAmount,
+        profitPercentage,
+        currency,
+      } = req.body || {};
+
+      if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+      if (!investmentAmount || investmentAmount <= 0) {
+        return res.status(400).json({ message: "Investment amount is required" });
+      }
+      if (!profitAmount || profitAmount <= 0) {
+        return res.status(400).json({ message: "Total profit amount is required" });
+      }
+
+      const exists = await User.findOne({ email });
+      if (exists) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+
+      const CUR = ["AED", "SAR", "OMR", "BHD", "INR", "KWD", "QAR", "USD", "CNY"];
+      const cur = CUR.includes(currency) ? currency : "SAR";
+
+      const investor = new User({
+        firstName,
+        lastName,
+        email,
+        password,
+        phone,
+        role: "investor",
+        createdBy: req.user.id,
+        investorProfile: {
+          investmentAmount: Math.max(0, Number(investmentAmount)),
+          profitAmount: Math.max(0, Number(profitAmount)),
+          profitPercentage: Math.max(0, Math.min(100, Number(profitPercentage || 15))),
+          earnedProfit: 0,
+          totalReturn: Math.max(0, Number(investmentAmount)),
+          currency: cur,
+          status: "active",
+        },
+      });
+      await investor.save();
+
+      // Broadcast investor created event
+      try {
+        const io = getIO();
+        io.to(`workspace:${req.user.id}`).emit("investor.created", {
+          id: String(investor._id),
+        });
+      } catch {}
+
+      const populated = await User.findById(investor._id, "-password");
+      res.status(201).json({ message: "Investor created", user: populated });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to create investor" });
+    }
+  }
+);
+
+// Update investor (user only)
+router.patch(
+  "/investors/:id",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        firstName,
+        lastName,
+        email,
+        phone,
+        investmentAmount,
+        profitAmount,
+        profitPercentage,
+        currency,
+      } = req.body || {};
+
+      const investor = await User.findOne({ _id: id, role: "investor" });
+      if (!investor) {
+        return res.status(404).json({ message: "Investor not found" });
+      }
+
+      // Check ownership
+      if (req.user.role !== "admin" && String(investor.createdBy) !== String(req.user.id)) {
+        return res.status(403).json({ message: "Not allowed" });
+      }
+
+      // Update fields
+      if (firstName) investor.firstName = firstName;
+      if (lastName) investor.lastName = lastName;
+      if (email) investor.email = email;
+      if (phone !== undefined) investor.phone = phone;
+
+      // Update investment details only if not completed
+      if (investor.investorProfile.status !== "completed") {
+        if (investmentAmount !== undefined) {
+          investor.investorProfile.investmentAmount = Math.max(0, Number(investmentAmount));
+          investor.investorProfile.totalReturn = 
+            investor.investorProfile.investmentAmount + (investor.investorProfile.earnedProfit || 0);
+        }
+        if (profitAmount !== undefined) {
+          investor.investorProfile.profitAmount = Math.max(0, Number(profitAmount));
+        }
+        if (profitPercentage !== undefined) {
+          investor.investorProfile.profitPercentage = Math.max(0, Math.min(100, Number(profitPercentage)));
+        }
+      }
+
+      const CUR = ["AED", "SAR", "OMR", "BHD", "INR", "KWD", "QAR", "USD", "CNY"];
+      if (currency && CUR.includes(currency)) {
+        investor.investorProfile.currency = currency;
+      }
+
+      investor.markModified("investorProfile");
+      await investor.save();
+
+      // Broadcast update
+      try {
+        const io = getIO();
+        io.to(`workspace:${String(investor.createdBy)}`).emit("investor.updated", {
+          id: String(investor._id),
+        });
+      } catch {}
+
+      const populated = await User.findById(investor._id, "-password");
+      res.json({ message: "Investor updated", user: populated });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to update investor" });
+    }
+  }
+);
+
+// Toggle investor profit (start/pause)
+router.post(
+  "/investors/:id/toggle-profit",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const investor = await User.findOne({ _id: id, role: "investor" });
+      
+      if (!investor) {
+        return res.status(404).json({ message: "Investor not found" });
+      }
+
+      // Check ownership
+      if (req.user.role !== "admin" && String(investor.createdBy) !== String(req.user.id)) {
+        return res.status(403).json({ message: "Not allowed" });
+      }
+
+      // Can't toggle completed investors
+      if (investor.investorProfile.status === "completed") {
+        return res.status(400).json({ message: "Cannot toggle completed investment" });
+      }
+
+      // Toggle between active and paused
+      const currentStatus = investor.investorProfile.status;
+      investor.investorProfile.status = currentStatus === "active" ? "inactive" : "active";
+      investor.markModified("investorProfile");
+      await investor.save();
+
+      // Broadcast update
+      try {
+        const io = getIO();
+        io.to(`workspace:${String(investor.createdBy)}`).emit("investor.updated", {
+          id: String(investor._id),
+        });
+      } catch {}
+
+      res.json({ 
+        message: `Profit ${investor.investorProfile.status === "active" ? "started" : "paused"}`,
+        status: investor.investorProfile.status,
+        user: investor,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to toggle profit" });
+    }
+  }
+);
+
+// Delete investor
+router.delete(
+  "/investors/:id",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const investor = await User.findOne({ _id: id, role: "investor" });
+      
+      if (!investor) {
+        return res.status(404).json({ message: "Investor not found" });
+      }
+
+      // Check ownership
+      if (req.user.role !== "admin" && String(investor.createdBy) !== String(req.user.id)) {
+        return res.status(403).json({ message: "Not allowed" });
+      }
+
+      await User.deleteOne({ _id: id });
+
+      // Broadcast deletion
+      try {
+        const io = getIO();
+        io.to(`workspace:${String(investor.createdBy)}`).emit("investor.deleted", {
+          id: String(id),
+        });
+      } catch {}
+
+      res.json({ message: "Investor deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: error.message || "Failed to delete investor" });
+    }
+  }
+);
 
 // Drivers CRUD
 // List drivers (admin => all, user => own, manager => owner's drivers)
