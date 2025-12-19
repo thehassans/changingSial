@@ -30,7 +30,6 @@ router.get('/', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (re
       'driver_settlement',
       'manager_remittance',
       'agent_remittance',
-      'investor_remittance',
       'expense_approval',
       'driver_remittance',
       'return_request'
@@ -142,7 +141,6 @@ router.get('/stats', auth, allowRoles('admin', 'user', 'agent', 'manager'), asyn
       'driver_settlement',
       'manager_remittance',
       'agent_remittance',
-      'investor_remittance',
       'expense_approval',
       'driver_remittance',
       'return_request'

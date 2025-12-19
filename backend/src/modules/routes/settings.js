@@ -64,7 +64,7 @@ function defaultCurrencyConfig() {
 router.get(
   "/currency",
   auth,
-  allowRoles("admin", "user", "manager", "investor"),
+  allowRoles("admin", "user", "manager"),
   async (_req, res) => {
     try {
       const doc = await Setting.findOne({ key: "currency" }).lean();

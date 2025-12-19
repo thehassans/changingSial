@@ -176,7 +176,6 @@ export default function Notifications() {
       case 'driver_settlement':
       case 'manager_remittance':
       case 'agent_remittance':
-      case 'investor_remittance':
         return (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="12" y1="1" x2="12" y2="23"/>
@@ -200,7 +199,6 @@ export default function Notifications() {
       case 'driver_settlement': return 'Driver Settlement'
       case 'manager_remittance': return 'Manager Remittance'
       case 'agent_remittance': return 'Agent Remittance'
-      case 'investor_remittance': return 'Investor Remittance'
       case 'amount_approval': return 'Amount Approval'
       case 'expense_approval': return 'Expense Approval'
       default: return 'Notification'
@@ -234,7 +232,6 @@ export default function Notifications() {
       case 'driver_settlement':
       case 'manager_remittance':
       case 'agent_remittance':
-      case 'investor_remittance':
         return {
           gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
           bg: 'rgba(16, 185, 129, 0.05)',

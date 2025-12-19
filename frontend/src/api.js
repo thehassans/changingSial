@@ -249,14 +249,7 @@ export async function apiPost(path, body) {
   const url = buildUrl(path)
   const isLogin =
     /\/auth\/login$/.test(path) || /\/api\/auth\/login$/.test(path) || path.includes('/auth/login')
-  const isInvestorRegister = path.includes('/auth/register-investor')
   const headers = { 'Content-Type': 'application/json', ...authHeader() }
-  // Add a lightweight idempotency key for registration attempts (safe if server ignores)
-  if (isInvestorRegister) {
-    try {
-      headers['X-Idempotency-Key'] = genIdempotencyKey()
-    } catch {}
-  }
   const init = {
     method: 'POST',
     headers,
@@ -264,8 +257,8 @@ export async function apiPost(path, body) {
     keepalive: true,
     cache: 'no-store',
   }
-  // Retries: login (safe) up to 2 on network errors/502-504; register (cautious) 1 on network errors only
-  const retries = isLogin ? 2 : isInvestorRegister ? 1 : 0
+  // Retries: login (safe) up to 2 on network errors/502-504
+  const retries = isLogin ? 2 : 0
   const res = await fetchWithPostResilience(url, init, {
     retries,
     timeoutMs: 12000,
