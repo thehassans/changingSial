@@ -346,6 +346,10 @@ export default function App() {
             {/* Staff/Admin Login */}
             <Route path="/login" element={<UserLogin />} />
 
+            {/* Redirects for Investor shortcuts */}
+            <Route path="/investor" element={<Navigate to="/user/investors" replace />} />
+            <Route path="/investors" element={<Navigate to="/user/investors" replace />} />
+
 
             {/* Print Label (standalone, minimal UI) */}
             <Route
