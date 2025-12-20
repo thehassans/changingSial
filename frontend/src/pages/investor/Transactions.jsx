@@ -14,153 +14,73 @@ export default function Transactions() {
 
   return (
     <div className="investor-dashboard">
+      <div className="id-background-overlay" />
+      
+      {/* Header */}
       <div className="id-header">
-        <div>
-          <div className="id-welcome-label">Transaction History</div>
-          <h1 className="id-user-name">Your Earnings</h1>
+        <div className="id-welcome">
+           <span className="id-greeting">Financial Records</span>
+           <h1 className="id-name">Transactions</h1>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="id-stats-grid">
-        <div className="id-stat-card" style={{ '--card-color-1': '#10b981', '--card-color-2': '#34d399', '--card-bg-1': '#10b981', '--card-bg-2': '#059669' }}>
-          <div className="id-stat-icon-wrapper">
-            <span>💰</span>
+        <div className="id-stat-card glass">
+          <div className="id-stat-icon green">
+            💰
           </div>
-          <div className="id-stat-label">Total Earned</div>
-          <div className="id-stat-value">
-            {Number(earnedProfit).toLocaleString()}
-            <span className="id-stat-currency">{currency}</span>
+          <div className="id-stat-content">
+            <span className="id-stat-label">Total Earned</span>
+            <div className="id-stat-value highlight">
+              {Number(earnedProfit).toLocaleString()} <span className="currency">{currency}</span>
+            </div>
+            <div className="id-stat-sub">Lifetime Profit</div>
           </div>
         </div>
 
-        <div className="id-stat-card" style={{ '--card-color-1': '#3b82f6', '--card-color-2': '#60a5fa', '--card-bg-1': '#3b82f6', '--card-bg-2': '#2563eb' }}>
-          <div className="id-stat-icon-wrapper">
-            <span>📈</span>
+        <div className="id-stat-card glass">
+          <div className="id-stat-icon blue">
+            📈
           </div>
-          <div className="id-stat-label">This Month</div>
-          <div className="id-stat-value">
-            {Number(earnedProfit).toLocaleString()}
-            <span className="id-stat-currency">{currency}</span>
+          <div className="id-stat-content">
+            <span className="id-stat-label">This Month</span>
+            <div className="id-stat-value">
+              {Number(earnedProfit).toLocaleString()} <span className="currency">{currency}</span>
+            </div>
+            <div className="id-stat-sub">Current Period</div>
           </div>
         </div>
       </div>
 
       {/* Transactions List */}
-      <div className="id-progress-card">
-        <h2 className="id-card-title">Recent Activity</h2>
+      <div className="id-activity-feed" style={{ marginTop: '0' }}>
+        <h3>Recent Activity</h3>
         
-        <div className="it-list">
+        <div className="activity-list">
           {transactions.length === 0 ? (
-            <div className="it-empty">
-              <span>📭</span>
+            <div className="it-empty" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+              <span style={{ fontSize: '48px', display: 'block', marginBottom: '16px' }}>📭</span>
               <p>No transactions yet</p>
             </div>
           ) : (
             transactions.map(tx => (
-              <div key={tx.id} className="it-item">
-                <div className="it-item-icon">
-                  {tx.type === 'profit' ? '📈' : '💸'}
+              <div key={tx.id} className="activity-item">
+                <div className="activity-icon">
+                  {tx.type === 'profit' ? '⚡' : '💸'}
                 </div>
-                <div className="it-item-details">
-                  <div className="it-item-desc">{tx.description}</div>
-                  <div className="it-item-date">{tx.date.toLocaleDateString()}</div>
+                <div className="activity-info">
+                  <span className="activity-title">{tx.description}</span>
+                  <span className="activity-time">{tx.date.toLocaleDateString()}</span>
                 </div>
-                <div className={`it-item-amount ${tx.type}`}>
+                <div className={`activity-amount ${tx.type === 'profit' ? 'positive' : ''}`}>
                   {tx.type === 'profit' ? '+' : '-'}{Number(tx.amount).toLocaleString()} {currency}
                 </div>
               </div>
             ))
           )}
         </div>
-
-        <div className="it-note">
-          <span>ℹ️</span>
-          <p>Profits are automatically distributed from completed orders based on your investment agreement.</p>
-        </div>
       </div>
-
-      <style>{`
-        .it-list {
-          margin-top: 24px;
-        }
-        .it-empty {
-          text-align: center;
-          padding: 40px;
-          color: #94a3b8;
-        }
-        .it-empty span {
-          font-size: 48px;
-          display: block;
-          margin-bottom: 16px;
-        }
-        .it-item {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding: 20px;
-          background: #f8fafc;
-          border-radius: 16px;
-          margin-bottom: 12px;
-          transition: all 0.2s ease;
-        }
-        .it-item:hover {
-          background: #f1f5f9;
-          transform: translateX(4px);
-        }
-        .it-item-icon {
-          width: 48px;
-          height: 48px;
-          background: white;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 24px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .it-item-details {
-          flex: 1;
-        }
-        .it-item-desc {
-          font-weight: 600;
-          color: #1e293b;
-          margin-bottom: 4px;
-        }
-        .it-item-date {
-          font-size: 13px;
-          color: #94a3b8;
-        }
-        .it-item-amount {
-          font-weight: 700;
-          font-size: 18px;
-        }
-        .it-item-amount.profit {
-          color: #10b981;
-        }
-        .it-item-amount.withdrawal {
-          color: #ef4444;
-        }
-        .it-note {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          margin-top: 24px;
-          padding: 16px;
-          background: rgba(59, 130, 246, 0.05);
-          border-radius: 12px;
-          border: 1px solid rgba(59, 130, 246, 0.1);
-        }
-        .it-note span {
-          font-size: 20px;
-        }
-        .it-note p {
-          font-size: 14px;
-          color: #64748b;
-          margin: 0;
-          line-height: 1.5;
-        }
-      `}</style>
     </div>
   )
 }

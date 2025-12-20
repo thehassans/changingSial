@@ -1,15 +1,17 @@
-/* InvestorLayout Premium Styles */
+/* InvestorLayout Premium Ultra Dark Styles */
 
 .il-container {
   min-height: 100vh;
   display: flex;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #0f172a; /* Match dashboard dark base */
+  color: #f8fafc;
 }
 
 /* Sidebar */
 .il-sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  background: rgba(15, 23, 42, 0.95);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -17,15 +19,15 @@
   left: 0;
   height: 100vh;
   z-index: 100;
+  backdrop-filter: blur(20px);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .il-sidebar-header {
-  padding: 24px;
+  padding: 32px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .il-logo {
@@ -36,13 +38,14 @@
 
 .il-logo-icon {
   font-size: 28px;
-  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
 }
 
 .il-logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -52,53 +55,61 @@
   display: none;
   background: none;
   border: none;
-  color: white;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 28px;
   cursor: pointer;
 }
 
 /* User Card */
 .il-user-card {
-  padding: 20px 24px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .il-user-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: white;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.il-user-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .il-user-name {
-  color: white;
+  color: #fff;
   font-weight: 600;
   font-size: 15px;
 }
 
 .il-user-role {
-  color: #94a3b8;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-top: 2px;
 }
 
 /* Navigation */
 .il-nav {
   flex: 1;
-  padding: 20px 16px;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .il-nav-item {
@@ -111,17 +122,19 @@
   text-decoration: none;
   font-weight: 500;
   transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .il-nav-item:hover {
-  background: rgba(255,255,255,0.05);
-  color: white;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
 }
 
 .il-nav-item.active {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
-  color: white;
-  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
 }
 
 .il-nav-icon {
@@ -129,24 +142,24 @@
 }
 
 .il-nav-label {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 /* Sidebar Footer */
 .il-sidebar-footer {
-  padding: 20px 24px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 24px;
 }
 
 .il-logout-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 12px 16px;
-  background: rgba(239, 68, 68, 0.1);
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.05);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 10px;
+  border-radius: 12px;
   color: #f87171;
   font-weight: 500;
   cursor: pointer;
@@ -154,8 +167,9 @@
 }
 
 .il-logout-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
 }
 
 /* Mobile Header */
@@ -165,13 +179,14 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: rgba(30, 41, 59, 0.95);
-  backdrop-filter: blur(10px);
+  height: 64px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
   z-index: 90;
   padding: 0 16px;
   align-items: center;
   gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .il-menu-btn {
@@ -193,7 +208,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
   z-index: 99;
 }
 
@@ -202,12 +218,15 @@
   flex: 1;
   margin-left: 280px;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
   .il-sidebar {
     transform: translateX(-100%);
+    background: #0f172a; /* Solid bg for mobile drawer */
   }
 
   .il-sidebar.open {
@@ -228,6 +247,6 @@
 
   .il-main {
     margin-left: 0;
-    padding-top: 60px;
+    padding-top: 64px;
   }
 }
