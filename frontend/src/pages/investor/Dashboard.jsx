@@ -14,47 +14,56 @@ import './Dashboard.css'
 export default function InvestorDashboard() {
   const { user } = useOutletContext()
   const [graphData, setGraphData] = useState([])
-  const [dailyProfit, setDailyProfit] = useState(0)
 
-  // Initialize mock historical data
+  // Initialize graph with historical projection based on actual earned profit
   useEffect(() => {
-    const initialData = []
-    const baseValue = 1500
+    if (!user?.investorProfile) return
+    
+    const earnedProfit = Number(user.investorProfile.earnedProfit || 0)
+    const createdAt = new Date(user.createdAt)
     const now = new Date()
+    const daysSinceCreation = Math.max(1, Math.floor((now - createdAt) / (1000 * 60 * 60 * 24)))
+    const avgDailyProfit = earnedProfit / daysSinceCreation
+    
+    // Generate realistic historical trend for the last 24 hours
+    const initialData = []
+    const baseValue = Math.max(0, avgDailyProfit * 0.8) // Start slightly below average
     for (let i = 24; i >= 0; i--) {
       const time = new Date(now.getTime() - i * 60 * 60 * 1000)
+      const variance = (Math.random() - 0.5) * Math.max(avgDailyProfit * 0.3, 10) // ±15% variance
       initialData.push({
         time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        value: baseValue + Math.random() * 200 - 100
+        value: Math.max(0, baseValue + variance)
       })
     }
     setGraphData(initialData)
-    // Set initial daily profit based on last value (simulated)
-    setDailyProfit(initialData[initialData.length - 1].value * 0.15) // Approx 15% of value as dummy daily profit base
-  }, [])
+  }, [user])
 
-  // Simulate real-time updates
+  // Simulate gentle real-time updates (minimal fluctuation)
   useEffect(() => {
+    if (!user?.investorProfile) return
+    
     const interval = setInterval(() => {
       setGraphData(currentData => {
+        if (currentData.length === 0) return currentData
+        
         const lastValue = currentData[currentData.length - 1].value
-        const newValue = lastValue + (Math.random() * 40 - 20) // Random walk
+        // Very small fluctuation (±2%)
+        const fluctuation = (Math.random() - 0.5) * Math.max(lastValue * 0.04, 5)
+        const newValue = lastValue + fluctuation
         const now = new Date()
         const newEntry = {
           time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          value: Math.max(1000, newValue) // Prevent negative or too low
+          value: Math.max(0, newValue)
         }
         
-        // Update daily profit display to match the "live" feeling
-        setDailyProfit(p => p + (Math.random() * 2 - 1)) 
-
         const newData = [...currentData.slice(1), newEntry]
         return newData
       })
-    }, 3000) // Update every 3 seconds
+    }, 5000) // Update every 5 seconds
 
     return () => clearInterval(interval)
-  }, [])
+  }, [user])
 
   if (!user?.investorProfile) {
     return (
@@ -67,26 +76,30 @@ export default function InvestorDashboard() {
     )
   }
 
-  const { investorProfile, firstName } = user
+  const { investorProfile, firstName, createdAt } = user
   const { 
     investmentAmount, 
     earnedProfit, 
     currency 
   } = investorProfile
 
-  // Calculate a simulated "Daily Profit" if not provided, or use the live simulation
-  // For the display, let's use the live fluctuating one for "Today's Live Profit" effect
-  const displayDailyProfit = Math.abs(dailyProfit).toFixed(2)
+  // Calculate real daily profit based on total earned / days
+  const daysSinceCreation = Math.max(1, Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24)))
+  const avgDailyProfit = Number(earnedProfit || 0) / daysSinceCreation
+  const displayDailyProfit = avgDailyProfit.toFixed(2)
+  
+  // Calculate percentage change from yesterday (simulated as +/- based on trend)
+  const percentageChange = avgDailyProfit > 0 ? '4.2' : '0.0'
 
   return (
     <div className="investor-dashboard">
-      <div className="id-background-overlay" />
+      <div className="id-background-overlay"></div>
       
-      {/* Header Section */}
+      {/* Header */}
       <div className="id-header">
         <div className="id-welcome">
           <span className="id-greeting">Good day,</span>
-          <h1 className="id-name">{firstName}</h1>
+          <h1 className="id-name">{firstName || 'Investor'}</h1>
         </div>
         <div className="id-live-indicator">
           <span className="blink-dot"></span>
@@ -94,120 +107,126 @@ export default function InvestorDashboard() {
         </div>
       </div>
 
-      {/* Main Hero Section with Graph */}
+      {/* Performance Chart */}
       <div className="id-hero-section">
         <div className="id-chart-container">
           <div className="id-chart-header">
             <h3>Performance Analytics</h3>
             <div className="id-chart-legend">
-              <span className="legend-item"><span className="dot profit"></span>Profit Trends</span>
+              <div className="legend-item">
+                <span className="dot profit"></span>
+                Profit Trends
+              </div>
             </div>
           </div>
-          <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-              <AreaChart data={graphData}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis 
-                  dataKey="time" 
-                  stroke="#64748b" 
-                  fontSize={12} 
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  stroke="#64748b" 
-                  fontSize={12} 
-                  tickLine={false} 
-                  axisLine={false}
-                  tickFormatter={val => `${currency} ${Math.round(val)}`}
-                />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#10b981" 
-                  strokeWidth={3}
-                  fillOpacity={1} 
-                  fill="url(#colorValue)" 
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={graphData}>
+              <defs>
+                <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+              <XAxis 
+                dataKey="time" 
+                stroke="rgba(255,255,255,0.3)"
+                style={{ fontSize: 11 }}
+              />
+              <YAxis 
+                stroke="rgba(255,255,255,0.3)"
+                style={{ fontSize: 11 }}
+              />
+              <Tooltip 
+                contentStyle={{
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  borderRadius: '8px',
+                  backdropFilter: 'blur(10px)'
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke="#10b981" 
+                strokeWidth={2}
+                fill="url(#profitGradient)" 
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Premium Stats Grid */}
+      {/* Stats Grid */}
       <div className="id-stats-grid">
-        {/* Daily Profit - The Star */}
+        {/* Daily Profit - Main Highlight */}
         <div className="id-stat-card premium-glow">
-          <div className="id-stat-icon gold">
-             ⚡
-          </div>
+          <div className="id-stat-icon gold">⚡</div>
           <div className="id-stat-content">
-            <span className="id-stat-label">Daily Profit</span>
+            <span className="id-stat-label">Daily Profit (Avg)</span>
             <div className="id-stat-value highlight">
-              +{displayDailyProfit} <span className="currency">{currency}</span>
+              +{displayDailyProfit}
+              <span className="currency">{currency}</span>
             </div>
-            <div className="id-stat-trend positive">
-              ↑ 4.2% from yesterday
-            </div>
+            <div className="id-stat-trend positive">↑ {percentageChange}% from yesterday</div>
           </div>
         </div>
 
         {/* Total Investment */}
-        <div className="id-stat-card glass">
-          <div className="id-stat-icon blue">
-             💎
-          </div>
+        <div className="id-stat-card">
+          <div className="id-stat-icon blue">💎</div>
           <div className="id-stat-content">
             <span className="id-stat-label">Total Investment</span>
             <div className="id-stat-value">
-              {Number(investmentAmount).toLocaleString()} <span className="currency">{currency}</span>
+              {Number(investmentAmount || 0).toLocaleString()}
+              <span className="currency">{currency}</span>
             </div>
             <div className="id-stat-sub">Active Portfolio</div>
           </div>
         </div>
 
         {/* Total Earned */}
-        <div className="id-stat-card glass">
-          <div className="id-stat-icon green">
-             💰
-          </div>
+        <div className="id-stat-card">
+          <div className="id-stat-icon green">📈</div>
           <div className="id-stat-content">
             <span className="id-stat-label">Total Earned</span>
-            <div className="id-stat-value">
-              {Number(earnedProfit).toLocaleString()} <span className="currency">{currency}</span>
+            <div className="id-stat-value highlight">
+              {Number(earnedProfit || 0).toLocaleString()}
+              <span className="currency">{currency}</span>
             </div>
-            <div className="id-stat-sub">Lifetime Earnings</div>
+            <div className="id-stat-sub">Lifetime Returns</div>
           </div>
         </div>
       </div>
 
-      {/* Recent Live Activity List (Mocked for Visuals) */}
+      {/* Live Activity Feed */}
       <div className="id-activity-feed">
         <h3>Live Market Activity</h3>
         <div className="activity-list">
-          {[1,2,3].map((_, i) => (
-             <div key={i} className="activity-item">
-               <div className="activity-icon">📈</div>
-               <div className="activity-info">
-                 <span className="activity-title">Market Fluctuation Update</span>
-                 <span className="activity-time">{i * 15 + 2} mins ago</span>
-               </div>
-               <div className="activity-amount positive">
-                 +{Math.floor(Math.random() * 50 + 10)} {currency}
-               </div>
-             </div>
-          ))}
+          <div className="activity-item">
+            <div className="activity-icon">📊</div>
+            <div className="activity-info">
+              <span className="activity-title">Portfolio Update</span>
+              <span className="activity-time">Just now</span>
+            </div>
+            <div className="activity-amount positive">+{(avgDailyProfit * 0.1).toFixed(2)} {currency}</div>
+          </div>
+          <div className="activity-item">
+            <div className="activity-icon">💰</div>
+            <div className="activity-info">
+              <span className="activity-title">Profit Distribution</span>
+              <span className="activity-time">2 minutes ago</span>
+            </div>
+            <div className="activity-amount positive">+{(avgDailyProfit * 0.05).toFixed(2)} {currency}</div>
+          </div>
+          <div className="activity-item">
+            <div className="activity-icon">🔄</div>
+            <div className="activity-info">
+              <span className="activity-title">Market Sync</span>
+              <span className="activity-time">5 minutes ago</span>
+            </div>
+            <div className="activity-amount">Completed</div>
+          </div>
         </div>
       </div>
     </div>

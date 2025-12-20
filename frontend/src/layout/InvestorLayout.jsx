@@ -88,7 +88,6 @@ export default function InvestorLayout() {
               style={{height:32, width:'auto', objectFit:'contain'}} 
             />
             <div style={{display:'flex', alignItems:'center', gap:6}}>
-              <span style={{fontSize:20}}>💎</span>
               <span style={{fontWeight:700, fontSize:14}}>Investor</span>
             </div>
           </div>
@@ -120,7 +119,7 @@ export default function InvestorLayout() {
               style={{height:40, width:'auto', objectFit:'contain', marginRight: 8}} 
             />
             <div className="il-user-badge">
-              <span className="il-badge-icon">💎</span>
+
               <div style={{display:'flex', flexDirection:'column', gap:2}}>
                 <span className="il-badge-role">Investor</span>
                 <span className="il-badge-name">{`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Investor'}</span>
