@@ -12,9 +12,6 @@ export default function InvestorLayout() {
 
   // Apply theme effect
   useEffect(() => {
-    // We set a data attribute on the container div in the render, 
-    // but globally we might want to ensure body doesn't conflict. 
-    // Ideally we scoped styles to .il-container.
     localStorage.setItem('investor-theme', theme)
   }, [theme])
 
@@ -25,8 +22,10 @@ export default function InvestorLayout() {
   useEffect(() => {
     let alive = true
     apiGet('/users/me')
-      .then((u) => {
+      .then((data) => {
         if (!alive) return
+        // Fix: backend returns { user: ... } so we must extract it
+        const u = data?.user || data
         if (u && u.role === 'investor') {
           setUser(u)
         } else {
@@ -52,12 +51,8 @@ export default function InvestorLayout() {
   const navLinks = [
     { to: '/investor', label: 'Dashboard', icon: '⚡' },
     { to: '/investor/transactions', label: 'Transactions', icon: '💰' },
-    // Profile link could be added if page exists, sticking to known pages for now
     { to: '/investor/profile', label: 'Profile', icon: '👤' }, 
   ]
-
-  // Filter out profile if it doesn't exist yet to avoid 404s, but user asked for nav like others
-  // kept it for visual completion.
 
   if (loading) return <div className="il-container">Loading...</div>
 
