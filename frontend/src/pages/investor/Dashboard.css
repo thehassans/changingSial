@@ -93,40 +93,83 @@
   margin-bottom: 32px;
 }
 
+/* Performance Chart - Ultra Premium */
 .id-chart-container {
-  background: var(--il-card-bg); /* Variable card bg */
+  background: var(--il-card-bg);
   border: 1px solid var(--il-glass-border);
   backdrop-filter: blur(12px);
   border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  padding: 28px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.id-chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
 }
 
 .id-chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .id-chart-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--il-text);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--il-text) 0%, var(--il-active-text) 50%, var(--il-text-muted) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  position: relative;
+  padding-left: 36px;
+}
+
+.id-chart-header h3::before {
+  content: '📊';
+  position: absolute;
+  left: 0;
+  font-size: 24px;
+  filter: drop-shadow(0 2px 8px rgba(16, 185, 129, 0.3));
 }
 
 .id-chart-legend {
   display: flex;
-  gap: 16px;
+  gap: 20px;
+  align-items: center;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-size: 13px;
+  font-weight: 600;
   color: var(--il-text-muted);
+  padding: 6px 14px;
+  background: var(--il-hover-bg);
+  border-radius: 20px;
+  border: 1px solid var(--il-glass-border);
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: var(--il-active-bg);
+  border-color: var(--il-active-border);
+  color: var(--il-active-text);
+  transform: translateY(-1px);
 }
 
 .dot {
