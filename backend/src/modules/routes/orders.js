@@ -9,7 +9,7 @@ import { auth, allowRoles } from "../middleware/auth.js";
 import User from "../models/User.js";
 import { getIO } from "../config/socket.js";
 import { createNotification } from "./notifications.js";
-import { assignInvestorProfitToOrder } from "../services/investorProfitService.js";
+import { assignInvestorProfitToOrder, preAssignInvestorToOrder } from "../services/investorProfitService.js";
 // Removed invoice PDF generation
 
 const router = express.Router();
@@ -655,6 +655,24 @@ router.post(
     }
 
     await doc.save();
+
+    // Pre-assign investor to order for profit tracking
+    try {
+      // Get owner ID: if creator is user, they are the owner; otherwise get createdBy
+      let ownerId = req.user.id;
+      if (req.user.role !== "user" && req.user.role !== "admin") {
+        const creator = await User.findById(req.user.id).select("createdBy").lean();
+        if (creator?.createdBy) ownerId = creator.createdBy;
+      }
+      
+      // Pre-assign investor (sets expected profit but doesn't finalize until delivered)
+      const investorInfo = await preAssignInvestorToOrder(doc, ownerId, doc.total);
+      if (investorInfo) {
+        await doc.save(); // Save the investor assignment
+      }
+    } catch (invErr) {
+      console.warn("[Orders] Failed to pre-assign investor:", invErr?.message);
+    }
 
     // Decrease stock immediately when order is created (reserve inventory)
     try {

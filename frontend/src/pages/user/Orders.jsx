@@ -1541,12 +1541,13 @@ export default function UserOrders() {
                   style={{
                     padding: '16px 0',
                     borderTop: '1px solid var(--border)',
-                    display: 'flex',
-                    alignItems: 'center',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                     gap: 16,
+                    alignItems: 'start',
                   }}
                 >
-                  <div style={{ flex: 1 }}>
+                  <div>
                     <div
                       className="label"
                       style={{
@@ -1577,6 +1578,69 @@ export default function UserOrders() {
                       {targetCode}
                     </div>
                   </div>
+                  
+                  {/* Investor Profit Display */}
+                  {o.investorProfit?.investor && (
+                    <div
+                      style={{
+                        background: o.investorProfit.isPending 
+                          ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.15) 100%)'
+                          : 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.15) 100%)',
+                        border: o.investorProfit.isPending 
+                          ? '1px solid rgba(251, 191, 36, 0.3)'
+                          : '1px solid rgba(16, 185, 129, 0.3)',
+                        borderRadius: 12,
+                        padding: 12,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          marginBottom: 6,
+                        }}
+                      >
+                        <span style={{ fontSize: 16 }}>💎</span>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: o.investorProfit.isPending ? '#d97706' : '#059669',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                          }}
+                        >
+                          Investor Profit {o.investorProfit.isPending ? '(Pending)' : '(Earned)'}
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gap: 4 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
+                          {o.investorProfit.investorName || 'Investor'}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                          <span style={{ 
+                            fontSize: 20, 
+                            fontWeight: 800, 
+                            color: o.investorProfit.isPending ? '#d97706' : '#059669' 
+                          }}>
+                            {Number(o.investorProfit.profitAmount || 0).toLocaleString()}
+                          </span>
+                          <span style={{ fontSize: 13, color: 'var(--muted)' }}>{targetCode}</span>
+                          <span style={{ 
+                            fontSize: 11, 
+                            color: 'var(--muted)',
+                            background: 'rgba(0,0,0,0.05)',
+                            padding: '2px 6px',
+                            borderRadius: 4,
+                          }}>
+                            {o.investorProfit.profitPercentage || 0}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {hasChanges && (
                     <button
                       className="btn success"
@@ -1599,7 +1663,7 @@ export default function UserOrders() {
                         })
                       }}
                       disabled={updating[saveKey]}
-                      style={{ height: 'fit-content', padding: '8px 16px', fontSize: 14 }}
+                      style={{ height: 'fit-content', padding: '8px 16px', fontSize: 14, alignSelf: 'end' }}
                     >
                       Save Changes
                     </button>

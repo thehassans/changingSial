@@ -2,13 +2,14 @@ import User from "../models/User.js";
 import Order from "../models/Order.js";
 
 /**
- * Assign investor profit to an order when delivered
- * Distributes profit to the first active investor (FIFO by createdAt)
- * @param {Object} order - The order document
+ * Pre-assign an investor to an order when it's created
+ * This sets the expected investor but doesn't add profit yet (pending until delivered)
+ * @param {Object} order - The order document  
  * @param {String} ownerId - The workspace owner ID
- * @returns {Object|null} The updated investor or null if none eligible
+ * @param {Number} orderTotal - The order total for profit calculation
+ * @returns {Object|null} The investor info or null if none eligible
  */
-export async function assignInvestorProfitToOrder(order, ownerId) {
+export async function preAssignInvestorToOrder(order, ownerId, orderTotal) {
   try {
     if (!order || !ownerId) return null;
 
@@ -20,27 +21,84 @@ export async function assignInvestorProfitToOrder(order, ownerId) {
     }).sort({ createdAt: 1 });
 
     if (!investor) {
-      console.log("[InvestorProfit] No active investor found for workspace:", ownerId);
       return null;
     }
 
     const profile = investor.investorProfile || {};
     const profitPercentage = Number(profile.profitPercentage || 0);
+
+    if (profitPercentage <= 0) {
+      return null;
+    }
+
+    // Calculate expected profit for this order
+    const total = Number(orderTotal || order.total || 0);
+    const expectedProfit = Math.round((total * profitPercentage / 100) * 100) / 100;
+
+    // Set investor info on order (pending until delivered)
+    order.investorProfit = {
+      investor: investor._id,
+      investorName: `${investor.firstName || ''} ${investor.lastName || ''}`.trim() || investor.email,
+      profitPercentage,
+      profitAmount: expectedProfit,
+      isPending: true,
+      assignedAt: new Date(),
+    };
+
+    console.log(`[InvestorProfit] Pre-assigned investor ${investor.email} to order (${expectedProfit} pending)`);
+    return {
+      investorId: investor._id,
+      investorName: order.investorProfit.investorName,
+      profitPercentage,
+      expectedProfit,
+    };
+  } catch (error) {
+    console.error("[InvestorProfit] Error pre-assigning investor:", error);
+    return null;
+  }
+}
+
+/**
+ * Finalize investor profit when order is delivered
+ * Updates investor's earnedProfit and marks order profit as no longer pending
+ * @param {Object} order - The order document
+ * @param {String} ownerId - The workspace owner ID
+ * @returns {Object|null} The updated investor or null if none eligible
+ */
+export async function finalizeInvestorProfit(order, ownerId) {
+  try {
+    if (!order || !ownerId) return null;
+
+    // Check if order already has an assigned investor
+    let investorId = order.investorProfit?.investor;
+    let profitAmount = order.investorProfit?.profitAmount || 0;
+
+    // If no investor pre-assigned, try to assign one now
+    if (!investorId) {
+      const preAssigned = await preAssignInvestorToOrder(order, ownerId, order.total);
+      if (!preAssigned) return null;
+      investorId = preAssigned.investorId;
+      profitAmount = preAssigned.expectedProfit;
+    }
+
+    // Get investor
+    const investor = await User.findById(investorId);
+    if (!investor || investor.investorProfile?.status !== "active") {
+      console.log("[InvestorProfit] Investor not found or not active");
+      return null;
+    }
+
+    const profile = investor.investorProfile || {};
     const profitTarget = Number(profile.profitAmount || 0);
     const currentEarned = Number(profile.earnedProfit || 0);
 
-    if (profitPercentage <= 0) {
-      console.log("[InvestorProfit] Investor has 0% profit percentage, skipping");
-      return null;
-    }
-
-    // Calculate profit for this order
-    const orderTotal = Number(order.total || 0);
-    const profitAmount = Math.round((orderTotal * profitPercentage / 100) * 100) / 100;
-
+    // Recalculate profit if needed
     if (profitAmount <= 0) {
-      return null;
+      const profitPercentage = Number(profile.profitPercentage || 0);
+      profitAmount = Math.round((Number(order.total || 0) * profitPercentage / 100) * 100) / 100;
     }
+
+    if (profitAmount <= 0) return null;
 
     // Update investor's earned profit
     const newEarned = currentEarned + profitAmount;
@@ -57,21 +115,21 @@ export async function assignInvestorProfitToOrder(order, ownerId) {
     investor.markModified("investorProfile");
     await investor.save();
 
-    // Store profit reference on order
-    order.investorProfit = {
-      investor: investor._id,
-      profitAmount,
-      profitPercentage,
-    };
+    // Update order to mark profit as finalized
+    order.investorProfit.isPending = false;
+    order.investorProfit.profitAmount = profitAmount;
     await order.save();
 
-    console.log(`[InvestorProfit] Assigned ${profitAmount} profit to investor ${investor.email}`);
+    console.log(`[InvestorProfit] Finalized ${profitAmount} profit to investor ${investor.email}`);
     return investor;
   } catch (error) {
-    console.error("[InvestorProfit] Error assigning profit:", error);
+    console.error("[InvestorProfit] Error finalizing profit:", error);
     return null;
   }
 }
+
+// Keep old function name for backwards compatibility
+export const assignInvestorProfitToOrder = finalizeInvestorProfit;
 
 /**
  * Get profit statistics for an investor
@@ -82,18 +140,23 @@ export async function getInvestorProfitStats(investorId) {
   try {
     const orders = await Order.find({
       "investorProfit.investor": investorId,
-    }).select("total investorProfit createdAt").lean();
+    }).select("total investorProfit createdAt shipmentStatus").lean();
 
     const totalOrders = orders.length;
-    const totalProfit = orders.reduce((sum, o) => sum + (o.investorProfit?.profitAmount || 0), 0);
+    const deliveredOrders = orders.filter(o => o.shipmentStatus === "delivered");
+    const totalProfit = deliveredOrders.reduce((sum, o) => sum + (o.investorProfit?.profitAmount || 0), 0);
+    const pendingProfit = orders.filter(o => o.investorProfit?.isPending).reduce((sum, o) => sum + (o.investorProfit?.profitAmount || 0), 0);
 
     return {
       totalOrders,
+      deliveredOrders: deliveredOrders.length,
       totalProfit,
+      pendingProfit,
       orders: orders.slice(-10), // Last 10 orders
     };
   } catch (error) {
     console.error("[InvestorProfit] Error getting stats:", error);
-    return { totalOrders: 0, totalProfit: 0, orders: [] };
+    return { totalOrders: 0, deliveredOrders: 0, totalProfit: 0, pendingProfit: 0, orders: [] };
   }
 }
+

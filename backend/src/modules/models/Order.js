@@ -95,7 +95,10 @@ const OrderSchema = new mongoose.Schema(
     // Investor profit tracking (assigned sequentially when order is delivered)
     investorProfit: {
       investor: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Which investor gets profit from this order
+      investorName: { type: String, default: "" }, // Cached investor name for display
+      profitPercentage: { type: Number, default: 0 }, // Profit percentage at time of assignment
       profitAmount: { type: Number, default: 0 }, // Profit amount assigned to investor
+      isPending: { type: Boolean, default: true }, // True until order is delivered
       assignedAt: { type: Date }, // When profit was assigned
     },
 
