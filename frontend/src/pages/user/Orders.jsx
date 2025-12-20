@@ -123,6 +123,8 @@ export default function UserOrders() {
   const urlSyncRef = useRef({ raf: 0, last: '' })
   const toast = useToast()
   const fallbackTriedRef = useRef(false)
+  // Investor summary state
+  const [investorSummary, setInvestorSummary] = useState(null)
   // Preserve scroll helper to avoid jumping to top on state updates
   const preserveScroll = async (fn) => {
     const y = window.scrollY
@@ -326,6 +328,15 @@ export default function UserOrders() {
     }
   }
 
+  async function loadInvestorSummary() {
+    try {
+      const r = await apiGet('/users/investors/summary')
+      setInvestorSummary(r || null)
+    } catch {
+      setInvestorSummary(null)
+    }
+  }
+
   async function loadOrders(reset = false) {
     if (loadingMoreRef.current) return
     loadingMoreRef.current = true
@@ -461,7 +472,8 @@ export default function UserOrders() {
   // Reload on filter changes (except productQuery which is client-side)
   useEffect(() => {
     loadOrders(true)
-    loadSummary() /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    loadSummary()
+    loadInvestorSummary() /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [buildQuery])
 
   // Reset fallback flag on filter changes
@@ -1018,6 +1030,72 @@ export default function UserOrders() {
           })()}
         </div>
       </div>
+
+      {/* Investor Profit Summary Card */}
+      {investorSummary && investorSummary.totalInvestors > 0 && (
+        <div
+          className="card hover-lift"
+          style={{
+            background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)',
+            color: 'white',
+            animation: 'scaleIn 0.5s ease-out 0.2s backwards',
+          }}
+        >
+          <div className="card-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+            <div className="card-title" style={{ color: 'white', display: 'flex', alignItems: 'center', gap: 8 }}>
+              💎 Investor Profit Summary
+            </div>
+            <span style={{ fontSize: 13, opacity: 0.9 }}>
+              {investorSummary.totalInvestors} Active Investor{investorSummary.totalInvestors > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div
+            className="section"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+              gap: 16,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, textTransform: 'uppercase', marginBottom: 6 }}>
+                Pending Profit
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1px' }}>
+                {Number(investorSummary.totalPendingProfit || 0).toLocaleString()}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>Awaiting delivery</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, textTransform: 'uppercase', marginBottom: 6 }}>
+                Earned Profit
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1px' }}>
+                {Number(investorSummary.totalEarnedProfit || 0).toLocaleString()}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>From delivered orders</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, textTransform: 'uppercase', marginBottom: 6 }}>
+                Total Investment
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1px' }}>
+                {Number(investorSummary.totalInvestment || 0).toLocaleString()}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>Capital invested</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85, textTransform: 'uppercase', marginBottom: 6 }}>
+                Target Profit
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-1px' }}>
+                {Number(investorSummary.totalTargetProfit || 0).toLocaleString()}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>Goal to achieve</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters (manager-like) */}
       <div

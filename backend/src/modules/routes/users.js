@@ -1507,6 +1507,76 @@ router.patch(
 
 // ====== INVESTOR CRUD ======
 
+// Get investor profit summary (aggregated totals for orders page)
+router.get(
+  "/investors/summary",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const Order = (await import("../models/Order.js")).default;
+      
+      // Get owner's investor IDs
+      const investorIds = await User.find(
+        { role: "investor", createdBy: req.user.id },
+        { _id: 1 }
+      ).lean().then(list => list.map(u => u._id));
+
+      if (investorIds.length === 0) {
+        return res.json({
+          totalInvestors: 0,
+          totalPendingProfit: 0,
+          totalEarnedProfit: 0,
+          totalInvestment: 0,
+          totalTargetProfit: 0,
+        });
+      }
+
+      // Get orders with investor profit
+      const orders = await Order.find(
+        { "investorProfit.investor": { $in: investorIds } },
+        { investorProfit: 1, shipmentStatus: 1 }
+      ).lean();
+
+      // Calculate totals
+      let totalPendingProfit = 0;
+      let totalEarnedProfit = 0;
+      for (const ord of orders) {
+        const amt = Number(ord.investorProfit?.profitAmount || 0);
+        if (ord.investorProfit?.isPending) {
+          totalPendingProfit += amt;
+        } else {
+          totalEarnedProfit += amt;
+        }
+      }
+
+      // Get investor aggregate data
+      const investors = await User.find(
+        { role: "investor", createdBy: req.user.id },
+        { investorProfile: 1 }
+      ).lean();
+
+      const totalInvestment = investors.reduce(
+        (sum, i) => sum + Number(i.investorProfile?.investmentAmount || 0), 0
+      );
+      const totalTargetProfit = investors.reduce(
+        (sum, i) => sum + Number(i.investorProfile?.profitAmount || 0), 0
+      );
+
+      res.json({
+        totalInvestors: investors.length,
+        totalPendingProfit: Math.round(totalPendingProfit * 100) / 100,
+        totalEarnedProfit: Math.round(totalEarnedProfit * 100) / 100,
+        totalInvestment: Math.round(totalInvestment * 100) / 100,
+        totalTargetProfit: Math.round(totalTargetProfit * 100) / 100,
+      });
+    } catch (error) {
+      console.error("[Investors] Summary error:", error);
+      res.status(500).json({ message: error.message || "Failed to load summary" });
+    }
+  }
+);
+
 // List investors (admin => all, user => own)
 router.get(
   "/investors",
