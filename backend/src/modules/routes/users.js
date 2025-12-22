@@ -2624,7 +2624,7 @@ router.post(
 // ============================================
 
 // Get all references
-router.get("/references", authorize(["admin", "user"]), async (req, res) => {
+router.get("/references", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const references = await User.find({ role: "reference" }).select("-password");
     res.json({ references });
@@ -2634,7 +2634,7 @@ router.get("/references", authorize(["admin", "user"]), async (req, res) => {
 });
 
 // Create a new reference
-router.post("/references", authorize(["admin", "user"]), async (req, res) => {
+router.post("/references", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const { firstName, lastName, email, phone, commissionPerOrder, currency = "SAR" } = req.body;
 
@@ -2675,7 +2675,7 @@ router.post("/references", authorize(["admin", "user"]), async (req, res) => {
 });
 
 // Get reference details
-router.get("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+router.get("/references/:id", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const reference = await User.findOne({ _id: req.params.id, role: "reference" }).select("-password");
     if (!reference) {
@@ -2688,7 +2688,7 @@ router.get("/references/:id", authorize(["admin", "user"]), async (req, res) => 
 });
 
 // Update reference
-router.patch("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+router.patch("/references/:id", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const { firstName, lastName, email, phone, commissionPerOrder, currency } = req.body;
     
@@ -2720,7 +2720,7 @@ router.patch("/references/:id", authorize(["admin", "user"]), async (req, res) =
 });
 
 // Delete reference
-router.delete("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+router.delete("/references/:id", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const reference = await User.findOneAndDelete({ _id: req.params.id, role: "reference" });
     if (!reference) {
@@ -2733,7 +2733,7 @@ router.delete("/references/:id", authorize(["admin", "user"]), async (req, res) 
 });
 
 // Get investors referred by a specific reference
-router.get("/references/:id/investors", authorize(["admin", "user"]), async (req, res) => {
+router.get("/references/:id/investors", auth, allowRoles("admin", "user"), async (req, res) => {
   try {
     const investors = await User.find({ role: "investor", referredBy: req.params.id }).select("-password");
     res.json({ investors });
