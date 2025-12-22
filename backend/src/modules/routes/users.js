@@ -2618,3 +2618,127 @@ router.post(
     }
   }
 );
+
+// ============================================
+// REFERENCE ROUTES
+// ============================================
+
+// Get all references
+router.get("/references", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const references = await User.find({ role: "reference" }).select("-password");
+    res.json({ references });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch references" });
+  }
+});
+
+// Create a new reference
+router.post("/references", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, commissionPerOrder, currency = "SAR" } = req.body;
+
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    // Generate a simple password for the reference (they can change it later)
+    const tempPassword = Math.random().toString(36).slice(-8);
+
+    const reference = new User({
+      firstName,
+      lastName,
+      email: email.toLowerCase(),
+      password: tempPassword,
+      phone: phone || "",
+      role: "reference",
+      referenceProfile: {
+        commissionPerOrder: parseFloat(commissionPerOrder) || 0,
+        totalEarned: 0,
+        currency: currency || "SAR",
+      },
+      createdBy: req.user.id,
+    });
+
+    await reference.save();
+
+    const sans = await User.findById(reference._id).select("-password");
+    res.status(201).json({ reference: sans, tempPassword });
+  } catch (err) {
+    res.status(500).json({ message: err?.message || "Failed to create reference" });
+  }
+});
+
+// Get reference details
+router.get("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const reference = await User.findOne({ _id: req.params.id, role: "reference" }).select("-password");
+    if (!reference) {
+      return res.status(404).json({ message: "Reference not found" });
+    }
+    res.json({ reference });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch reference" });
+  }
+});
+
+// Update reference
+router.patch("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, commissionPerOrder, currency } = req.body;
+    
+    const reference = await User.findOne({ _id: req.params.id, role: "reference" });
+    if (!reference) {
+      return res.status(404).json({ message: "Reference not found" });
+    }
+
+    if (firstName) reference.firstName = firstName;
+    if (lastName) reference.lastName = lastName;
+    if (email && email.toLowerCase() !== reference.email) {
+      const existing = await User.findOne({ email: email.toLowerCase(), _id: { $ne: req.params.id } });
+      if (existing) {
+        return res.status(409).json({ message: "Email already exists" });
+      }
+      reference.email = email.toLowerCase();
+    }
+    if (phone !== undefined) reference.phone = phone;
+    if (commissionPerOrder !== undefined) reference.referenceProfile.commissionPerOrder = parseFloat(commissionPerOrder);
+    if (currency) reference.referenceProfile.currency = currency;
+
+    await reference.save();
+
+    const sans = await User.findById(reference._id).select("-password");
+    res.json({ reference: sans });
+  } catch (err) {
+    res.status(500).json({ message: err?.message || "Failed to update reference" });
+  }
+});
+
+// Delete reference
+router.delete("/references/:id", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const reference = await User.findOneAndDelete({ _id: req.params.id, role: "reference" });
+    if (!reference) {
+      return res.status(404).json({ message: "Reference not found" });
+    }
+    res.json({ message: "Reference deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete reference" });
+  }
+});
+
+// Get investors referred by a specific reference
+router.get("/references/:id/investors", authorize(["admin", "user"]), async (req, res) => {
+  try {
+    const investors = await User.find({ role: "investor", referredBy: req.params.id }).select("-password");
+    res.json({ investors });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch investors" });
+  }
+});
+

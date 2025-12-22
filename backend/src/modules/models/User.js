@@ -21,6 +21,7 @@ const UserSchema = new mongoose.Schema(
         "driver",
         "customer",
         "dropshipper",
+        "reference",
       ],
       default: "user",
       index: true,
@@ -33,6 +34,7 @@ const UserSchema = new mongoose.Schema(
       index: true,
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // Reference who referred this investor
     managerPermissions: {
       canCreateAgents: { type: Boolean, default: false },
       canManageProducts: { type: Boolean, default: false },
@@ -89,6 +91,16 @@ const UserSchema = new mongoose.Schema(
         default: "active",
       }, // Investment status
       completedAt: { type: Date }, // When profit amount target was reached
+    },
+    // Reference profile (for users who refer investors)
+    referenceProfile: {
+      commissionPerOrder: { type: Number, default: 0 }, // Commission % per investor order
+      totalEarned: { type: Number, default: 0 }, // Total commission earned
+      currency: {
+        type: String,
+        enum: ["AED", "SAR", "OMR", "BHD", "INR", "KWD", "QAR", "USD", "CNY"],
+        default: "SAR",
+      },
     },
     // Agent payout profile (withdrawal method and details)
     payoutProfile: {
