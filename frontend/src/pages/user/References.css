@@ -55,6 +55,11 @@
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
 }
 
+.references-stat-card .stat-icon svg {
+  color: #6366f1;
+  stroke: #6366f1;
+}
+
 .stat-label {
   font-size: 12px;
   font-weight: 600;

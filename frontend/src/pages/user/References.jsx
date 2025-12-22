@@ -51,21 +51,39 @@ export default function References() {
       {/* Stats */}
       <div className="references-stats">
         <div className="references-stat-card">
-          <div className="stat-icon">đ¤</div>
+          <div className="stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
           <div>
             <div className="stat-label">Total References</div>
             <div className="stat-value">{references.length}</div>
           </div>
         </div>
         <div className="references-stat-card">
-          <div className="stat-icon">đĽ</div>
+          <div className="stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <circle cx="15" cy="7" r="4" />
+            </svg>
+          </div>
           <div>
             <div className="stat-label">Investors Referred</div>
             <div className="stat-value">{totalInvestors}</div>
           </div>
         </div>
         <div className="references-stat-card">
-          <div className="stat-icon">đ°</div>
+          <div className="stat-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </div>
           <div>
             <div className="stat-label">Total Earned</div>
             <div className="stat-value">{totalEarned.toLocaleString()} SAR</div>
@@ -81,7 +99,12 @@ export default function References() {
         </div>
       ) : references.length === 0 ? (
         <div className="references-empty">
-          <div className="empty-icon">đź</div>
+          <div className="empty-icon">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
           <p>No references yet. References will appear here when assigned to investors.</p>
         </div>
       ) : (
