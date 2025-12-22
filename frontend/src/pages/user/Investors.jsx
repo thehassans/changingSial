@@ -427,4 +427,124 @@ export default function Investors() {
                 Cancel
               </button>
               <button type="submit" className="investors-btn-primary" disabled={saving}>
-                {saving ? 'Saving...' : editingInve
+                {saving ? 'Saving...' : editingInvestor ? 'Update Investor' : 'Create Investor'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Stats Cards */}
+      <div className="investors-stats">
+        {statsData.map((stat, i) => (
+          <div key={i} className="investors-stat-card">
+            <div className="investors-stat-header">
+              <span className="investors-stat-icon">{stat.icon}</span>
+              <span className="investors-stat-label">{stat.label}</span>
+            </div>
+            <div className="investors-stat-value" style={{ color: stat.color }}>{stat.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Investors Grid */}
+      {loading ? (
+        <div className="investors-loading">
+          <div className="investors-loading-spinner"></div>
+          <p>Loading investors...</p>
+        </div>
+      ) : investors.length === 0 && !showForm ? (
+        <div className="investors-empty">
+          <div className="investors-empty-icon">💼</div>
+          <p>No investors yet. Add your first investor to start tracking profits!</p>
+          <button className="investors-btn-primary" onClick={openCreate}>Add First Investor</button>
+        </div>
+      ) : (
+        <div className="investors-grid">
+          {investors.map((inv) => (
+            <div key={inv._id} className="investor-card">
+              <div className="investor-card-header">
+                <div className="investor-card-avatar">
+                  {inv.firstName?.[0]?.toUpperCase() || '?'}
+                </div>
+                <div className="investor-card-info">
+                  <div className="investor-card-name">{inv.firstName} {inv.lastName}</div>
+                  <div className="investor-card-email">{inv.email}</div>
+                  {inv.phone && <div className="investor-card-phone">{inv.phone}</div>}
+                </div>
+                <span className={`investor-status investor-status-${inv.investorProfile?.status || 'inactive'}`}>
+                  {inv.investorProfile?.status === 'active' ? 'Active' : 
+                   inv.investorProfile?.status === 'completed' ? 'Completed' : 'Paused'}
+                </span>
+              </div>
+
+              <div className="investor-card-details">
+                <div className="investor-detail-box investor-detail-investment">
+                  <span className="investor-detail-label">Investment</span>
+                  <span className="investor-detail-value">
+                    {formatCurrency(inv.investorProfile?.investmentAmount, inv.investorProfile?.currency)}
+                  </span>
+                </div>
+                <div className="investor-detail-box investor-detail-profit">
+                  <span className="investor-detail-label">Profit/Order</span>
+                  <span className="investor-detail-value">{inv.investorProfile?.profitPercentage || 0}%</span>
+                </div>
+              </div>
+
+              <div className="investor-progress">
+                <div className="investor-progress-header">
+                  <span>Profit Progress</span>
+                  <span>
+                    {formatCurrency(inv.investorProfile?.earnedProfit, inv.investorProfile?.currency)} / 
+                    {formatCurrency(inv.investorProfile?.profitAmount, inv.investorProfile?.currency)}
+                  </span>
+                </div>
+                <div className="investor-progress-bar">
+                  <div 
+                    className={`investor-progress-fill ${inv.investorProfile?.status === 'completed' ? 'completed' : ''}`}
+                    style={{ width: `${getProgress(inv)}%` }}
+                  />
+                </div>
+                {inv.investorProfile?.status === 'completed' && (
+                  <div className="investor-completed-badge">🎉 Investment Completed!</div>
+                )}
+              </div>
+
+              <div className="investor-card-actions">
+                {inv.investorProfile?.status !== 'completed' && (
+                  <button 
+                    className={`investor-action-btn ${inv.investorProfile?.status === 'active' ? 'pause' : 'start'}`}
+                    onClick={() => handleToggleProfit(inv)}
+                  >
+                    {inv.investorProfile?.status === 'active' ? '⏸️ Pause' : '▶️ Start'}
+                  </button>
+                )}
+                <button className="investor-action-btn edit" onClick={() => openEdit(inv)}>✏️ Edit</button>
+                <button className="investor-action-btn" style={{background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff'}} onClick={() => handleLoginAs(inv)}>🔑 Login As</button>
+                <button className="investor-action-btn delete" onClick={() => setDeleteConfirm(inv)}>🗑️</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="investors-modal-overlay" onClick={() => setDeleteConfirm(null)}>
+          <div className="investors-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="investors-modal-icon">⚠️</div>
+            <h3>Delete Investor?</h3>
+            <p>
+              Are you sure you want to delete <strong>{deleteConfirm.firstName} {deleteConfirm.lastName}</strong>? 
+              This action cannot be undone.
+            </p>
+            <div className="investors-modal-actions">
+              <button className="investors-btn-secondary" onClick={() => setDeleteConfirm(null)}>Cancel</button>
+              <button className="investors-btn-danger" onClick={handleDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

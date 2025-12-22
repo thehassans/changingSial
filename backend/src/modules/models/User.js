@@ -143,4 +143,17 @@ UserSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } c
+  } catch (err) {
+    next(err);
+  }
+});
+
+UserSchema.methods.comparePassword = async function (plain) {
+  try {
+    return await bcrypt.compare(plain, this.password);
+  } catch {
+    return false;
+  }
+};
+
+export default mongoose.model("User", UserSchema);
