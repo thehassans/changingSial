@@ -312,7 +312,7 @@ export default function DropshipperLayout() {
         {!isMobile && (
           <aside className="ds-sidebar">
             <div className="ds-brand">
-              <img src="/logo.png" alt="Buysial" style={{height: '32px', width: 'auto'}} />
+              <span>Buysial</span>
             </div>
             <nav className="ds-nav">
               {links.map(l => (
