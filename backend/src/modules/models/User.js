@@ -33,11 +33,6 @@ const UserSchema = new mongoose.Schema(
       index: true,
     },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    referralCode: { type: String, default: "", index: true },
-    refCode: { type: String, default: "", index: true },
-    inviteCode: { type: String, default: "" },
-    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    referredByCode: { type: String, default: "" },
     managerPermissions: {
       canCreateAgents: { type: Boolean, default: false },
       canManageProducts: { type: Boolean, default: false },

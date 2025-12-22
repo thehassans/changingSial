@@ -253,8 +253,6 @@ router.post(
         phone,
         ownerEmail, // optional now
         country,
-        referralCode,
-        referredBy,
       } = req.body || {};
 
       // Basic required fields (ownerEmail no longer required)
@@ -307,33 +305,7 @@ router.post(
         }
       }
 
-      // Resolve referral source (optional)
-      let refUser = null;
-      let refCodeStr = "";
-      try {
-        const raw = String(referralCode || referredBy || "").trim();
-        if (raw) {
-          refCodeStr = raw;
-          try {
-            if (mongoose.Types.ObjectId.isValid(raw)) {
-              refUser = await User.findById(raw).select("_id");
-            }
-          } catch {}
-          if (!refUser) {
-            try {
-              const lc = raw.toLowerCase();
-              refUser = await User.findOne({
-                $or: [
-                  { referralCode: raw },
-                  { refCode: raw },
-                  { inviteCode: raw },
-                  { email: lc },
-                ],
-              }).select("_id");
-            } catch {}
-          }
-        }
-      } catch {}
+
 
       const investor = new User({
         firstName: String(firstName).trim(),
@@ -344,20 +316,11 @@ router.post(
         country: country || "UAE",
         role: "investor",
         createdBy: owner ? owner._id : undefined,
-        referredBy: refUser ? refUser._id : undefined,
-        referredByCode: refCodeStr || undefined,
       });
 
       await investor.save();
 
-      try {
-        if (!investor.referralCode) {
-          const code = String(investor._id);
-          investor.referralCode = code;
-          investor.refCode = code;
-          await investor.save();
-        }
-      } catch {}
+
 
       const token = jwt.sign(
         {
@@ -387,36 +350,5 @@ router.post(
     }
   }
 );
-
-// Public: resolve a referral code to a user summary (name/email)
-router.get("/referral/resolve", async (req, res) => {
-  try {
-    const code = String(req.query.code || "").trim();
-    if (!code) return res.status(400).json({ message: "Missing code" });
-
-    let u = null;
-    try {
-      if (mongoose.Types.ObjectId.isValid(code)) {
-        u = await User.findById(code).select("firstName lastName email");
-      }
-    } catch {}
-    if (!u) {
-      try {
-        u = await User.findOne({
-          $or: [
-            { referralCode: code },
-            { refCode: code },
-            { inviteCode: code },
-          ],
-        }).select("firstName lastName email");
-      } catch {}
-    }
-    if (!u) return res.status(404).json({ message: "Referral not found" });
-    const name = `${u.firstName || ""} ${u.lastName || ""}`.trim() || u.email;
-    return res.json({ id: String(u._id), name, email: u.email });
-  } catch (err) {
-    return res.status(500).json({ message: "Failed to resolve referral" });
-  }
-});
 
 export default router;
