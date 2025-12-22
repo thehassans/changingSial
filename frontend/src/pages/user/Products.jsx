@@ -8,6 +8,7 @@ export default function UserProducts() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [selectedCurrency, setSelectedCurrency] = useState('SAR')
   const [currencyRates, setCurrencyRates] = useState({})
   const [warehouseData, setWarehouseData] = useState([])
   const [imageLoaded, setImageLoaded] = useState({})
@@ -190,7 +191,7 @@ export default function UserProducts() {
           background: 'var(--panel-2)',
         }}
       >
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 20 }}>
           <input
             type="text"
             className="input"
@@ -219,7 +220,7 @@ export default function UserProducts() {
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             style={{
-              minWidth: 220,
+              minWidth: 200,
               fontSize: 15,
               padding: '14px 20px',
               borderRadius: 10,
@@ -233,6 +234,31 @@ export default function UserProducts() {
                 {cat}
               </option>
             ))}
+          </select>
+
+          <select
+            className="input"
+            value={selectedCurrency}
+            onChange={(e) => setSelectedCurrency(e.target.value)}
+            style={{
+              minWidth: 140,
+              fontSize: 15,
+              padding: '14px 20px',
+              borderRadius: 10,
+              border: '2px solid var(--border)',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.05) 0%, rgba(251, 146, 60, 0.05) 100%)',
+            }}
+          >
+            <option value="AED">🇦🇪 AED</option>
+            <option value="SAR">🇸🇦 SAR</option>
+            <option value="OMR">🇴🇲 OMR</option>
+            <option value="BHD">🇧🇭 BHD</option>
+            <option value="KWD">🇰🇼 KWD</option>
+            <option value="QAR">🇶🇦 QAR</option>
+            <option value="INR">🇮🇳 INR</option>
+            <option value="USD">🇺🇸 USD</option>
+            <option value="CNY">🇨🇳 CNY</option>
           </select>
         </div>
       </div>
@@ -449,15 +475,18 @@ export default function UserProducts() {
                           WebkitTextFillColor: 'transparent',
                         }}
                       >
-                        {product.baseCurrency} {product.price?.toFixed(2)}
+                        {(() => {
+                          const baseCurrency = product.baseCurrency
+                          const basePrice = product.price
+                          const baseRate = currencyRates[baseCurrency] || 1
+                          const selectedRate = currencyRates[selectedCurrency] || 1
+                          const convertedPrice = (basePrice * baseRate) / selectedRate
+                          return `${selectedCurrency} ${convertedPrice.toFixed(2)}`
+                        })()}
                       </div>
-                      {getPricesInStockCurrencies(product).length > 0 && (
+                      {selectedCurrency !== product.baseCurrency && (
                         <div style={{ fontSize: 11, opacity: 0.5, lineHeight: 1.6, marginTop: 6 }}>
-                          {getPricesInStockCurrencies(product).map((p, idx) => (
-                            <div key={idx}>
-                              {p.currency} {p.price.toFixed(2)}
-                            </div>
-                          ))}
+                          Original: {product.baseCurrency} {product.price?.toFixed(2)}
                         </div>
                       )}
                     </div>
