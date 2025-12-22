@@ -157,8 +157,7 @@ export default function Investors() {
     
     try {
       await apiPost(`/users/investors/${investor._id}/toggle-profit`)
-      // Refresh to get accurate data from server
-      loadInvestors()
+      // Optimistic update already applied above - no need to reload
     } catch (err) {
       console.error('Failed to toggle profit:', err)
       // Revert on error
