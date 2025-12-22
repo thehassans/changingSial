@@ -58,6 +58,7 @@ import Managers from './pages/user/Managers.jsx'
 import Drivers from './pages/user/Drivers.jsx'
 import Dropshippers from './pages/user/Dropshippers.jsx'
 import Investors from './pages/user/Investors.jsx'
+import References from './pages/user/References.jsx'
 import Notifications from './pages/user/Notifications.jsx'
 import UserOrders from './pages/user/Orders.jsx'
 import UserAPISetup from './pages/user/APISetup.jsx'
@@ -477,6 +478,7 @@ export default function App() {
               <Route path="drivers" element={<Drivers />} />
               <Route path="dropshippers" element={<Dropshippers />} />
               <Route path="investors" element={<Investors />} />
+              <Route path="references" element={<References />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="campaigns" element={<Campaign />} />
               <Route path="orders" element={<UserOrders />} />
