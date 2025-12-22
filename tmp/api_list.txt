@@ -1,0 +1,239 @@
+backend/src/modules/routes/auth.js:router.post("/seed-admin", async (req, res) => {
+backend/src/modules/routes/auth.js:router.post("/seed-admin-login", async (req, res) => {
+backend/src/modules/routes/auth.js:router.post(
+backend/src/modules/routes/auth.js:router.post(
+backend/src/modules/routes/auth.js:router.post(
+backend/src/modules/routes/auth.js:router.get("/referral/resolve", async (req, res) => {
+backend/src/modules/routes/dropshippers.js:router.get("/dashboard", auth, allowRoles("dropshipper"), async (req, res) => {
+backend/src/modules/routes/dropshippers.js:router.get("/finances", auth, allowRoles("dropshipper"), async (req, res) => {
+backend/src/modules/routes/ecommerce.js:router.post("/orders", async (req, res) => {
+backend/src/modules/routes/ecommerce.js:router.get(
+backend/src/modules/routes/ecommerce.js:router.get(
+backend/src/modules/routes/ecommerce.js:router.get(
+backend/src/modules/routes/ecommerce.js:router.patch(
+backend/src/modules/routes/ecommerce.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.post(
+backend/src/modules/routes/finance.js:router.get(
+backend/src/modules/routes/geocode.js:router.post('/', auth, async (req, res) => {
+backend/src/modules/routes/geocode.js:router.post('/reverse', auth, async (req, res) => {
+backend/src/modules/routes/geocode.js:router.post('/whatsapp', auth, async (req, res) => {
+backend/src/modules/routes/geocode.js:router.post('/validate', auth, async (req, res) => {
+backend/src/modules/routes/geocode.js:router.post('/distance', auth, async (req, res) => {
+backend/src/modules/routes/investors.js:router.get("/products", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/investors.js:router.get("/plans", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/investors.js:router.get("/my-orders", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/investors.js:router.get("/daily-profits", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/investors.js:router.post("/requests", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/investors.js:router.get("/requests", auth, allowRoles("investor"), async (req, res) => {
+backend/src/modules/routes/notifications.js:router.get('/', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (req, res) => {
+backend/src/modules/routes/notifications.js:router.patch('/:id/read', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (req, res) => {
+backend/src/modules/routes/notifications.js:router.patch('/mark-all-read', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (req, res) => {
+backend/src/modules/routes/notifications.js:router.delete('/:id', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (req, res) => {
+backend/src/modules/routes/notifications.js:router.get('/stats', auth, allowRoles('admin', 'user', 'agent', 'manager'), async (req, res) => {
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.get("/driver/assigned", auth, allowRoles("driver"), async (req, res) => {
+backend/src/modules/routes/orders.js:router.get("/driver/picked", auth, allowRoles("driver"), async (req, res) => {
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.get("/driver/metrics", auth, allowRoles("driver"), async (req, res) => {
+backend/src/modules/routes/orders.js:router.get("/driver/history", auth, allowRoles("driver"), async (req, res) => {
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/orders.js:router.post("/:id/claim", auth, allowRoles("driver"), async (req, res) => {
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.patch(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.post(
+backend/src/modules/routes/orders.js:router.get(
+backend/src/modules/routes/products.js:router.get('/public/categories-usage', async (req, res) => {
+backend/src/modules/routes/products.js:router.post('/', auth, allowRoles('admin','user','manager'), upload.any(), async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/public/:id', async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/public', async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/mobile', async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/', auth, allowRoles('admin','user','agent','manager','customer','dropshipper'), async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/:id', auth, allowRoles('admin','user','agent','manager','customer','dropshipper'), async (req, res) => {
+backend/src/modules/routes/products.js:router.patch('/:id', auth, allowRoles('admin','user','manager'), upload.any(), async (req, res) => {
+backend/src/modules/routes/products.js:router.post('/:id/images/ai', auth, allowRoles('admin','user','manager'), async (req, res) => {
+backend/src/modules/routes/products.js:router.delete('/:id', auth, allowRoles('admin','user','manager'), async (req, res) => {
+backend/src/modules/routes/products.js:router.post('/generate-description', auth, allowRoles('admin','user','manager'), async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/categories', async (req, res) => {
+backend/src/modules/routes/products.js:router.post('/:id/stock/add', auth, allowRoles('user', 'manager'), async (req, res) => {
+backend/src/modules/routes/products.js:router.get('/:id/stock/history', auth, async (req, res) => {
+backend/src/modules/routes/products.js:router.post('/migrate/total-purchased', auth, allowRoles('admin'), async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/overview", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/agents", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/drivers", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/investors", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/countries", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/country-drivers", auth, async (req, res) => {
+backend/src/modules/routes/reports.js:router.get("/user-metrics", auth, allowRoles("user"), async (req, res) => {
+backend/src/modules/routes/reports.js:router.get(
+backend/src/modules/routes/reports.js:router.get(
+backend/src/modules/routes/reports.js:router.get("/driver-metrics", auth, allowRoles("user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.get(
+backend/src/modules/routes/settings.js:router.post(
+backend/src/modules/routes/settings.js:router.post("/ai/test", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.get("/branding", async (_req, res) => {
+backend/src/modules/routes/settings.js:router.post(
+backend/src/modules/routes/settings.js:router.get("/manifest", async (req, res) => {
+backend/src/modules/routes/settings.js:router.get("/facebook", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.post(
+backend/src/modules/routes/settings.js:router.get("/ai", auth, allowRoles("admin", "user"), async (_req, res) => {
+backend/src/modules/routes/settings.js:router.post("/ai", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.get(
+backend/src/modules/routes/settings.js:router.post(
+backend/src/modules/routes/settings.js:router.get("/seo", async (_req, res) => {
+backend/src/modules/routes/settings.js:router.post("/seo", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.get("/theme", async (_req, res) => {
+backend/src/modules/routes/settings.js:router.post("/theme", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/settings.js:router.get("/label-design", async (_req, res) => {
+backend/src/modules/routes/settings.js:router.post(
+backend/src/modules/routes/shopify.js:router.get('/settings', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/settings', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/products/:id/sync', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/products/sync-all', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.delete('/products/:id', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/products/:id/inventory', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/webhooks/orders/create', express.raw({ type: 'application/json' }), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/webhooks/orders/fulfilled', express.raw({ type: 'application/json' }), async (req, res) => {
+backend/src/modules/routes/shopify.js:router.post('/webhooks/orders/cancelled', express.raw({ type: 'application/json' }), async (req, res) => {
+backend/src/modules/routes/support.js:router.post('/tickets', auth, allowRoles('admin','user','agent'), async (req, res) => {
+backend/src/modules/routes/support.js:router.get('/tickets', auth, allowRoles('admin','user','agent'), async (req, res) => {
+backend/src/modules/routes/support.js:router.get('/tickets/:id', auth, allowRoles('admin','user','agent'), async (req, res) => {
+backend/src/modules/routes/support.js:router.post('/tickets/:id/reply', auth, allowRoles('admin','user','agent'), async (req, res) => {
+backend/src/modules/routes/support.js:router.post('/tickets/:id/status', auth, allowRoles('admin','user','agent'), async (req, res) => {
+backend/src/modules/routes/users.js:router.get("/", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/users.js:router.post("/", auth, allowRoles("admin"), async (req, res) => {
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.delete(
+backend/src/modules/routes/users.js:router.get("/me", auth, async (req, res) => {
+backend/src/modules/routes/users.js:router.patch("/me/settings", auth, async (req, res) => {
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.patch("/me/password", auth, async (req, res) => {
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.post("/update-profile", auth, async (req, res) => {
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.get("/by-domain/:domain", async (req, res) => {
+backend/src/modules/routes/users.js:router.get("/agents/me/performance", auth, async (req, res) => {
+backend/src/modules/routes/users.js:router.get("/managers", auth, allowRoles("admin", "user"), async (req, res) => {
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.delete(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.delete(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.delete(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/users.js:router.get(
+backend/src/modules/routes/users.js:router.patch(
+backend/src/modules/routes/users.js:router.delete(
+backend/src/modules/routes/users.js:router.post(
+backend/src/modules/routes/wa.js:router.get('/media/meta', auth, rateLimit({ windowMs: MEDIA_WINDOW, max: MEDIA_MAX }), async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/chat-delete', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/status', auth, async (_req, res) => {
+backend/src/modules/routes/wa.js:router.post('/connect', auth, async (_req, res) => {
+backend/src/modules/routes/wa.js:router.get('/qr', auth, async (_req, res) => {
+backend/src/modules/routes/wa.js:router.post('/logout', auth, async (_req, res) => {
+backend/src/modules/routes/wa.js:router.post('/clear-all', auth, allowRoles('admin','user'), async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/sessions', auth, allowRoles('admin','user','manager'), async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/mark-read', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/auto-assign', auth, async (_req, res) => {
+backend/src/modules/routes/wa.js:router.post('/auto-assign', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/events', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/chats', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/messages', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/send-text', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/react', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/send-media', auth, multerArray('files', 30), async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/send-voice', auth, memUpload.single('voice'), async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/cancel-voice', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/media', auth, rateLimit({ windowMs: MEDIA_WINDOW, max: MEDIA_MAX }), async (req, res) => {
+backend/src/modules/routes/wa.js:router.get('/chat-meta', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/chat-meta/notes', auth, async (req, res) => {
+backend/src/modules/routes/wa.js:router.post('/chat-meta/assign', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/warehouse.js:router.get('/summary', auth, allowRoles('admin','user','manager'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.get('/banners', async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.post('/banners', auth, allowRoles('admin', 'user'), upload.single('banner'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.get('/banners/:id/delete', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.get('/banners/:id/toggle', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.post('/banners/reorder', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.get('/content', async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.post('/content', auth, allowRoles('admin', 'user'), async (req, res) => {
+backend/src/modules/routes/websiteSettings.js:router.delete('/content/:page', auth, allowRoles('admin', 'user'), async (req, res) => {
