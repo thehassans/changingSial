@@ -43,9 +43,19 @@ export default function Investors() {
     }
   }, [])
 
+  const loadReferences = useCallback(async () => {
+    try {
+      const res = await apiGet('/users/references')
+      setReferences(res.references || [])
+    } catch (err) {
+      console.error('Failed to load references:', err)
+    }
+  }, [])
+
   useEffect(() => {
     loadInvestors()
-  }, [loadInvestors])
+    loadReferences()
+  }, [loadInvestors, loadReferences])
 
   const resetForm = () => {
     setForm({
@@ -58,6 +68,12 @@ export default function Investors() {
       profitAmount: '',
       profitPercentage: '15',
       currency: 'SAR',
+      referredBy: '',
+      createNewReference: false,
+      referenceName: '',
+      referencePhone: '',
+      referenceEmail: '',
+      referenceCommission: '5',
     })
     setEditingInvestor(null)
     setError('')
@@ -90,11 +106,28 @@ export default function Investors() {
     setSaving(true)
 
     try {
+      let referenceId = form.referredBy
+      
+      // Create new reference if requested
+      if (form.createNewReference && form.referenceName) {
+        const refRes = await apiPost('/users/references', {
+          firstName: form.referenceName.split(' ')[0] || form.referenceName,
+          lastName: form.referenceName.split(' ').slice(1).join(' ') || '',
+          email: form.referenceEmail,
+          phone: form.referencePhone,
+          commissionPerOrder: parseFloat(form.referenceCommission) || 0,
+          currency: form.currency,
+        })
+        referenceId = refRes.reference?._id
+        loadReferences() // Reload references list
+      }
+
       const payload = {
         ...form,
         investmentAmount: parseFloat(form.investmentAmount) || 0,
         profitAmount: parseFloat(form.profitAmount) || 0,
         profitPercentage: parseFloat(form.profitPercentage) || 15,
+        referredBy: referenceId || undefined,
       }
 
       if (editingInvestor) {
@@ -297,6 +330,85 @@ export default function Investors() {
                   placeholder="15"
                 />
               </div>
+            </div>
+
+            {/* Reference Section */}
+            <div style={{marginBottom: 20, paddingTop: 20, borderTop: '1px solid var(--investor-glass-border)'}}>
+              <h3 style={{fontSize: 16, fontWeight: 700, marginBottom: 16}}>Reference (Optional)</h3>
+              <div className="investors-form-grid">
+                <div className="investors-form-field">
+                  <label>Select Reference</label>
+                  <select
+                    value={form.referredBy}
+                    onChange={(e) => setForm({ ...form, referredBy: e.target.value, createNewReference: false })}
+                    disabled={form.createNewReference}
+                  >
+                    <option value="">None</option>
+                    {references.map((ref) => (
+                      <option key={ref._id} value={ref._id}>
+                        {ref.firstName} {ref.lastName} - {ref.referenceProfile?.commissionPerOrder || 0}%
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="investors-form-field" style={{display: 'flex', alignItems: 'flex-end'}}>
+                  <label style={{display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer'}}>
+                    <input
+                      type="checkbox"
+                      checked={form.createNewReference}
+                      onChange={(e) => setForm({ ...form, createNewReference: e.target.checked, referredBy: '' })}
+                    />
+                    Create New Reference
+                  </label>
+                </div>
+              </div>
+              
+              {form.createNewReference && (
+                <div className="investors-form-grid" style={{marginTop: 16}}>
+                  <div className="investors-form-field">
+                    <label>Reference Name *</label>
+                    <input
+                      type="text"
+                      value={form.referenceName}
+                      onChange={(e) => setForm({ ...form, referenceName: e.target.value })}
+                      required={form.createNewReference}
+                      placeholder="John Doe"
+                    />
+                  </div>
+                  <div className="investors-form-field">
+                    <label>Reference Email *</label>
+                    <input
+                      type="email"
+                      value={form.referenceEmail}
+                      onChange={(e) => setForm({ ...form, referenceEmail: e.target.value })}
+                      required={form.createNewReference}
+                      placeholder="john@example.com"
+                    />
+                  </div>
+                  <div className="investors-form-field">
+                    <label>Reference Phone</label>
+                    <input
+                      type="tel"
+                      value={form.referencePhone}
+                      onChange={(e) => setForm({ ...form, referencePhone: e.target.value })}
+                      placeholder="+966 XXX XXX XXXX"
+                    />
+                  </div>
+                  <div className="investors-form-field">
+                    <label>Commission % Per Order *</label>
+                    <input
+                      type="number"
+                      value={form.referenceCommission}
+                      onChange={(e) => setForm({ ...form, referenceCommission: e.target.value })}
+                      required={form.createNewReference}
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      placeholder="5"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="investors-form-actions">
