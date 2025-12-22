@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import User from "../models/User.js";
 import Product from "../models/Product.js";
 import { auth, allowRoles } from "../middleware/auth.js";
+import jwt from "jsonwebtoken";
 import { getIO } from "../config/socket.js";
 // Lazy WhatsApp import to avoid startup crashes when WA is disabled or deps missing
 async function getWA() {
@@ -2739,6 +2740,42 @@ router.get("/references/:id/investors", auth, allowRoles("admin", "user"), async
     res.json({ investors });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch investors" });
+  }
+});
+
+
+// Impersonate user (generate login token for another user)
+router.post("/:id/impersonate", auth, allowRoles("admin", "user"), async (req, res) => {
+  try {
+    const targetUser = await User.findById(req.params.id).select("-password");
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Generate token for the target user
+    const token = jwt.sign(
+      {
+        id: targetUser._id,
+        role: targetUser.role,
+        firstName: targetUser.firstName,
+        lastName: targetUser.lastName,
+      },
+      process.env.JWT_SECRET || "devsecret-change-me",
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: targetUser._id,
+        role: targetUser.role,
+        firstName: targetUser.firstName,
+        lastName: targetUser.lastName,
+        email: targetUser.email,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to impersonate user" });
   }
 });
 

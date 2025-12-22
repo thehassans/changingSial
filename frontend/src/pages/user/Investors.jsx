@@ -169,6 +169,18 @@ export default function Investors() {
     }
   }
 
+  const handleLoginAs = async (investor) => {
+    try {
+      const res = await apiPost(`/users/${investor._id}/impersonate`)
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('me', JSON.stringify(res.user))
+      window.location.href = '/investor'
+    } catch (err) {
+      console.error('Failed to login as user:', err)
+      alert('Failed to login as this user')
+    }
+  }
+
   const handleDelete = async () => {
     if (!deleteConfirm) return
     try {
@@ -508,6 +520,7 @@ export default function Investors() {
                   </button>
                 )}
                 <button className="investor-action-btn edit" onClick={() => openEdit(inv)}>✏️ Edit</button>
+                <button className="investor-action-btn" style={{background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff'}} onClick={() => handleLoginAs(inv)}>🔑 Login As</button>
                 <button className="investor-action-btn delete" onClick={() => setDeleteConfirm(inv)}>🗑️</button>
               </div>
             </div>
