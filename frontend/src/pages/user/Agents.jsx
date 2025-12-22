@@ -192,6 +192,18 @@ export default function Agents(){
 
   function fmtDate(s){ try{ return new Date(s).toLocaleString() }catch{ return ''} }
 
+  const handleLoginAs = async (user) => {
+    try {
+      const res = await apiPost(`/users/${user._id}/impersonate`)
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('me', JSON.stringify(res.user))
+      window.location.href = '/agent'
+    } catch (err) {
+      console.error('Failed to login as user:', err)
+      alert('Failed to login as this user')
+    }
+  }
+
   return (
     <div className="section">
       {/* Page header */}
@@ -321,6 +333,7 @@ export default function Agents(){
                     <td style={{padding:'10px 12px'}}>{fmtDate(u.createdAt)}</td>
                     <td style={{padding:'10px 12px', textAlign:'right', display:'flex', gap:8, justifyContent:'flex-end'}}>
                       <button className="btn" onClick={()=> openEdit({ ...u, id: uid })}>Edit</button>
+                      <button className="btn" style={{background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "#fff"}} onClick={()=> handleLoginAs({ ...u, id: uid })}>🔑 Login As</button>
                       <button className="btn secondary" disabled={!!resendingId && resendingId===uid} onClick={()=>resendWelcome({ ...u, id: uid })}>
                         {resendingId===uid ? 'Resending…' : 'Resend Welcome'}
                       </button>

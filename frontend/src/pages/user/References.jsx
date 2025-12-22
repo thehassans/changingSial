@@ -39,6 +39,18 @@ export default function References() {
   const totalInvestors = references.reduce((sum, ref) => sum + (ref.investors?.length || 0), 0)
   const totalEarned = references.reduce((sum, ref) => sum + (ref.referenceProfile?.totalEarned || 0), 0)
 
+  const handleLoginAs = async (user) => {
+    try {
+      const res = await apiPost(`/users/${user._id}/impersonate`)
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('me', JSON.stringify(res.user))
+      window.location.href = '/investor'
+    } catch (err) {
+      console.error('Failed to login as user:', err)
+      alert('Failed to login as this user')
+    }
+  }
+
   return (
     <div className="references-container">
       <div className="references-header">

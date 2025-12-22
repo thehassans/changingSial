@@ -152,6 +152,18 @@ export default function Dropshippers(){
 
   function fmtDate(s){ try{ return new Date(s).toLocaleString() }catch{ return ''} }
 
+  const handleLoginAs = async (user) => {
+    try {
+      const res = await apiPost(`/users/${user._id}/impersonate`)
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('me', JSON.stringify(res.user))
+      window.location.href = '/dropshipper'
+    } catch (err) {
+      console.error('Failed to login as user:', err)
+      alert('Failed to login as this user')
+    }
+  }
+
   return (
     <div className="section">
       <div className="page-header">

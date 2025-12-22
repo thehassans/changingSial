@@ -215,6 +215,18 @@ export default function Drivers(){
 
   function fmtDate(s){ try{ return new Date(s).toLocaleString() }catch{ return ''} }
 
+  const handleLoginAs = async (user) => {
+    try {
+      const res = await apiPost(`/users/${user._id}/impersonate`)
+      localStorage.setItem('token', res.token)
+      localStorage.setItem('me', JSON.stringify(res.user))
+      window.location.href = '/driver'
+    } catch (err) {
+      console.error('Failed to login as user:', err)
+      alert('Failed to login as this user')
+    }
+  }
+
   return (
     <div className="section">
       {/* Page header */}
@@ -345,6 +357,7 @@ export default function Drivers(){
                     <td style={{padding:'10px 12px', textAlign:'right'}}>
                       <div style={{display:'inline-flex', gap:8}}>
                         <button className="btn" onClick={()=>openEdit(u)}>Edit</button>
+                        <button className="btn" style={{background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", color: "#fff"}} onClick={()=> handleLoginAs(u)}>🔑 Login As</button>
                         <button className="btn danger" onClick={()=>openDelete(u)}>Delete</button>
                       </div>
                     </td>
