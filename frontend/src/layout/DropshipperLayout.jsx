@@ -2,6 +2,211 @@ import React, { useEffect, useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { API_BASE, apiGet, apiPatch } from '../api.js'
 
+const PREMIUM_STYLES = `
+  .dropshipper-layout {
+    display: flex;
+    height: 100vh;
+    background: var(--bg, #0f172a);
+    color: var(--text, #f8fafc);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+  }
+
+  [data-theme="light"] .dropshipper-layout {
+    --bg: #f8fafc;
+    --text: #0f172a;
+    --panel: #ffffff;
+    --panel-2: #f1f5f9;
+    --border: rgba(0, 0, 0, 0.08);
+    --sidebar-bg: #ffffff;
+    --sidebar-border: #e2e8f0;
+  }
+
+  [data-theme="dark"] .dropshipper-layout {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --panel: rgba(30, 41, 59, 0.7);
+    --panel-2: rgba(51, 65, 85, 0.5);
+    --border: rgba(255, 255, 255, 0.08);
+    --sidebar-bg: rgba(15, 23, 42, 0.95);
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+  }
+
+  .dropshipper-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--sidebar-bg, #0f172a);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--sidebar-border, rgba(255, 255, 255, 0.1));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .dropshipper-sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    bottom: 0;
+    width: 260px;
+    background: var(--sidebar-bg, #0f172a);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--sidebar-border, rgba(255, 255, 255, 0.1));
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    transition: transform 0.3s ease;
+  }
+
+  .dropshipper-nav {
+    flex: 1;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+
+  .dropshipper-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    color: var(--text-secondary, #94a3b8);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .dropshipper-nav-link:hover {
+    background: rgba(16, 185, 129, 0.08);
+    color: #10b981;
+  }
+
+  .dropshipper-nav-link.active {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+    color: #10b981;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 #10b981;
+  }
+
+  .dropshipper-content {
+    margin-left: 260px;
+    margin-top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    padding: 32px;
+    background: var(--bg);
+  }
+
+  .dropshipper-mobile-tabs {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: var(--sidebar-bg, #0f172a);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--sidebar-border, rgba(255, 255, 255, 0.1));
+    z-index: 100;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 8px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .dropshipper-mobile-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--text-secondary, #94a3b8);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    flex: 1;
+    height: 100%;
+    transition: all 0.2s;
+  }
+
+  .dropshipper-mobile-tab.active {
+    color: #10b981;
+  }
+
+  .dropshipper-mobile-tab svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .dropshipper-sidebar {
+      display: none;
+    }
+    .dropshipper-content {
+      margin-left: 0;
+      padding: 16px;
+      padding-bottom: 88px;
+    }
+    .dropshipper-mobile-tabs {
+      display: flex;
+    }
+    .dropshipper-topbar {
+      padding: 0 16px;
+    }
+  }
+
+  .dropshipper-pro-tip {
+    margin: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+
+  .dropshipper-pro-tip-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #10b981;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .dropshipper-pro-tip-text {
+    font-size: 11px;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.5;
+  }
+
+  /* Scrollbar styling */
+  .dropshipper-content::-webkit-scrollbar,
+  .dropshipper-nav::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .dropshipper-content::-webkit-scrollbar-track,
+  .dropshipper-nav::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dropshipper-content::-webkit-scrollbar-thumb,
+  .dropshipper-nav::-webkit-scrollbar-thumb {
+    background: var(--border, rgba(255, 255, 255, 0.1));
+    border-radius: 99px;
+  }
+`
+
 export default function DropshipperLayout() {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 768 : false
@@ -145,31 +350,12 @@ export default function DropshipperLayout() {
     )},
   ]
 
-  const mobileTabs = [
-    { to: '/dropshipper/dashboard', label: 'Dashboard', icon: links[0].icon },
-    { to: '/dropshipper/products', label: 'Products', icon: links[1].icon },
-    { to: '/dropshipper/submit-order', label: 'Orders', icon: links[2].icon },
-    { to: '/dropshipper/orders', label: 'History', icon: links[3].icon },
-    { to: '/dropshipper/finances', label: 'Earnings', icon: links[4].icon },
-  ]
-
   return (
-    <div>
-      <div className={`main ${isMobile ? 'full-mobile with-mobile-tabs' : ''}`}>
-        {/* Professional topbar matching agent panel */}
-        <div
-          className="topbar"
-          style={{
-            background: 'var(--sidebar-bg)',
-            borderBottom: '1px solid var(--sidebar-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'nowrap',
-            minHeight: '60px',
-            padding: '0 1rem'
-          }}
-        >
+    <>
+      <style>{PREMIUM_STYLES}</style>
+      <div className="dropshipper-layout">
+        {/* Professional topbar */}
+        <div className="dropshipper-topbar">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
             {(() => {
               const fallback = `${import.meta.env.BASE_URL}BuySial2.png`
@@ -185,7 +371,7 @@ export default function DropshipperLayout() {
             {/* Professional Dropshipper identity chip */}
             <div
               style={{
-                display: 'inline-flex',
+                display: isMobile ? 'none' : 'inline-flex',
                 alignItems: 'center',
                 gap: '10px',
                 padding: '8px 16px',
@@ -287,7 +473,7 @@ export default function DropshipperLayout() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.2s',
-                boxShadow: showSettings ? '0 0 0 2px var(--accent)' : 'none'
+                boxShadow: showSettings ? '0 0 0 2px #10b981' : 'none'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -356,40 +542,35 @@ export default function DropshipperLayout() {
 
         {/* Sidebar for desktop */}
         {!isMobile && (
-          <aside className="sidebar">
-            <nav className="nav">
+          <aside className="dropshipper-sidebar">
+            <nav className="dropshipper-nav">
               {links.map(l => (
-                <NavLink key={l.to} to={l.to} className={({isActive}) => `link ${isActive?'active':''}`}>
+                <NavLink key={l.to} to={l.to} className={({isActive}) => `dropshipper-nav-link ${isActive?'active':''}`}>
                   {l.icon}
                   <span>{l.label}</span>
                 </NavLink>
               ))}
             </nav>
-            <div style={{padding: 24}}>
-              <div style={{
-                padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
-                border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', flexDirection: 'column', gap: 8
-              }}>
-                <div style={{fontSize:12, fontWeight:600, color:'#10b981'}}>PRO TIPS</div>
-                <div style={{fontSize:11, color:'var(--text-secondary)', lineHeight: 1.4}}>
-                  Maintain a high delivery rate to unlock exclusive products and faster payouts.
-                </div>
+            <div className="dropshipper-pro-tip">
+              <div className="dropshipper-pro-tip-title">PRO TIPS</div>
+              <div className="dropshipper-pro-tip-text">
+                Maintain a high delivery rate to unlock exclusive products and faster payouts.
               </div>
             </div>
           </aside>
         )}
 
         {/* Main Content */}
-        <div className="content">
+        <div className="dropshipper-content">
           <Outlet />
         </div>
 
         {/* Mobile Bottom Tabs */}
         {isMobile && (
-          <nav className="mobile-tabs">
-            {mobileTabs.map(t => (
-              <NavLink key={t.to} to={t.to} className={({isActive}) => `mobile-tab ${isActive?'active':''}`}>
-                {React.cloneElement(t.icon, { width: 22, height: 22 })}
+          <nav className="dropshipper-mobile-tabs">
+            {links.map(t => (
+              <NavLink key={t.to} to={t.to} className={({isActive}) => `dropshipper-mobile-tab ${isActive?'active':''}`}>
+                {React.cloneElement(t.icon, { width: 24, height: 24 })}
                 <span>{t.label}</span>
               </NavLink>
             ))}
@@ -445,6 +626,6 @@ export default function DropshipperLayout() {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
