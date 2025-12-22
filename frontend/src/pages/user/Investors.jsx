@@ -6,6 +6,7 @@ const CURRENCIES = ['SAR', 'AED', 'OMR', 'BHD', 'INR', 'KWD', 'QAR', 'USD', 'CNY
 
 export default function Investors() {
   const [investors, setInvestors] = useState([])
+  const [references, setReferences] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingInvestor, setEditingInvestor] = useState(null)
@@ -20,6 +21,12 @@ export default function Investors() {
     profitAmount: '',
     profitPercentage: '15',
     currency: 'SAR',
+    referredBy: '', // Selected reference ID
+    createNewReference: false, // Toggle to create new reference
+    referenceName: '',
+    referencePhone: '',
+    referenceEmail: '',
+    referenceCommission: '5',
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
