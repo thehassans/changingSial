@@ -1,230 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { apiGet } from '../api.js'
-
-/* Ultra Premium Design System */
-const STYLES = `
-  :root {
-    --ds-bg: #0f172a;
-    --ds-panel: rgba(30, 41, 59, 0.7);
-    --ds-glass: rgba(255, 255, 255, 0.03);
-    --ds-border: rgba(255, 255, 255, 0.08);
-    --ds-text-primary: #f8fafc;
-    --ds-text-secondary: #94a3b8;
-    --ds-accent: #8b5cf6;
-    --ds-accent-glow: rgba(139, 92, 246, 0.5);
-  }
-
-  [data-theme='light'] {
-     --ds-bg: #f8fafc;
-     --ds-panel: rgba(255, 255, 255, 0.8);
-     --ds-glass: rgba(0, 0, 0, 0.02);
-     --ds-border: rgba(0, 0, 0, 0.06);
-     --ds-text-primary: #0f172a;
-     --ds-text-secondary: #64748b;
-  }
-
-  .ds-layout {
-    display: flex;
-    height: 100vh;
-    background: var(--ds-bg);
-    color: var(--ds-text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  /* Ambient Background Glow */
-  .ds-glow-bg {
-    position: absolute;
-    width: 600px;
-    height: 600px;
-    top: -100px;
-    left: -100px;
-    background: radial-gradient(circle, var(--ds-accent-glow) 0%, transparent 70%);
-    opacity: 0.15;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .ds-sidebar {
-    width: 260px;
-    height: 100%;
-    background: var(--ds-panel);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid var(--ds-border);
-    display: flex;
-    flex-direction: column;
-    z-index: 20;
-    transition: transform 0.3s ease;
-  }
-
-  .ds-sidebar.mobile-hidden {
-    display: none;
-  }
-
-  .ds-brand {
-    padding: 32px 24px;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  [data-theme='light'] .ds-brand {
-    background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .ds-nav {
-    flex: 1;
-    padding: 0 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .ds-link {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    border-radius: 12px;
-    color: var(--ds-text-secondary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ds-link:hover {
-    background: var(--ds-glass);
-    color: var(--ds-text-primary);
-  }
-
-  .ds-link.active {
-    background: linear-gradient(90deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
-    color: var(--ds-accent);
-    border-left: 3px solid var(--ds-accent);
-  }
-  
-  .ds-link.active::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--ds-accent);
-    opacity: 0.05;
-  }
-
-  .ds-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    z-index: 10;
-    overflow: hidden;
-  }
-
-  .ds-header {
-    height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 32px;
-    border-bottom: 1px solid var(--ds-border);
-    backdrop-filter: blur(10px);
-  }
-
-  .ds-user-menu {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .ds-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    display: grid;
-    place-items: center;
-    font-weight: 700;
-    color: white;
-    font-size: 14px;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-  }
-
-  .ds-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 32px;
-  }
-
-  /* Mobile Bottom Nav */
-  .ds-bottom-nav {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
-    background: rgba(15, 23, 42, 0.8);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--ds-border);
-    z-index: 100;
-    justify-content: space-around;
-    align-items: center;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  [data-theme='light'] .ds-bottom-nav {
-    background: rgba(255, 255, 255, 0.9);
-  }
-  
-  .ds-mobile-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: var(--ds-text-secondary);
-    text-decoration: none;
-    font-size: 10px;
-    font-weight: 500;
-    flex: 1;
-    height: 100%;
-    justify-content: center;
-  }
-  
-  .ds-mobile-tab.active {
-    color: var(--ds-accent);
-  }
-
-  @media (max-width: 768px) {
-    .ds-sidebar { display: none; }
-    .ds-bottom-nav { display: flex; }
-    .ds-content { padding: 16px; padding-bottom: 80px; }
-    .ds-header { padding: 0 16px; height: 60px; }
-  }
-  
-  /* Scrollbar */
-  .ds-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  .ds-content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .ds-content::-webkit-scrollbar-thumb {
-    background: var(--ds-border);
-    border-radius: 99px;
-  }
-`
+import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { API_BASE, apiGet, apiPatch } from '../api.js'
 
 export default function DropshipperLayout() {
   const [isMobile, setIsMobile] = useState(() =>
@@ -240,7 +16,22 @@ export default function DropshipperLayout() {
     }
   })
   
-  const [me, setMe] = useState(() => { try{ return JSON.parse(localStorage.getItem('me')||'{}') }catch{ return {} } })
+  const [showSettings, setShowSettings] = useState(false)
+  const [showPassModal, setShowPassModal] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [changingPass, setChangingPass] = useState(false)
+  
+  const [me, setMe] = useState(() => { 
+    try { 
+      return JSON.parse(localStorage.getItem('me')||'{}') 
+    } catch { 
+      return {} 
+    } 
+  })
+
+  const [branding, setBranding] = useState({ headerLogo: null })
 
   useEffect(() => {
     try {
@@ -260,19 +51,71 @@ export default function DropshipperLayout() {
   }, [])
 
   useEffect(() => {
-    (async () => {
-      try{
+    let cancelled = false
+    ;(async () => {
+      try {
+        const j = await apiGet('/api/settings/branding')
+        if (!cancelled) setBranding({ headerLogo: j.headerLogo || null })
+      } catch {}
+      try {
         const r = await apiGet('/api/users/me')
-        setMe(r?.user||{})
-      }catch{}
+        if (!cancelled) setMe(r?.user||{})
+      } catch {}
     })()
+    return () => { cancelled = true }
   }, [])
 
   function doLogout() {
-    try { localStorage.removeItem('token'); localStorage.removeItem('me') } catch {}
+    try { 
+      localStorage.removeItem('token')
+      localStorage.removeItem('me') 
+    } catch {}
     try { navigate('/login', { replace: true }) } catch {}
     setTimeout(() => { try { window.location.assign('/login') } catch {} }, 30)
   }
+
+  async function handlePasswordChange(e) {
+    e?.preventDefault?.()
+    if (!currentPassword || !newPassword) {
+      alert('Please fill all fields')
+      return
+    }
+    if (newPassword.length < 6) {
+      alert('New password must be at least 6 characters')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      alert('New password and confirmation do not match')
+      return
+    }
+    setChangingPass(true)
+    try {
+      await apiPatch('/api/users/me/password', {
+        currentPassword,
+        newPassword,
+      })
+      alert('Password changed successfully!')
+      setShowPassModal(false)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err) {
+      alert(err?.message || 'Failed to change password')
+    } finally {
+      setChangingPass(false)
+    }
+  }
+
+  // Click outside to close settings
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (showSettings && !e.target.closest('.settings-dropdown') && !e.target.closest('.settings-button')) {
+        setShowSettings(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showSettings])
 
   const links = [
     { to: '/dropshipper/dashboard', label: 'Overview', icon: (
@@ -302,21 +145,221 @@ export default function DropshipperLayout() {
     )},
   ]
 
+  const mobileTabs = [
+    { to: '/dropshipper/dashboard', label: 'Dashboard', icon: links[0].icon },
+    { to: '/dropshipper/products', label: 'Products', icon: links[1].icon },
+    { to: '/dropshipper/submit-order', label: 'Orders', icon: links[2].icon },
+    { to: '/dropshipper/orders', label: 'History', icon: links[3].icon },
+    { to: '/dropshipper/finances', label: 'Earnings', icon: links[4].icon },
+  ]
+
   return (
-    <>
-      <style>{STYLES}</style>
-      <div className="ds-layout">
-        <div className="ds-glow-bg" />
-        
-        {/* Sidebar */}
-        {!isMobile && (
-          <aside className="ds-sidebar">
-            <div className="ds-brand">
-              <span>Buysial</span>
+    <div>
+      <div className={`main ${isMobile ? 'full-mobile with-mobile-tabs' : ''}`}>
+        {/* Professional topbar matching agent panel */}
+        <div
+          className="topbar"
+          style={{
+            background: 'var(--sidebar-bg)',
+            borderBottom: '1px solid var(--sidebar-border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'nowrap',
+            minHeight: '60px',
+            padding: '0 1rem'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+            {(() => {
+              const fallback = `${import.meta.env.BASE_URL}BuySial2.png`
+              const src = branding.headerLogo ? `${API_BASE}${branding.headerLogo}` : fallback
+              return (
+                <img
+                  src={src}
+                  alt="BuySial"
+                  style={{ height: 36, width: 'auto', objectFit: 'contain' }}
+                />
+              )
+            })()}
+            {/* Professional Dropshipper identity chip */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '8px 16px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <span aria-hidden style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '28px',
+                height: '28px',
+                borderRadius: '6px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                fontSize: '16px'
+              }}>📦</span>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '1px'}}>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>Dropshipper</span>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>{me.firstName || 'Dropshipper'} {me.lastName || ''}</span>
+              </div>
             </div>
-            <nav className="ds-nav">
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, position: 'relative' }}>
+            {/* Premium Theme Toggle */}
+            <button
+              onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              aria-label={theme === 'light' ? 'Dark mode' : 'Light mode'}
+              style={{
+                position: 'relative',
+                width: '60px',
+                height: '30px',
+                background: theme === 'dark' ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                borderRadius: '15px',
+                border: theme === 'dark' ? '2px solid #334155' : '2px solid #cbd5e1',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: theme === 'dark' ? 'inset 0 2px 4px rgba(0,0,0,0.3)' : 'inset 0 2px 4px rgba(0,0,0,0.1)',
+                padding: 0,
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: theme === 'dark' ? '32px' : '4px',
+                transform: 'translateY(-50%)',
+                width: '22px',
+                height: '22px',
+                background: theme === 'dark' ? 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)' : 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+                borderRadius: '50%',
+                transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px'
+              }}>
+                {theme === 'dark' ? '🌙' : '☀️'}
+              </div>
+            </button>
+            
+            {/* Settings Button */}
+            <button
+              className="settings-button"
+              onClick={() => setShowSettings(!showSettings)}
+              title="Settings"
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                border: '1px solid var(--border)',
+                background: 'var(--panel)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+                boxShadow: showSettings ? '0 0 0 2px var(--accent)' : 'none'
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 9 3.09V3a2 2 0 0 1 4 0v.09c0 .67.39 1.28 1 1.57h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0c.3.61.91 1 1.58 1H21a2 2 0 0 1 0 4h-.09c-.67 0-1.28.39-1.57 1z"/>
+              </svg>
+            </button>
+
+            {/* Settings Dropdown */}
+            {showSettings && (
+              <div 
+                className="settings-dropdown"
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '8px',
+                  width: '280px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  background: 'var(--panel)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  padding: '12px'
+                }}
+              >
+                <div style={{fontSize: '14px', fontWeight: 700, marginBottom: '12px', padding: '0 4px'}}>Settings</div>
+                
+                {/* Password Change */}
+                <div style={{padding: '12px 8px', borderBottom: '1px solid var(--border)'}}>
+                  <button
+                    className="btn small secondary"
+                    onClick={() => {
+                      setShowSettings(false)
+                      setShowPassModal(true)
+                    }}
+                    style={{width: '100%', fontSize: '12px', padding: '6px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'}}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    Change Password
+                  </button>
+                </div>
+
+                {/* Logout */}
+                <div style={{padding: '12px 8px'}}>
+                  <button
+                    className="btn small danger"
+                    onClick={() => {
+                      setShowSettings(false)
+                      doLogout()
+                    }}
+                    style={{width: '100%', fontSize: '12px', padding: '6px 12px'}}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar for desktop */}
+        {!isMobile && (
+          <aside className="sidebar">
+            <nav className="nav">
               {links.map(l => (
-                <NavLink key={l.to} to={l.to} className={({isActive}) => `ds-link ${isActive?'active':''}`}>
+                <NavLink key={l.to} to={l.to} className={({isActive}) => `link ${isActive?'active':''}`}>
                   {l.icon}
                   <span>{l.label}</span>
                 </NavLink>
@@ -324,75 +367,84 @@ export default function DropshipperLayout() {
             </nav>
             <div style={{padding: 24}}>
               <div style={{
-                padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-                border: '1px solid var(--ds-border)', display: 'flex', flexDirection: 'column', gap: 8
+                padding: 16, borderRadius: 12, background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1))',
+                border: '1px solid rgba(16, 185, 129, 0.2)', display: 'flex', flexDirection: 'column', gap: 8
               }}>
-                 <div style={{fontSize:12, fontWeight:600, color:'var(--ds-accent)'}}>PRO TIPS</div>
-                 <div style={{fontSize:11, color:'var(--ds-text-secondary)', lineHeight: 1.4}}>
-                   Maintain a high delivery rate to unlock exclusive products and faster payouts.
-                 </div>
+                <div style={{fontSize:12, fontWeight:600, color:'#10b981'}}>PRO TIPS</div>
+                <div style={{fontSize:11, color:'var(--text-secondary)', lineHeight: 1.4}}>
+                  Maintain a high delivery rate to unlock exclusive products and faster payouts.
+                </div>
               </div>
             </div>
           </aside>
         )}
 
-        <main className="ds-main">
-          {/* Header */}
-          <header className="ds-header">
-             <div style={{display:'flex', alignItems:'center', gap: 12}}>
-               {isMobile && (
-                  <div className="ds-brand" style={{padding:0}}>
-                    <img src="/logo.png" alt="Buysial" style={{height: '28px', width: 'auto'}} />
-                  </div>
-               )}
-             </div>
+        {/* Main Content */}
+        <div className="content">
+          <Outlet />
+        </div>
 
-             <div className="ds-user-menu">
-               <button 
-                 onClick={() => setTheme(t => t==='dark'?'light':'dark')}
-                 style={{background:'transparent', border:'none', fontSize:20, cursor:'pointer', padding:8}}
-               >
-                 {theme==='dark'?'🌙':'☀️'}
-               </button>
-               
-               <div style={{textAlign:'right', display: isMobile?'none':'block'}}>
-                 <div style={{fontSize:14, fontWeight:600}}>{me.firstName}</div>
-                 <div style={{fontSize:12, color:'var(--ds-text-secondary)'}}>Dropshipper</div>
-               </div>
-               
-               <div className="ds-avatar">
-                 {me.firstName?.[0] || 'D'}
-               </div>
-
-               <button 
-                 onClick={doLogout}
-                 style={{
-                   background: 'rgba(239, 68, 68, 0.1)', color:'#ef4444', border:'none', 
-                   padding:'8px 12px', borderRadius:8, fontSize:12, fontWeight:600, cursor:'pointer', marginLeft: 8
-                 }}
-               >
-                 Exit
-               </button>
-             </div>
-          </header>
-
-          <div className="ds-content">
-            <Outlet />
-          </div>
-        </main>
-
-        {/* Mobile Tab Bar */}
+        {/* Mobile Bottom Tabs */}
         {isMobile && (
-          <nav className="ds-bottom-nav">
-            {links.map(l => (
-              <NavLink key={l.to} to={l.to} className={({isActive})=> `ds-mobile-tab ${isActive?'active':''}`}>
-                {React.cloneElement(l.icon, { width: 24, height: 24 })}
-                <span>{l.label}</span>
+          <nav className="mobile-tabs">
+            {mobileTabs.map(t => (
+              <NavLink key={t.to} to={t.to} className={({isActive}) => `mobile-tab ${isActive?'active':''}`}>
+                {React.cloneElement(t.icon, { width: 22, height: 22 })}
+                <span>{t.label}</span>
               </NavLink>
             ))}
           </nav>
         )}
       </div>
-    </>
+
+      {/* Password Change Modal */}
+      {showPassModal && (
+        <div className="modal-overlay" onClick={() => setShowPassModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()} style={{maxWidth: 400}}>
+            <h3 style={{marginTop: 0}}>Change Password</h3>
+            <form onSubmit={handlePasswordChange}>
+              <div style={{marginBottom: 16}}>
+                <label style={{display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600}}>Current Password</label>
+                <input
+                  type="password"
+                  className="input"
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                />
+              </div>
+              <div style={{marginBottom: 16}}>
+                <label style={{display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600}}>New Password</label>
+                <input
+                  type="password"
+                  className="input"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div style={{marginBottom: 20}}>
+                <label style={{display: 'block', marginBottom: 4, fontSize: 12, fontWeight: 600}}>Confirm New Password</label>
+                <input
+                  type="password"
+                  className="input"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                />
+              </div>
+              <div style={{display: 'flex', gap: 8, justifyContent: 'flex-end'}}>
+                <button type="button" className="btn secondary" onClick={() => setShowPassModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn primary" disabled={changingPass}>
+                  {changingPass ? 'Changing...' : 'Change Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
