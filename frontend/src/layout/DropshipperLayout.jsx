@@ -341,9 +341,9 @@ export default function DropshipperLayout() {
           <header className="ds-header">
              <div style={{display:'flex', alignItems:'center', gap: 12}}>
                {isMobile && (
-                 <div className="ds-brand" style={{padding:0, fontSize:18}}>
-                   <span>⚡</span> VitalBlaze
-                 </div>
+                  <div className="ds-brand" style={{padding:0}}>
+                    <img src="/logo.png" alt="Buysial" style={{height: '28px', width: 'auto'}} />
+                  </div>
                )}
              </div>
 
