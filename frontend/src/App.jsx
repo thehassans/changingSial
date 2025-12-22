@@ -109,7 +109,6 @@ import DropshipperSubmitOrder from './pages/dropshipper/SubmitOrder.jsx'
 import DropshipperFinances from './pages/dropshipper/Finances.jsx'
 
 import AnalyticsDashboard from './components/analytics/AnalyticsDashboard'
-import MobileAwareHome from './components/MobileAwareHome.jsx'
 
 import { apiGet } from './api.js'
 
@@ -336,7 +335,7 @@ export default function App() {
         <CustomDomainRouter>
           <Routes>
             {/* Public site pages */}
-            <Route path="/" element={<MobileAwareHome />} />
+            <Route path="/" element={<ProductCatalog />} />
             <Route path="/home" element={<SiteHome />} />
             <Route path="/about" element={<SiteAbout />} />
             <Route path="/contact" element={<SiteContact />} />
