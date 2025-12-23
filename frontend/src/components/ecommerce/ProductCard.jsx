@@ -8,48 +8,33 @@ import { getCurrencyConfig, convert as fxConvert } from '../../util/currency'
 export default function ProductCard({ product, onAddToCart, selectedCountry = 'SA', selectionEnabled = false, selected = false, onToggleSelect }) {
   const navigate = useNavigate()
   const toast = useToast()
+  const [isHovered, setIsHovered] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [addingToCart, setAddingToCart] = useState(false)
 
   const [ccyCfg, setCcyCfg] = useState(null)
   useEffect(()=>{ let alive=true; getCurrencyConfig().then(cfg=>{ if(alive) setCcyCfg(cfg) }).catch(()=>{}); return ()=>{alive=false} },[])
 
-  // Country to currency mapping
   const COUNTRY_TO_CURRENCY = {
-    'AE': 'AED', // UAE
-    'OM': 'OMR', // Oman
-    'SA': 'SAR', // KSA
-    'BH': 'BHD', // Bahrain
-    'IN': 'INR', // India
-    'KW': 'KWD', // Kuwait
-    'QA': 'QAR', // Qatar
+    'AE': 'AED', 'OM': 'OMR', 'SA': 'SAR', 'BH': 'BHD', 'IN': 'INR', 'KW': 'KWD', 'QA': 'QAR',
   }
 
   const convertPrice = (value, fromCurrency, toCurrency) => fxConvert(value, fromCurrency||'SAR', toCurrency||getDisplayCurrency(), ccyCfg)
-
-  const getDisplayCurrency = () => {
-    return COUNTRY_TO_CURRENCY[selectedCountry] || 'SAR'
-  }
-
-  const getConvertedPrice = (price) => {
-    const baseCurrency = product.baseCurrency || 'SAR'
-    const displayCurrency = getDisplayCurrency()
-    return convertPrice(price, baseCurrency, displayCurrency)
-  }
+  const getDisplayCurrency = () => COUNTRY_TO_CURRENCY[selectedCountry] || 'SAR'
+  const getConvertedPrice = (price) => convertPrice(price, product.baseCurrency || 'SAR', getDisplayCurrency())
 
   const handleProductClick = () => {
     if (selectionEnabled) {
       try { onToggleSelect && onToggleSelect() } catch {}
       return
     }
-    // Track product view
     trackProductView(product._id, product.name, product.category, product.price)
     navigate(`/product/${product._id}`)
   }
 
   const formatPrice = (price, currency = 'SAR') => {
     return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
+      style: 'currency', currency, minimumFractionDigits: 2
     }).format(price)
   }
 
@@ -66,237 +51,655 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
         const prefix = u.pathname && u.pathname !== '/' ? u.pathname.replace(/\/$/, '') : ''
         return `${u.origin}${prefix}${p}`
       }
-      // base is relative (e.g., '/api')
-      const prefix = base.replace(/\/$/, '')
-      return `${prefix}${p}`
-    }catch{
-      return p
-    }
-  }
-
-  const renderStars = (rating) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 !== 0
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<span key={i} className="text-yellow-400">★</span>)
-    }
-    
-    if (hasHalfStar) {
-      stars.push(<span key="half" className="text-yellow-400">☆</span>)
-    }
-    
-    const emptyStars = 5 - Math.ceil(rating)
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<span key={`empty-${i}`} className="text-gray-300">☆</span>)
-    }
-    
-    return stars
+      return `${base.replace(/\/$/, '')}${p}`
+    }catch{ return p }
   }
 
   const handleAddToCart = (e) => {
-    e.stopPropagation() // Prevent navigation when clicking add to cart
+    e.stopPropagation()
+    setAddingToCart(true)
     
-    try {
-      const basePrice = Number(product?.price) || 0
-      const discounted = Number(product?.discount) > 0 ? basePrice * (1 - Number(product.discount) / 100) : basePrice
-      const unitPrice = Number(
-        product?.onSale && (product?.salePrice ?? null) != null
-          ? product.salePrice
-          : discounted
-      ) || 0
-      const addQty = 1  // Always add 1 item at a time
-      const savedCart = localStorage.getItem('shopping_cart')
-      let cartItems = []
-      
-      if (savedCart) {
-        cartItems = JSON.parse(savedCart)
-      }
+    setTimeout(() => {
+      try {
+        const basePrice = Number(product?.price) || 0
+        const discounted = Number(product?.discount) > 0 ? basePrice * (1 - Number(product.discount) / 100) : basePrice
+        const unitPrice = Number(
+          product?.onSale && (product?.salePrice ?? null) != null
+            ? product.salePrice
+            : discounted
+        ) || 0
+        const addQty = 1
+        const savedCart = localStorage.getItem('shopping_cart')
+        let cartItems = savedCart ? JSON.parse(savedCart) : []
 
-      const existingItemIndex = cartItems.findIndex(item => item.id === product._id)
-      const max = Number(product.stockQty || 0)
-      
-      if (existingItemIndex > -1) {
-        // Item already exists, increase quantity within stock limits
-        const current = Number(cartItems[existingItemIndex].quantity || 0)
-        const candidate = current + addQty
-        if (max > 0 && candidate > max) {
-          cartItems[existingItemIndex].quantity = max
-          toast.info(`Only ${max} in stock`)
+        const existingItemIndex = cartItems.findIndex(item => item.id === product._id)
+        const max = Number(product.stockQty || 0)
+        
+        if (existingItemIndex > -1) {
+          const current = Number(cartItems[existingItemIndex].quantity || 0)
+          const candidate = current + addQty
+          if (max > 0 && candidate > max) {
+            cartItems[existingItemIndex].quantity = max
+            toast.info(`Only ${max} in stock`)
+          } else {
+            cartItems[existingItemIndex].quantity = candidate
+          }
+          cartItems[existingItemIndex].price = unitPrice
+          cartItems[existingItemIndex].currency = product.baseCurrency || 'SAR'
+          cartItems[existingItemIndex].maxStock = product.stockQty
         } else {
-          cartItems[existingItemIndex].quantity = candidate
+          cartItems.push({
+            id: product._id,
+            name: product.name,
+            price: unitPrice,
+            currency: product.baseCurrency || 'SAR',
+            image: product.images?.[0] || '',
+            quantity: addQty,
+            maxStock: product.stockQty
+          })
         }
-        // Refresh unit price and stock info in case it changed
-        cartItems[existingItemIndex].price = unitPrice
-        cartItems[existingItemIndex].currency = product.baseCurrency || 'SAR'
-        cartItems[existingItemIndex].maxStock = product.stockQty
-      } else {
-        // Add new item to cart
-        cartItems.push({
-          id: product._id,
-          name: product.name,
-          price: unitPrice,
-          currency: product.baseCurrency || 'SAR',
-          image: product.images?.[0] || '',
-          quantity: addQty,
-          maxStock: product.stockQty
-        })
+        
+        localStorage.setItem('shopping_cart', JSON.stringify(cartItems))
+        try { localStorage.setItem('last_added_product', String(product._id)) } catch {}
+        trackAddToCart(product._id, product.name, unitPrice, addQty)
+        window.dispatchEvent(new CustomEvent('cartUpdated'))
+        toast.success(`Added to cart`)
+        if (typeof onAddToCart === 'function') {
+          try { onAddToCart(product) } catch {}
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error)
       }
-      
-      // Save updated cart to localStorage
-      localStorage.setItem('shopping_cart', JSON.stringify(cartItems))
-      try { localStorage.setItem('last_added_product', String(product._id)) } catch {}
-      
-      // Track add to cart event
-      trackAddToCart(product._id, product.name, unitPrice, addQty)
-      
-      // Dispatch custom event to update cart count in header
-      window.dispatchEvent(new CustomEvent('cartUpdated'))
-      
-      // Show success message
-      toast.success(`Added ${addQty} × ${product.name} to cart`)
-      if (typeof onAddToCart === 'function') {
-        try { onAddToCart(product) } catch {}
-      }
-    } catch (error) {
-      console.error('Error adding to cart:', error)
-    }
+      setAddingToCart(false)
+    }, 300)
   }
 
-  // Prefer the first image from the images array, but fall back to single imagePath if needed
   const images = Array.isArray(product?.images) && product.images.length > 0
     ? product.images
     : (product?.imagePath ? [product.imagePath] : [])
   const mainImagePath = images[0] || ''
   const hoverImagePath = images[1] || images[0] || ''
+  const hasDiscount = product.discount && product.discount > 0
+  const isOutOfStock = !product.inStock || product.stockQty === 0
 
   return (
-    <div className={`${selected ? 'ring-2 ring-orange-200' : ''} overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col`}
-         style={{
-           background: 'var(--theme-card-bg)',
-           border: 'var(--theme-border)',
-           borderRadius: 'var(--theme-card-radius)',
-           boxShadow: 'var(--theme-shadow)',
-           borderColor: selected ? 'var(--theme-accent)' : undefined
-         }}
-         onClick={handleProductClick}>
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
-        {/* Primary */}
-        <img
-          src={getImageUrl(mainImagePath)}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          onError={(e) => { e.target.src = '/placeholder-product.svg' }}
-        />
-        {/* Hover swap (second image) */}
-        {hoverImagePath && hoverImagePath !== mainImagePath && (
+    <>
+      <div 
+        className="product-card-ultra"
+        onClick={handleProductClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        data-selected={selected}
+      >
+        {/* Image Container */}
+        <div className="product-image-container">
+          {/* Skeleton loader */}
+          {!imageLoaded && (
+            <div className="product-skeleton">
+              <div className="skeleton-shimmer"></div>
+            </div>
+          )}
+          
+          {/* Main Image */}
           <img
-            src={getImageUrl(hoverImagePath)}
-            alt={`${product.name} alt`}
-            className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            onError={(e) => { e.target.style.display = 'none' }}
+            src={getImageUrl(mainImagePath)}
+            alt={product.name}
+            className={`product-image-main ${imageLoaded ? 'loaded' : ''}`}
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => { e.target.src = '/placeholder-product.svg'; setImageLoaded(true) }}
           />
-        )}
-        {product.discount && product.discount > 0 && (
-          <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-2.5 py-1 rounded-full text-xs font-semibold shadow-lg">
-            -{product.discount}%
-          </div>
-        )}
-        {selectionEnabled && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleSelect && onToggleSelect() }}
-            className={`absolute top-3 right-3 h-7 w-7 rounded-md border-2 flex items-center justify-center shadow-sm ${selected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-gray-300 text-transparent'}`}
-            aria-pressed={selected}
-            aria-label={selected ? 'Deselect product' : 'Select product'}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          </button>
-        )}
-        {/* Mini thumbnails indicator */}
-        {images.length > 1 && (
-          <div className="absolute bottom-2 right-2 flex gap-1 bg-white/70 backdrop-blur-sm rounded px-1.5 py-1 shadow-sm">
-            {images.slice(0,3).map((img, i) => (
-              <span key={i} className="block h-2 w-2 rounded-full" style={{ background: i===0? '#fb923c' : '#cbd5e1' }} />
-            ))}
-          </div>
-        )}
-        {(!product.inStock || product.stockQty === 0) && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <span className="bg-white text-gray-900 px-3 py-1 rounded-full text-sm font-semibold">
-              Out of Stock
-            </span>
-          </div>
-        )}
-      </div>
+          
+          {/* Hover Image */}
+          {hoverImagePath && hoverImagePath !== mainImagePath && (
+            <img
+              src={getImageUrl(hoverImagePath)}
+              alt={`${product.name} alt`}
+              className="product-image-hover"
+              onError={(e) => { e.target.style.display = 'none' }}
+            />
+          )}
 
-      {/* Product Info - Premium Mobile Layout */}
-      <div className="p-2 sm:p-4 flex flex-col flex-1">
-        {/* Product Name */}
-        <h3 className="font-semibold text-gray-900 mb-1.5 sm:mb-2 line-clamp-2 group-hover:text-orange-600 transition-colors text-xs sm:text-base leading-tight min-h-[2.5rem] sm:min-h-[3rem]">
-          {product.name}
-        </h3>
+          {/* Discount Badge */}
+          {hasDiscount && (
+            <div className="discount-badge">
+              <span className="discount-value">-{product.discount}%</span>
+            </div>
+          )}
 
-        {/* Price */}
-        <div className="mb-1.5 sm:mb-3">
-          {product.discount && product.discount > 0 ? (
-            <div className="flex flex-col gap-0.5">
-              <span className="text-sm sm:text-xl font-bold text-red-600">
-                {formatPrice(getConvertedPrice(product.price * (1 - product.discount / 100)), getDisplayCurrency())}
-              </span>
-              <span className="text-[10px] sm:text-sm text-gray-500 line-through">
+          {/* Selection Checkbox */}
+          {selectionEnabled && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleSelect && onToggleSelect() }}
+              className={`selection-checkbox ${selected ? 'selected' : ''}`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          )}
+
+          {/* Image Count Indicator */}
+          {images.length > 1 && (
+            <div className="image-count">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+                <path d="M4 4h16v16H4V4zm2 2v12h12V6H6z"/>
+              </svg>
+              <span>{images.length}</span>
+            </div>
+          )}
+
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="out-of-stock-overlay">
+              <span>Out of Stock</span>
+            </div>
+          )}
+
+          {/* Quick Add Button - Shows on hover (desktop) */}
+          {!isOutOfStock && (
+            <button 
+              className={`quick-add-btn ${addingToCart ? 'adding' : ''}`}
+              onClick={handleAddToCart}
+              disabled={addingToCart}
+            >
+              {addingToCart ? (
+                <div className="spinner"></div>
+              ) : (
+                <>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Add</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
+        {/* Product Info */}
+        <div className="product-info">
+          {/* Category Tag */}
+          {product.category && (
+            <span className="category-tag">{product.category}</span>
+          )}
+
+          {/* Product Name */}
+          <h3 className="product-name">{product.name}</h3>
+
+          {/* Price Section */}
+          <div className="price-section">
+            {hasDiscount ? (
+              <>
+                <span className="price-current">
+                  {formatPrice(getConvertedPrice(product.price * (1 - product.discount / 100)), getDisplayCurrency())}
+                </span>
+                <span className="price-original">
+                  {formatPrice(getConvertedPrice(product.price), getDisplayCurrency())}
+                </span>
+              </>
+            ) : (
+              <span className="price-current">
                 {formatPrice(getConvertedPrice(product.price), getDisplayCurrency())}
               </span>
-            </div>
-          ) : (
-            <span className="text-sm sm:text-xl font-bold text-gray-900">
-              {formatPrice(getConvertedPrice(product.price), getDisplayCurrency())}
-            </span>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Stock Status */}
-        <div className="mb-2 sm:mb-3">
-          {product.inStock && product.stockQty > 0 ? (
-            <span className="text-[10px] sm:text-sm text-green-600 font-medium flex items-center gap-1">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></div>
-              <span className="hidden sm:inline">In Stock ({product.stockQty} available)</span>
-              <span className="sm:hidden">In Stock ({product.stockQty})</span>
-            </span>
-          ) : (
-            <span className="text-[10px] sm:text-sm text-red-600 font-medium flex items-center gap-1">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></div>
-              Out of Stock
-            </span>
-          )}
-        </div>
+          {/* Stock Status */}
+          <div className="stock-status">
+            {!isOutOfStock ? (
+              <span className="in-stock">
+                <span className="stock-dot"></span>
+                In Stock
+              </span>
+            ) : (
+              <span className="out-stock">
+                <span className="stock-dot"></span>
+                Sold Out
+              </span>
+            )}
+          </div>
 
-        {/* Add to Cart Button - Perfect Alignment */}
-        <button
-          onClick={handleAddToCart}
-          disabled={!product.inStock || product.stockQty === 0}
-          className="w-full h-9 sm:h-11 text-white px-2 sm:px-4 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-200 font-medium text-xs sm:text-sm shadow-sm hover:shadow-md flex items-center justify-center gap-1 sm:gap-2 mt-auto"
-          style={{
-            background: (!product.inStock || product.stockQty === 0) ? '#9ca3af' : 'var(--theme-accent)',
-            borderRadius: 'var(--theme-button-radius)',
-          }}
-        >
-          {!product.inStock || product.stockQty === 0 ? (
-            <span className="text-xs sm:text-sm">Out of Stock</span>
-          ) : (
-            <>
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span className="hidden xs:inline">Add to Cart</span>
-              <span className="xs:hidden">Add</span>
-            </>
-          )}
-        </button>
+          {/* Mobile Add to Cart */}
+          <button
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || addingToCart}
+            className={`add-to-cart-btn ${addingToCart ? 'adding' : ''}`}
+          >
+            {addingToCart ? (
+              <div className="spinner-small"></div>
+            ) : isOutOfStock ? (
+              'Sold Out'
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Add to Cart
+              </>
+            )}
+          </button>
+        </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        .product-card-ultra {
+          position: relative;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+        
+        .product-card-ultra:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        }
+        
+        .product-card-ultra[data-selected="true"] {
+          box-shadow: 0 0 0 3px #f97316;
+        }
+
+        /* Image Container */
+        .product-image-container {
+          position: relative;
+          aspect-ratio: 1;
+          overflow: hidden;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .product-skeleton {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+          overflow: hidden;
+        }
+
+        .skeleton-shimmer {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+          animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+
+        .product-image-main {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          opacity: 0;
+        }
+
+        .product-image-main.loaded {
+          opacity: 1;
+        }
+
+        .product-card-ultra:hover .product-image-main {
+          transform: scale(1.08);
+        }
+
+        .product-image-hover {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+
+        .product-card-ultra:hover .product-image-hover {
+          opacity: 1;
+        }
+
+        /* Discount Badge */
+        .discount-badge {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 700;
+          box-shadow: 0 4px 12px rgba(239,68,68,0.4);
+          animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+
+        /* Selection Checkbox */
+        .selection-checkbox {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          width: 28px;
+          height: 28px;
+          border-radius: 8px;
+          border: 2px solid #d1d5db;
+          background: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .selection-checkbox svg {
+          width: 16px;
+          height: 16px;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+
+        .selection-checkbox.selected {
+          background: #f97316;
+          border-color: #f97316;
+        }
+
+        .selection-checkbox.selected svg {
+          opacity: 1;
+          color: white;
+        }
+
+        /* Image Count */
+        .image-count {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          background: rgba(0,0,0,0.6);
+          backdrop-filter: blur(4px);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        /* Out of Stock Overlay */
+        .out-of-stock-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          backdrop-filter: blur(2px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .out-of-stock-overlay span {
+          background: white;
+          color: #1f2937;
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+        }
+
+        /* Quick Add Button (Desktop Hover) */
+        .quick-add-btn {
+          position: absolute;
+          bottom: 12px;
+          left: 12px;
+          right: 12px;
+          background: rgba(0,0,0,0.85);
+          backdrop-filter: blur(8px);
+          color: white;
+          padding: 12px;
+          border-radius: 12px;
+          border: none;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-add-btn svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .product-card-ultra:hover .quick-add-btn {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .quick-add-btn:hover {
+          background: #f97316;
+        }
+
+        .quick-add-btn.adding {
+          background: #f97316;
+        }
+
+        /* Product Info */
+        .product-info {
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          flex: 1;
+        }
+
+        .category-tag {
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #6b7280;
+          background: #f3f4f6;
+          padding: 4px 8px;
+          border-radius: 4px;
+          width: fit-content;
+        }
+
+        .product-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: #111827;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          margin: 0;
+          transition: color 0.2s;
+        }
+
+        .product-card-ultra:hover .product-name {
+          color: #f97316;
+        }
+
+        /* Price Section */
+        .price-section {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .price-current {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+        }
+
+        .price-original {
+          font-size: 13px;
+          color: #9ca3af;
+          text-decoration: line-through;
+        }
+
+        /* Stock Status */
+        .stock-status {
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .in-stock, .out-stock {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .in-stock {
+          color: #10b981;
+        }
+
+        .out-stock {
+          color: #ef4444;
+        }
+
+        .stock-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: currentColor;
+          animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+
+        /* Add to Cart Button (Mobile) */
+        .add-to-cart-btn {
+          margin-top: auto;
+          width: 100%;
+          padding: 14px;
+          background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+        }
+
+        .add-to-cart-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(249,115,22,0.4);
+        }
+
+        .add-to-cart-btn:active:not(:disabled) {
+          transform: scale(0.98);
+        }
+
+        .add-to-cart-btn:disabled {
+          background: #d1d5db;
+          box-shadow: none;
+          cursor: not-allowed;
+        }
+
+        .add-to-cart-btn svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        .add-to-cart-btn.adding {
+          background: #10b981;
+          box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+
+        /* Spinners */
+        .spinner, .spinner-small {
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .spinner {
+          width: 20px;
+          height: 20px;
+        }
+
+        .spinner-small {
+          width: 18px;
+          height: 18px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 768px) {
+          .product-card-ultra {
+            border-radius: 20px;
+          }
+
+          .product-info {
+            padding: 20px;
+            gap: 10px;
+          }
+
+          .product-name {
+            font-size: 16px;
+          }
+
+          .price-current {
+            font-size: 22px;
+          }
+
+          .add-to-cart-btn {
+            display: none;
+          }
+
+          .quick-add-btn {
+            display: flex;
+          }
+        }
+
+        /* Small mobile */
+        @media (max-width: 380px) {
+          .product-info {
+            padding: 12px;
+          }
+
+          .product-name {
+            font-size: 13px;
+          }
+
+          .price-current {
+            font-size: 16px;
+          }
+
+          .add-to-cart-btn {
+            padding: 12px;
+            font-size: 13px;
+          }
+        }
+      `}</style>
+    </>
   )
 }
