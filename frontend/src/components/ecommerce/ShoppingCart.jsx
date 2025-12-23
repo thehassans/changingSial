@@ -468,4 +468,57 @@ export default function ShoppingCart({ isOpen, onClose }) {
           inset: 0;
           background: rgba(0, 0, 0, 0.4);
           backdrop-filter: blur(4px);
-          z
+          z-index: 50;
+          display: flex;
+          justify-content: flex-end;
+          animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .cart-panel {
+          width: 100%;
+          max-width: 28rem;
+          height: 100%;
+          background: white;
+          box-shadow: -20px 0 60px rgba(0, 0, 0, 0.15);
+          display: flex;
+          flex-direction: column;
+          animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .cart-panel::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+        }
+
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        @media (min-width: 640px) {
+          .cart-panel {
+            max-width: 32rem;
+          }
+        }
+      `}</style>
+    </>
+  )
+}
