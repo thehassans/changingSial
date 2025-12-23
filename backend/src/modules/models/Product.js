@@ -84,6 +84,11 @@ const ProductSchema = new mongoose.Schema(
     sku: { type: String, unique: true, sparse: true },
     madeInCountry: { type: String, default: "" },
     description: { type: String, default: "" },
+    // Premium E-commerce Features
+    sellByBuysial: { type: Boolean, default: false },
+    isBestSelling: { type: Boolean, default: false },
+    isFeatured: { type: Boolean, default: false },
+    isLimitedStock: { type: Boolean, default: false },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
