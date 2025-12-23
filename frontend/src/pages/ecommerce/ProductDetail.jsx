@@ -7,6 +7,7 @@ import Header from '../../components/layout/Header'
 import ShoppingCart from '../../components/ecommerce/ShoppingCart'
 import { trackPageView, trackProductView, trackAddToCart } from '../../utils/analytics'
 import { getCurrencyConfig, convert as fxConvert } from '../../util/currency'
+import PremiumFooter from '../../components/layout/PremiumFooter'
 
 const ProductDetail = () => {
   const { id } = useParams()
@@ -930,6 +931,9 @@ const ProductDetail = () => {
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
       />
+      
+      {/* Premium Footer */}
+      <PremiumFooter />
     </div>
   )
 }

@@ -12,6 +12,7 @@ import CategoryFilter from '../../components/ecommerce/CategoryFilter'
 import SearchBar from '../../components/ecommerce/SearchBar'
 import CountrySelector, { countries } from '../../components/ecommerce/CountrySelector'
 import PremiumHeroBanner from '../../components/ecommerce/PremiumHeroBanner'
+import PremiumFooter from '../../components/layout/PremiumFooter'
 
 // Professional Stats and Categories Section
 function StatsAndCategories({ categoryCount = 0, categoryCounts = {}, selectedCategory = 'all', onCategoryClick }) {
@@ -928,6 +929,9 @@ export default function ProductCatalog() {
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
       />
+      
+      {/* Premium Footer */}
+      <PremiumFooter />
     </div>
   )
 }
