@@ -346,73 +346,113 @@ const ProductDetail = () => {
             {/* Product Images */}
             <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-gray-50 to-white">
               <div className="sticky top-4">
-                <div className="relative aspect-square bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 mb-4 group">
-                  {loading ? (
-                    <div className="w-full h-full bg-gray-300 animate-pulse"></div>
-                  ) : (
-                    <img
-                      src={zoomedImage || images[selectedImage] || '/placeholder-product.svg'}
-                      alt={product.name}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-zoom-in"
-                      onClick={() => setZoomedImage(zoomedImage || images[selectedImage] || '/placeholder-product.svg')}
-                      onError={(e) => {
-                        console.log('Image failed to load:', e.target.src)
-                        e.target.src = '/placeholder-product.svg'
-                      }}
-                      onLoad={() => {
-                        console.log('Image loaded successfully:', images[selectedImage])
-                      }}
-                    />
-                  )}
-                  {product.onSale && (
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
-                        SALE
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute top-4 right-4 flex space-x-2">
-                    <button className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                    </button>
-                    <button className="p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
-                      <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                
-                {images.length > 1 && (
-                  <div className="flex space-x-3 overflow-x-auto pb-2">
-                    {images.map((image, index) => (
-                      <button
-                        key={index}
-                        className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all duration-200 ${
-                          selectedImage === index 
-                            ? 'border-blue-500 shadow-lg scale-105' 
-                            : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                        }`}
-                        onClick={() => {
-                          setSelectedImage(index)
-                          setZoomedImage(image)
-                        }}
-                      >
+                {/* Main Image */}
+                <div className="premium-image-container">
+                  <div className="relative aspect-square bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-100 mb-4 group">
+                    {loading ? (
+                      <div className="w-full h-full bg-gray-300 animate-pulse"></div>
+                    ) : (
+                      <>
                         <img
-                          src={image || '/placeholder-product.svg'}
-                          alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          src={zoomedImage || images[selectedImage] || '/placeholder-product.svg'}
+                          alt={product.name}
+                          className="w-full h-full object-contain p-4 transition-transform duration-500 cursor-zoom-in"
+                          onClick={() => setZoomedImage(zoomedImage || images[selectedImage] || '/placeholder-product.svg')}
                           onError={(e) => {
-                            console.log('Thumbnail image failed to load:', e.target.src)
+                            console.log('Image failed to load:', e.target.src)
                             e.target.src = '/placeholder-product.svg'
                           }}
+                          onLoad={() => {
+                            console.log('Image loaded successfully:', images[selectedImage])
+                          }}
                         />
+                        {/* Image Navigation Arrows (Desktop) */}
+                        {images.length > 1 && (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+                              }}
+                              className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                            >
+                              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setSelectedImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+                              }}
+                              className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                            >
+                              <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                    {product.onSale && (
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
+                          SALE
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4 flex space-x-2">
+                      <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-all hover:scale-110 shadow-lg">
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
                       </button>
-                    ))}
+                      <button className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-all hover:scale-110 shadow-lg">
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                      </button>
+                    </div>
+                    {/* Image Counter */}
+                    {images.length > 1 && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {selectedImage + 1} / {images.length}
+                      </div>
+                    )}
                   </div>
-                )}
+                  
+                  {/* Thumbnail Gallery */}
+                  {images.length > 1 && (
+                    <div className="thumbnail-gallery">
+                      {images.map((image, index) => (
+                        <button
+                          key={index}
+                          className={`thumbnail-item ${
+                            selectedImage === index ? 'thumbnail-active' : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedImage(index)
+                            setZoomedImage(image)
+                          }}
+                        >
+                          <img
+                            src={image || '/placeholder-product.svg'}
+                            alt={`${product.name} ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.log('Thumbnail image failed to load:', e.target.src)
+                              e.target.src = '/placeholder-product.svg'
+                            }}
+                          />
+                          {selectedImage === index && (
+                            <div className="absolute inset-0 border-2 border-orange-500 rounded-xl"></div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Product Features */}
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 mt-4">
