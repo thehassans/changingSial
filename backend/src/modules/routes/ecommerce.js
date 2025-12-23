@@ -686,4 +686,27 @@ router.get(
               $sum: { $cond: [{ $in: ["$status", ["new", "processing"]] }, 1, 0] }
             },
             deliveredOrders: {
-              $sum: 
+              $sum: { $cond: [{ $eq: ["$shipmentStatus", "delivered"] }, 1, 0] }
+            }
+          }
+        }
+      ]);
+      
+      const stats = orderStats[0] || {
+        totalOrders: 0,
+        totalSpent: 0,
+        pendingOrders: 0,
+        deliveredOrders: 0
+      };
+      
+      return res.json({ customer, stats });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load profile", 
+        error: err?.message 
+      });
+    }
+  }
+);
+
+export default router;
