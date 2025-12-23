@@ -5,47 +5,28 @@ import { API_BASE, apiGet, apiPatch } from '../api.js'
 const STYLES = `
   .customer-layout {
     min-height: 100vh;
-    background: var(--bg, #f8fafc);
-    color: var(--text, #0f172a);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+    color: #0f172a;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  [data-theme="dark"] .customer-layout {
-    --bg: #0f172a;
-    --text: #f8fafc;
-    --panel: rgba(30, 41, 59, 0.7);
-    --panel-2: rgba(51, 65, 85, 0.5);
-    --border: rgba(255, 255, 255, 0.08);
-    --header-bg: rgba(15, 23, 42, 0.95);
-  }
-
-  [data-theme="light"] .customer-layout,
-  .customer-layout {
-    --bg: #f8fafc;
-    --text: #0f172a;
-    --panel: #ffffff;
-    --panel-2: #f1f5f9;
-    --border: rgba(0, 0, 0, 0.08);
-    --header-bg: #ffffff;
   }
 
   .customer-header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--header-bg);
-    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     padding: 0 24px;
-    height: 64px;
+    height: 68px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   }
 
   .customer-nav {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
   }
 
@@ -53,50 +34,72 @@ const STYLES = `
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
-    border-radius: 8px;
-    color: var(--text);
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: #64748b;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s;
-    opacity: 0.7;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
   }
 
   .customer-nav-link:hover {
-    opacity: 1;
-    background: var(--panel-2);
+    color: #0f172a;
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.04);
   }
 
   .customer-nav-link.active {
-    opacity: 1;
-    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
-    color: #f97316;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    color: #ea580c;
     font-weight: 600;
+    border-color: rgba(249, 115, 22, 0.2);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
   }
 
   .customer-content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 32px 24px;
+    min-height: calc(100vh - 68px);
   }
 
   .customer-user-menu {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
   }
 
   .customer-avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f97316, #ea580c);
     display: grid;
     place-items: center;
     font-weight: 700;
     color: white;
-    font-size: 14px;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  }
+
+  .customer-logout-btn {
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.15);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .customer-logout-btn:hover {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.15);
+    transform: translateY(-1px);
   }
 
   .customer-mobile-tabs {
@@ -106,12 +109,13 @@ const STYLES = `
     left: 0;
     right: 0;
     height: 72px;
-    background: var(--header-bg);
-    border-top: 1px solid var(--border);
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
     z-index: 100;
     justify-content: space-around;
     align-items: center;
     padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
   }
 
   .customer-mobile-tab {
@@ -119,19 +123,33 @@ const STYLES = `
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    color: var(--text);
+    color: #94a3b8;
     text-decoration: none;
     font-size: 11px;
     font-weight: 500;
-    opacity: 0.6;
     flex: 1;
     height: 100%;
     justify-content: center;
+    transition: all 0.2s;
   }
 
   .customer-mobile-tab.active {
-    opacity: 1;
     color: #f97316;
+  }
+
+  .customer-user-info {
+    text-align: right;
+  }
+
+  .customer-user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .customer-user-email {
+    font-size: 12px;
+    color: #94a3b8;
   }
 
   @media (max-width: 768px) {
@@ -142,12 +160,27 @@ const STYLES = `
       display: flex;
     }
     .customer-content {
-      padding: 16px;
-      padding-bottom: 88px;
+      padding: 20px 16px;
+      padding-bottom: 92px;
     }
     .customer-header {
       padding: 0 16px;
+      height: 60px;
     }
+    .customer-user-info {
+      display: none;
+    }
+    .customer-user-menu {
+      gap: 12px;
+    }
+  }
+
+  /* Card styling for dashboard */
+  .customer-layout .card,
+  .customer-layout [class*="card"] {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   }
 `
 
@@ -205,11 +238,11 @@ export default function CustomerLayout() {
       <style>{STYLES}</style>
       <div className="customer-layout">
         <header className="customer-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
             <img
               src={branding.headerLogo ? `${API_BASE}${branding.headerLogo}` : `${import.meta.env.BASE_URL}BuySial2.png`}
               alt="Logo"
-              style={{ height: 32, width: 'auto' }}
+              style={{ height: 36, width: 'auto' }}
             />
             <nav className="customer-nav">
               {links.map(l => (
@@ -227,26 +260,14 @@ export default function CustomerLayout() {
           </div>
 
           <div className="customer-user-menu">
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>{me.firstName} {me.lastName}</div>
-              <div style={{ fontSize: 12, opacity: 0.6 }}>{me.email}</div>
+            <div className="customer-user-info">
+              <div className="customer-user-name">{me.firstName} {me.lastName}</div>
+              <div className="customer-user-email">{me.email}</div>
             </div>
             <div className="customer-avatar">
               {me.firstName?.[0] || 'C'}
             </div>
-            <button
-              onClick={doLogout}
-              style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                color: '#ef4444',
-                border: 'none',
-                padding: '8px 12px',
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
+            <button onClick={doLogout} className="customer-logout-btn">
               Logout
             </button>
           </div>
