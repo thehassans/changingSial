@@ -266,7 +266,15 @@ function RequireManagerPerm({ perm, children }) {
   return allowed ? children : <Navigate to="/manager" replace />
 }
 
-// Custom Domain Router - redirects to catalog if accessing from custom domain
+// Custom Domain context for sharing state
+const CustomDomainContext = React.createContext(false)
+
+// Hook to check if on custom domain
+export function useIsCustomDomain() {
+  return React.useContext(CustomDomainContext)
+}
+
+// Custom Domain Router - handles routing for custom domains
 function CustomDomainRouter({ children }) {
   const [isCustomDomain, setIsCustomDomain] = useState(null)
   const [checking, setChecking] = useState(true)
@@ -277,7 +285,7 @@ function CustomDomainRouter({ children }) {
       try {
         const hostname = window.location.hostname.toLowerCase()
 
-        // Skip check for web.buysial.com and localhost
+        // Skip check for web.buysial.com and localhost - these are admin/staff domains
         if (
           hostname === 'web.buysial.com' ||
           hostname === 'localhost' ||
@@ -328,12 +336,25 @@ function CustomDomainRouter({ children }) {
     )
   }
 
-  // If custom domain, show catalog by default
-  if (isCustomDomain) {
-    return <ProductCatalog />
-  }
+  // Provide custom domain state to all children
+  return (
+    <CustomDomainContext.Provider value={isCustomDomain}>
+      {children}
+    </CustomDomainContext.Provider>
+  )
+}
 
-  return children
+// Smart Login component - shows customer login on e-commerce sites, staff login on admin
+function SmartLogin() {
+  const isCustomDomain = useIsCustomDomain()
+  
+  // On custom domains (e-commerce sites), show customer login
+  if (isCustomDomain) {
+    return <CustomerLogin />
+  }
+  
+  // On admin/localhost, show staff login
+  return <UserLogin />
 }
 
 export default function App() {
@@ -356,8 +377,11 @@ export default function App() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/checkout" element={<Checkout />} />
 
-            {/* Staff/Admin Login */}
-            <Route path="/login" element={<UserLogin />} />
+            {/* Smart Login - shows customer login on e-commerce, staff on admin */}
+            <Route path="/login" element={<SmartLogin />} />
+            
+            {/* Staff/Admin Login (direct access) */}
+            <Route path="/admin-login" element={<UserLogin />} />
 
             {/* Investor Portal with Layout */}
             <Route
