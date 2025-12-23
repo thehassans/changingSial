@@ -407,4 +407,33 @@ async function fetchWithRetry(url, init, opts) {
         const ra = res.headers.get('retry-after')
         if (ra) {
           if (/^\d+$/.test(ra.trim())) {
-            waitMs = Math.max(waitMs,
+            waitMs = Math.max(waitMs, parseInt(ra.trim(), 10) * 1000)
+          } else {
+            const when = Date.parse(ra)
+            if (!Number.isNaN(when)) waitMs = Math.max(waitMs, when - Date.now())
+          }
+        }
+      } catch {}
+      // set a global cooldown so other GETs back off too (jitter to avoid sync)
+      const jitter = Math.floor(Math.random() * 350)
+      __getCooldownUntil = Date.now() + Math.min(Math.max(1500, waitMs) + jitter, 8000)
+      // set per-route cooldown for WA endpoints so subsequent loads queue instead of burst
+      if (isMsgs || isChats) {
+        try {
+          const u = new URL(
+            urlStr,
+            typeof location !== 'undefined' ? location.origin : 'https://example.com'
+          )
+          const jid = u.searchParams.get('jid') || ''
+          const key = (isMsgs ? 'msgs:' : 'chats:') + jid
+          __routeCooldown.set(key, Date.now() + Math.max(2000, waitMs) + jitter)
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, Math.max(200, waitMs)))
+      attempt++
+      delay = Math.min(delay * 2, 3000)
+      continue
+    }
+    return res
+  }
+}
