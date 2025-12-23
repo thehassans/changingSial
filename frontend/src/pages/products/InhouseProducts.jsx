@@ -89,7 +89,7 @@ export default function InhouseProducts() {
     description: '',
     availableCountries: [],
     inStock: true,
-    displayOnWebsite: false,
+    displayOnWebsite: true,
     isForMobile: false,
     displayOnShopify: false,
     stockUAE: 0,
@@ -1307,42 +1307,7 @@ export default function InhouseProducts() {
                     style={{ display: 'none' }}
                   />
                   <span style={{ fontWeight: 500 }}>Public Website</span>
-                </label>
-                <label
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
-                >
-                  <div
-                    style={{
-                      position: 'relative',
-                      width: 40,
-                      height: 24,
-                      background: form.isForMobile ? '#8b5cf6' : '#e5e7eb',
-                      borderRadius: 12,
-                      transition: '0.3s',
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: form.isForMobile ? 18 : 2,
-                        top: 2,
-                        width: 20,
-                        height: 20,
-                        background: 'white',
-                        borderRadius: '50%',
-                        transition: '0.3s',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-                      }}
-                    />
-                  </div>
-                  <input
-                    type="checkbox"
-                    name="isForMobile"
-                    checked={!!form.isForMobile}
-                    onChange={onChange}
-                    style={{ display: 'none' }}
-                  />
-                  <span style={{ fontWeight: 500 }}>Mobile App</span>
+                  <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 4 }}>(& Mobile App)</span>
                 </label>
               </div>
             </div>
@@ -1492,53 +1457,6 @@ export default function InhouseProducts() {
                     )}
                   </div>
                 ))}
-              </div>
-
-              <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
-                <label
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={aiAfterSave}
-                    onChange={(e) => setAiAfterSave(e.target.checked)}
-                  />
-                  <span style={{ fontWeight: 500 }}>Generate extra AI images after saving</span>
-                </label>
-                {aiAfterSave && (
-                  <div
-                    style={{
-                      marginTop: 12,
-                      display: 'flex',
-                      gap: 12,
-                      alignItems: 'center',
-                      background: 'var(--panel-2)',
-                      padding: 12,
-                      borderRadius: 8,
-                    }}
-                  >
-                    <div style={{ fontSize: 24 }}>✨</div>
-                    <div style={{ flex: 1 }}>
-                      <input
-                        className="input"
-                        type="text"
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                        placeholder={`e.g. Studio shot of ${form.name || 'product'} on marble surface`}
-                        style={{ background: 'white' }}
-                      />
-                    </div>
-                    <input
-                      className="input"
-                      type="number"
-                      min="1"
-                      max="6"
-                      value={aiCount}
-                      onChange={(e) => setAiCount(Number(e.target.value || 2))}
-                      style={{ width: 60, background: 'white' }}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
