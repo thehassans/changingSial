@@ -3,161 +3,231 @@ import { Link } from 'react-router-dom'
 import { apiPost, apiGet, API_BASE } from '../../api'
 import { useToast } from '../../ui/Toast'
 import PasswordInput from '../../components/PasswordInput'
-import CountrySelector from '../../components/ecommerce/CountrySelector'
 
 const STYLES = `
-  .customer-login-page {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  .cl-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  .customer-login-header {
     display: flex;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #ffffff;
+  }
+
+  .cl-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .cl-right {
+    flex: 1;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+    display: none;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    background: #ffffff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
   }
 
-  .customer-login-container {
-    display: grid;
-    place-items: center;
-    min-height: calc(100vh - 70px);
-    padding: 40px 24px;
+  .cl-right::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite;
   }
 
-  .customer-login-card {
-    width: 100%;
-    max-width: 440px;
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 40px 36px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+  .cl-right::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(234, 88, 12, 0.1) 0%, transparent 70%);
+    animation: pulse 4s ease-in-out infinite 1s;
   }
 
-  .customer-login-logo {
-    width: 56px;
-    height: 56px;
-    margin: 0 auto 20px;
-    display: block;
-    border-radius: 14px;
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+
+  .cl-logo-container {
+    margin-bottom: 48px;
+  }
+
+  .cl-logo {
+    height: 44px;
+    width: auto;
     object-fit: contain;
-    background: #ffffff;
-    padding: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
-  .customer-login-title {
-    font-size: 26px;
+  .cl-header {
+    margin-bottom: 40px;
+  }
+
+  .cl-title {
+    font-size: 32px;
     font-weight: 700;
-    text-align: center;
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 6px;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
   }
 
-  .customer-login-subtitle {
-    text-align: center;
+  .cl-subtitle {
+    font-size: 15px;
     color: #64748b;
-    font-size: 14px;
-    margin-bottom: 32px;
+    margin: 0;
+    font-weight: 400;
   }
 
-  .customer-login-field {
-    margin-bottom: 20px;
+  .cl-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 
-  .customer-login-label {
-    display: block;
+  .cl-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cl-label {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     color: #374151;
-    margin-bottom: 8px;
+    letter-spacing: 0.01em;
   }
 
-  .customer-login-input {
+  .cl-input {
     width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #e2e8f0;
+    padding: 16px 18px;
+    border: 1.5px solid #e5e7eb;
     border-radius: 12px;
     font-size: 15px;
-    transition: all 0.2s;
-    background: #f8fafc;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    background: #fafafa;
+    color: #0f172a;
   }
 
-  .customer-login-input:focus {
+  .cl-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .cl-input:hover {
+    border-color: #d1d5db;
+    background: #ffffff;
+  }
+
+  .cl-input:focus {
     outline: none;
     border-color: #f97316;
     background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.08);
   }
 
-  .customer-login-btn {
+  .cl-btn {
     width: 100%;
-    padding: 16px;
+    padding: 18px;
     border: none;
     border-radius: 12px;
-    background: linear-gradient(135deg, #f97316, #ea580c);
+    background: #0f172a;
     color: white;
     font-size: 15px;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
-    transition: all 0.25s;
-    box-shadow: 0 4px 16px rgba(249, 115, 22, 0.3);
+    transition: all 0.25s ease;
     margin-top: 8px;
   }
 
-  .customer-login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(249, 115, 22, 0.4);
+  .cl-btn:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
   }
 
-  .customer-login-btn:disabled {
-    opacity: 0.6;
+  .cl-btn:active {
+    transform: translateY(0);
+  }
+
+  .cl-btn:disabled {
+    background: #94a3b8;
     cursor: not-allowed;
     transform: none;
   }
 
-  .customer-login-footer {
+  .cl-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0;
+  }
+
+  .cl-divider-line {
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  .cl-divider-text {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .cl-footer {
     text-align: center;
-    margin-top: 24px;
+    margin-top: 32px;
     font-size: 14px;
     color: #64748b;
   }
 
-  .customer-login-footer a {
+  .cl-footer a {
     color: #f97316;
     text-decoration: none;
     font-weight: 600;
+    transition: color 0.2s;
   }
 
-  .customer-login-footer a:hover {
-    text-decoration: underline;
+  .cl-footer a:hover {
+    color: #ea580c;
   }
 
-  .customer-login-staff-link {
-    display: block;
+  .cl-staff-link {
     text-align: center;
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid #e2e8f0;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid #f1f5f9;
     font-size: 13px;
     color: #94a3b8;
   }
 
-  .customer-login-staff-link a {
-    color: #3b82f6;
+  .cl-staff-link a {
+    color: #64748b;
     text-decoration: none;
     font-weight: 500;
+    transition: color 0.2s;
   }
 
-  .customer-login-back-link {
+  .cl-staff-link a:hover {
+    color: #0f172a;
+  }
+
+  .cl-back {
+    position: absolute;
+    top: 32px;
+    left: 32px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -168,32 +238,38 @@ const STYLES = `
     transition: color 0.2s;
   }
 
-  .customer-login-back-link:hover {
+  .cl-back:hover {
     color: #0f172a;
   }
 
-  .customer-login-register-link {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #f97316;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    transition: color 0.2s;
+  .cl-illustration {
+    position: relative;
+    z-index: 1;
+    font-size: 120px;
+    opacity: 0.9;
   }
 
-  .customer-login-register-link:hover {
-    color: #ea580c;
-  }
-
-  @media (max-width: 480px) {
-    .customer-login-card {
-      padding: 32px 24px;
-      border-radius: 16px;
+  @media (min-width: 1024px) {
+    .cl-right {
+      display: flex;
     }
-    .customer-login-header {
-      padding: 12px 16px;
+    .cl-left {
+      padding: 64px 80px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cl-left {
+      padding: 32px 24px;
+    }
+    .cl-title {
+      font-size: 26px;
+    }
+    .cl-logo-container {
+      margin-bottom: 40px;
+    }
+    .cl-header {
+      margin-bottom: 32px;
     }
   }
 `
@@ -204,9 +280,6 @@ export default function CustomerLogin() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [branding, setBranding] = useState({ headerLogo: null, loginLogo: null })
-  const [selectedCountry, setSelectedCountry] = useState(() => {
-    try { return localStorage.getItem('selected_country') || 'SA' } catch { return 'SA' }
-  })
 
   useEffect(() => {
     let cancelled = false
@@ -218,14 +291,6 @@ export default function CustomerLogin() {
     })()
     return () => { cancelled = true }
   }, [])
-
-  useEffect(() => {
-    try { localStorage.setItem('selected_country', selectedCountry) } catch {}
-  }, [selectedCountry])
-
-  const handleCountryChange = (country) => {
-    setSelectedCountry(country.code)
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -259,9 +324,9 @@ export default function CustomerLogin() {
       if (status === 401) {
         toast.error('Invalid email or password')
       } else if (status === 403) {
-        toast.error('Account access restricted. Please contact support.')
+        toast.error('Account access restricted')
       } else {
-        toast.error(msg || 'Login failed. Please try again.')
+        toast.error(msg || 'Login failed')
       }
     } finally {
       setLoading(false)
@@ -271,73 +336,68 @@ export default function CustomerLogin() {
   return (
     <>
       <style>{STYLES}</style>
-      <div className="customer-login-page">
-        <header className="customer-login-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <CountrySelector 
-              selectedCountry={selectedCountry}
-              onCountryChange={handleCountryChange}
-            />
-            <Link to="/catalog" className="customer-login-back-link">
-              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Catalog
-            </Link>
-          </div>
-          <Link to="/register" className="customer-login-register-link">
-            Create Account
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </header>
+      <div className="cl-page">
+        <Link to="/catalog" className="cl-back">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back to store
+        </Link>
 
-        <div className="customer-login-container">
-          <form onSubmit={handleSubmit} className="customer-login-card">
+        <div className="cl-left">
+          <div className="cl-logo-container">
             <img
               src={branding.loginLogo ? `${API_BASE}${branding.loginLogo}` : `${import.meta.env.BASE_URL}BuySial2.png`}
               alt="Logo"
-              className="customer-login-logo"
+              className="cl-logo"
             />
-            <h1 className="customer-login-title">Welcome Back</h1>
-            <p className="customer-login-subtitle">Sign in to your account</p>
+          </div>
 
-            <div className="customer-login-field">
-              <label className="customer-login-label">Email Address</label>
+          <div className="cl-header">
+            <h1 className="cl-title">Welcome back</h1>
+            <p className="cl-subtitle">Sign in to continue to your account</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="cl-form">
+            <div className="cl-field">
+              <label className="cl-label">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="customer-login-input"
+                placeholder="name@example.com"
+                className="cl-input"
                 autoComplete="email"
               />
             </div>
 
-            <div className="customer-login-field">
-              <label className="customer-login-label">Password</label>
+            <div className="cl-field">
+              <label className="cl-label">Password</label>
               <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="customer-login-input"
+                placeholder="••••••••"
+                className="cl-input"
                 autoComplete="current-password"
               />
             </div>
 
-            <button type="submit" disabled={loading} className="customer-login-btn">
-              {loading ? 'Signing In...' : 'Sign In'}
+            <button type="submit" disabled={loading} className="cl-btn">
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
-
-            <div className="customer-login-footer">
-              Don't have an account? <Link to="/register">Create one</Link>
-            </div>
-
-            <div className="customer-login-staff-link">
-              Staff or Admin? <Link to="/login">Sign in here</Link>
-            </div>
           </form>
+
+          <div className="cl-footer">
+            Don't have an account? <Link to="/register">Create one</Link>
+          </div>
+
+          <div className="cl-staff-link">
+            <Link to="/login">Staff & Admin login →</Link>
+          </div>
+        </div>
+
+        <div className="cl-right">
+          <div className="cl-illustration">🛍️</div>
         </div>
       </div>
     </>
