@@ -502,13 +502,111 @@ export default function ProductCatalog() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
+  // Premium skeleton loader component
+  const SkeletonCard = () => (
+    <div className="skeleton-card bg-white rounded-2xl overflow-hidden shadow-sm">
+      <div className="skeleton-image aspect-square bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100 animate-pulse" />
+      <div className="p-4 space-y-3">
+        <div className="h-4 bg-gray-200 rounded-full w-3/4 animate-pulse" />
+        <div className="h-4 bg-gray-200 rounded-full w-1/2 animate-pulse" />
+        <div className="h-6 bg-gray-200 rounded-full w-2/5 animate-pulse mt-2" />
+        <div className="h-10 bg-gray-200 rounded-xl w-full animate-pulse mt-4" />
+      </div>
+    </div>
+  )
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading products...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Header onCartClick={() => setIsCartOpen(true)} />
+        
+        {/* Country Selector Skeleton */}
+        <div className="bg-gradient-to-r from-orange-50 via-white to-blue-50 border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-between">
+              <div className="h-4 bg-gray-200 rounded w-48 animate-pulse" />
+              <div className="h-8 bg-gray-200 rounded-lg w-32 animate-pulse" />
+            </div>
+          </div>
         </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Stats Section Skeleton */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="h-10 bg-gray-200 rounded-lg w-3/4 animate-pulse" />
+                <div className="h-6 bg-gray-200 rounded-lg w-1/2 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="bg-gray-50 rounded-xl p-4 animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-20 mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-16" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Categories Skeleton */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="h-6 bg-gray-200 rounded w-40 mx-auto mb-6 animate-pulse" />
+              <div className="flex flex-wrap justify-center gap-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+                  <div key={i} className="flex flex-col items-center gap-2 animate-pulse">
+                    <div className="w-20 h-20 bg-gray-200 rounded-full" />
+                    <div className="h-3 bg-gray-200 rounded w-14" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-xl shadow-md p-5 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 h-12 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="w-full sm:w-56 h-12 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="w-full sm:w-56 h-12 bg-gray-200 rounded-lg animate-pulse" />
+            </div>
+          </div>
+
+          {/* Products Grid Skeleton */}
+          <div className="flex gap-8">
+            <div className="hidden lg:block w-64 flex-shrink-0">
+              <div className="bg-white rounded-xl p-4 space-y-3">
+                <div className="h-6 bg-gray-200 rounded w-3/4 mb-4 animate-pulse" />
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="mb-6">
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse" />
+                <div className="h-6 bg-gray-200 rounded w-48 animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <ShoppingCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+        
+        <style jsx>{`
+          .skeleton-image {
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+          }
+          @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+        `}</style>
       </div>
     )
   }
