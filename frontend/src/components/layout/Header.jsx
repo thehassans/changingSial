@@ -14,10 +14,25 @@ const getCartItemCount = () => {
   }
 }
 
+// Check if customer is logged in
+const getCustomer = () => {
+  try {
+    const token = localStorage.getItem('token')
+    const me = localStorage.getItem('me')
+    if (!token || !me) return null
+    const user = JSON.parse(me)
+    if (user.role === 'customer') return user
+    return null
+  } catch {
+    return null
+  }
+}
+
 export default function Header({ onCartClick, editMode = false, editState = {}, onExitEdit = null }) {
   const [cartCount, setCartCount] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [customer, setCustomer] = useState(() => getCustomer())
 
   useEffect(() => {
     // Initial cart count load
@@ -28,12 +43,18 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
       setCartCount(getCartItemCount())
     }
 
+    // Listen for auth changes
+    const handleStorageChange = () => {
+      setCartCount(getCartItemCount())
+      setCustomer(getCustomer())
+    }
+
     window.addEventListener('cartUpdated', handleCartUpdate)
-    window.addEventListener('storage', handleCartUpdate)
+    window.addEventListener('storage', handleStorageChange)
     
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate)
-      window.removeEventListener('storage', handleCartUpdate)
+      window.removeEventListener('storage', handleStorageChange)
     }
   }, [])
 
@@ -43,6 +64,15 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen)
+  }
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('token')
+      localStorage.removeItem('me')
+    } catch {}
+    setCustomer(null)
+    window.location.href = '/customer/login'
   }
 
   return (
@@ -146,8 +176,26 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
                 </button>
 
                 <div className="auth-buttons">
-                  <Link to="/customer/login" className="login-btn">Login</Link>
-                  <Link to="/register" className="register-btn">Sign Up</Link>
+                  {customer ? (
+                    <>
+                      <Link to="/customer" className="dashboard-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                          <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                        </svg>
+                        Dashboard
+                      </Link>
+                      <div className="user-menu">
+                        <span className="user-name">{customer.firstName || 'Customer'}</span>
+                        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/customer/login" className="login-btn">Login</Link>
+                      <Link to="/register" className="register-btn">Sign Up</Link>
+                    </>
+                  )}
                 </div>
               </>
             )}
@@ -231,8 +279,26 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
               </Link>
             </nav>
             <div className="mobile-auth">
-              <Link to="/customer/login" className="mobile-login-btn" onClick={toggleMobileMenu}>Login</Link>
-              <Link to="/register" className="mobile-register-btn" onClick={toggleMobileMenu}>Sign Up</Link>
+              {customer ? (
+                <>
+                  <Link to="/customer" className="mobile-dashboard-btn" onClick={toggleMobileMenu}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                      <polyline points="9,22 9,12 15,12 15,22"></polyline>
+                    </svg>
+                    Dashboard
+                  </Link>
+                  <div className="mobile-user-info">
+                    <span>Hi, {customer.firstName || 'Customer'}</span>
+                  </div>
+                  <button className="mobile-logout-btn" onClick={() => { toggleMobileMenu(); handleLogout(); }}>Logout</button>
+                </>
+              ) : (
+                <>
+                  <Link to="/customer/login" className="mobile-login-btn" onClick={toggleMobileMenu}>Login</Link>
+                  <Link to="/register" className="mobile-register-btn" onClick={toggleMobileMenu}>Sign Up</Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -384,6 +450,58 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
           display: flex;
           gap: 12px;
           margin-left: 8px;
+          align-items: center;
+        }
+
+        .dashboard-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          text-decoration: none;
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-weight: 500;
+          font-size: 14px;
+          color: #374151;
+          border: 1px solid #d1d5db;
+          background: white;
+          transition: all 0.2s;
+        }
+
+        .dashboard-btn:hover {
+          background: #f9fafb;
+          border-color: #9ca3af;
+          transform: translateY(-1px);
+        }
+
+        .user-menu {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .user-name {
+          font-size: 14px;
+          font-weight: 500;
+          color: #374151;
+          padding: 0 8px;
+        }
+
+        .logout-btn {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+          background: #fee2e2;
+          border-color: #fca5a5;
         }
 
         .login-btn,
@@ -591,6 +709,51 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
         .mobile-register-btn:hover {
           background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
           border-color: #0056b3;
+        }
+
+        .mobile-dashboard-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          text-decoration: none;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-weight: 500;
+          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+          color: white;
+          border: 1px solid #007bff;
+          transition: all 0.2s;
+        }
+
+        .mobile-dashboard-btn:hover {
+          background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+
+        .mobile-user-info {
+          text-align: center;
+          font-size: 14px;
+          color: #374151;
+          padding: 8px 0;
+          font-weight: 500;
+        }
+
+        .mobile-logout-btn {
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 8px;
+          font-weight: 500;
+          text-align: center;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .mobile-logout-btn:hover {
+          background: #fee2e2;
+          border-color: #fca5a5;
         }
 
         @media (max-width: 768px) {
