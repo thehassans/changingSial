@@ -238,7 +238,7 @@ export default function Register() {
               id="password"
               name="password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={(val) => setFormData(prev => ({ ...prev, password: val }))}
               required
               placeholder="Enter your password"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
@@ -254,7 +254,7 @@ export default function Register() {
               id="confirmPassword"
               name="confirmPassword"
               value={formData.confirmPassword}
-              onChange={handleChange}
+              onChange={(val) => setFormData(prev => ({ ...prev, confirmPassword: val }))}
               required
               placeholder="Confirm your password"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
