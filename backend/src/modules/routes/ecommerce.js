@@ -549,7 +549,13 @@ router.get(
       const customerId = req.user.id;
       const { status = "", page = 1, limit = 20 } = req.query || {};
       
-      const match = { customerId: new ObjectId(customerId) };
+      // Query both string and ObjectId for backwards compatibility
+      const match = { 
+        $or: [
+          { customerId: customerId }, // String match (old orders)
+          { customerId: new ObjectId(customerId) } // ObjectId match (new orders)
+        ]
+      };
       if (status) match.status = status;
       
       const pageNum = Math.max(1, Number(page));
@@ -668,9 +674,9 @@ router.get(
         return res.status(404).json({ message: "Customer not found" });
       }
       
-      // Get order stats
+      // Get order stats - query both string and ObjectId for backwards compatibility
       const orderStats = await WebOrder.aggregate([
-        { $match: { customerId: customer._id } },
+        { $match: { $or: [{ customerId: String(customer._id) }, { customerId: customer._id }] } },
         {
           $group: {
             _id: null,
