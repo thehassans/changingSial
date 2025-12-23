@@ -1,17 +1,24 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { apiGet, API_BASE } from '../../api'
 import { useNavigate } from 'react-router-dom'
+import { getCurrencyConfig, convert } from '../../util/currency'
 
 export default function DropshipperProducts(){
   const [rows, setRows] = useState([])
   const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
+  const [currency, setCurrency] = useState('AED')
+  const [currencyConfig, setCurrencyConfig] = useState(null)
   const navigate = useNavigate()
 
   async function load(){
     setLoading(true)
     try{
-      const data = await apiGet('/api/products')
+      const [data, currCfg] = await Promise.all([
+        apiGet('/api/products'),
+        getCurrencyConfig()
+      ])
+      setCurrencyConfig(currCfg)
       const list = data.products||[]
       list.sort((a,b)=> String(a.name||'').localeCompare(String(b.name||'')))
       setRows(list)
@@ -20,6 +27,10 @@ export default function DropshipperProducts(){
   }
 
   useEffect(()=>{ load() },[])
+
+  const filteredRows = useMemo(() => {
+    return rows.filter(p => !query || p.name.toLowerCase().includes(query.toLowerCase()))
+  }, [rows, query])
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', gap: 32}}>
@@ -37,6 +48,24 @@ export default function DropshipperProducts(){
             </div>
             
             <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+               {/* Currency Selector */}
+               <select 
+                 value={currency} 
+                 onChange={e => setCurrency(e.target.value)}
+                 style={{
+                   padding: '12px 16px', borderRadius: 12,
+                   background: 'var(--ds-glass)', 
+                   border: '1px solid var(--ds-border)',
+                   color: 'var(--ds-text-primary)',
+                   outline: 'none',
+                   cursor: 'pointer'
+                 }}
+               >
+                 {currencyConfig?.enabled?.map(c => (
+                   <option key={c} value={c}>{c}</option>
+                 )) || <option value="AED">AED</option>}
+               </select>
+
                <div style={{position: 'relative'}}>
                  <input 
                    placeholder="Search products..." 
@@ -72,14 +101,15 @@ export default function DropshipperProducts(){
            </div>
         ) : (
            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 24}}>
-              {rows
-                .filter(p => !query || p.name.toLowerCase().includes(query.toLowerCase()))
-                .map(p => {
+              {filteredRows.map(p => {
                  const firstImg = (p.images && p.images[0]) || p.imagePath || ''
-                 const cost = p.dropshippingPrice || p.price || 0
-                 const profit = (p.price || 0) - cost
-                 const hasProfit = profit > 0
-
+                 
+                 // Pricing calculations
+                 const baseCurr = p.baseCurrency || 'AED'
+                 const sellingPrice = convert(p.price || 0, baseCurr, currency, currencyConfig)
+                 const dropshipPrice = convert(p.dropshippingPrice || p.price || 0, baseCurr, currency, currencyConfig)
+                 const profit = sellingPrice - dropshipPrice
+                 
                  return (
                     <div key={p._id} style={{
                        background: 'var(--ds-panel)', backdropFilter: 'blur(10px)',
@@ -98,7 +128,7 @@ export default function DropshipperProducts(){
                              <div style={{width: '100%', height: '100%', display: 'grid', placeItems: 'center', color: '#64748b'}}>No Image</div>
                           )}
                           <div style={{position: 'absolute', top: 12, right: 12}}>
-                             {p.inStock ? (
+                             {p.inStock && p.stockQty > 0 ? (
                                 <span style={{
                                   background: 'rgba(16, 185, 129, 0.9)', color:'white', backdropFilter:'blur(4px)',
                                   padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700
@@ -140,16 +170,16 @@ export default function DropshipperProducts(){
                              display: 'grid', gap: 8
                           }}>
                              <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 14}}>
-                                <span style={{color:'var(--ds-text-secondary)'}}>Retail Price</span>
+                                <span style={{color:'var(--ds-text-secondary)'}}>Selling Price</span>
                                 <span style={{fontWeight: 600, color:'var(--ds-text-primary)'}}>
-                                   {p.baseCurrency} {p.price?.toFixed(2)}
+                                   {currency} {sellingPrice.toFixed(2)}
                                 </span>
                              </div>
                              
                              <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 14}}>
-                                <span style={{color:'var(--ds-text-secondary)'}}>Dropship Cost</span>
+                                <span style={{color:'var(--ds-text-secondary)'}}>Dropship Price</span>
                                 <span style={{fontWeight: 700, color: 'var(--ds-accent)'}}>
-                                   {p.baseCurrency} {cost.toFixed(2)}
+                                   {currency} {dropshipPrice.toFixed(2)}
                                 </span>
                              </div>
 
@@ -159,23 +189,33 @@ export default function DropshipperProducts(){
                              }}>
                                 <span style={{fontSize: 12, color:'var(--ds-text-secondary)'}}>Potential Profit</span>
                                 <span style={{fontSize: 14, fontWeight: 700, color: '#10b981'}}>
-                                   +{p.baseCurrency} {profit.toFixed(2)}
+                                   +{currency} {profit.toFixed(2)}
+                                </span>
+                             </div>
+                             
+                             <div style={{
+                               borderTop: '1px solid var(--ds-border)', paddingTop: 8, marginTop: 4,
+                               display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                             }}>
+                                <span style={{fontSize: 12, color:'var(--ds-text-secondary)'}}>Live Stock</span>
+                                <span style={{fontSize: 13, fontWeight: 600, color: p.stockQty > 10 ? '#10b981' : '#f59e0b'}}>
+                                   {p.stockQty || 0} units
                                 </span>
                              </div>
                           </div>
 
                           <button 
                             onClick={() => navigate(`/dropshipper/submit-order?product=${p._id}`)}
-                            disabled={!p.inStock}
+                            disabled={!p.inStock || p.stockQty <= 0}
                             style={{
-                               background: !p.inStock ? 'var(--ds-border)' : 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                               background: !p.inStock || p.stockQty <= 0 ? 'var(--ds-border)' : 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
                                color: 'white', border: 'none', padding: '14px', borderRadius: 12,
-                               fontWeight: 600, cursor: !p.inStock ? 'not-allowed' : 'pointer',
-                               boxShadow: !p.inStock ? 'none' : '0 4px 12px rgba(139, 92, 246, 0.3)',
+                               fontWeight: 600, cursor: !p.inStock || p.stockQty <= 0 ? 'not-allowed' : 'pointer',
+                               boxShadow: !p.inStock || p.stockQty <= 0 ? 'none' : '0 4px 12px rgba(139, 92, 246, 0.3)',
                                transition: '0.2s'
                             }}
                           >
-                             {p.inStock ? 'Start Selling' : 'Unavailable'}
+                             {p.inStock && p.stockQty > 0 ? 'Start Selling' : 'Out of Stock'}
                           </button>
                        </div>
                     </div>
