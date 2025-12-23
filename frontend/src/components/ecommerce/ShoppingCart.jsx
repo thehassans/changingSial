@@ -207,6 +207,19 @@ export default function ShoppingCart({ isOpen, onClose }) {
       const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0)
       trackCheckoutStart(cartValue, itemCount)
 
+      // Check if customer is logged in
+      let customerId = null
+      try {
+        const token = localStorage.getItem('token')
+        const me = localStorage.getItem('me')
+        if (token && me) {
+          const user = JSON.parse(me)
+          if (user.role === 'customer' && user._id) {
+            customerId = user._id
+          }
+        }
+      } catch {}
+
       const items = cartItems.map(it => ({ productId: it.id, quantity: Math.max(1, Number(it.quantity||1)) }))
       const body = {
         customerName: form.name.trim(),
@@ -219,6 +232,7 @@ export default function ShoppingCart({ isOpen, onClose }) {
         details: String(form.details||'').trim(),
         items,
         currency: displayCurrency,
+        customerId, // Link order to customer account if logged in
       }
       await apiPost('/api/ecommerce/orders', body)
       toast.success('Order submitted! We will contact you shortly.')
