@@ -20,6 +20,7 @@ router.post("/orders", async (req, res) => {
       details = "",
       items = [],
       currency = "SAR",
+      customerId = null, // Optional: if customer is logged in
     } = req.body || {};
 
     if (!customerName.trim())
@@ -72,6 +73,7 @@ router.post("/orders", async (req, res) => {
       area: String(area || "").trim(),
       address: address.trim(),
       details: String(details || "").trim(),
+      customerId: customerId || null, // Link to customer if provided
       items: orderItems,
       total: Math.max(0, Number(total || 0)),
       currency: String(currency || "SAR"),
@@ -85,6 +87,89 @@ router.post("/orders", async (req, res) => {
       .json({ message: "Failed to submit order", error: err?.message });
   }
 });
+
+// POST /api/ecommerce/customer/orders - Create order for logged-in customer
+router.post(
+  "/customer/orders",
+  auth,
+  allowRoles("customer"),
+  async (req, res) => {
+    try {
+      const customerId = req.user.id;
+      const customer = await User.findById(customerId).select("firstName lastName phone email").lean();
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      
+      const {
+        address = "",
+        city = "",
+        area = "",
+        orderCountry = "",
+        details = "",
+        items = [],
+        currency = "SAR",
+      } = req.body || {};
+
+      if (!address.trim())
+        return res.status(400).json({ message: "Address is required" });
+      if (!city.trim())
+        return res.status(400).json({ message: "City is required" });
+      if (!orderCountry.trim())
+        return res.status(400).json({ message: "Country is required" });
+
+      const norm = Array.isArray(items) ? items : [];
+      if (norm.length === 0)
+        return res.status(400).json({ message: "Cart is empty" });
+
+      const ids = norm.map((i) => i && i.productId).filter(Boolean);
+      const prods = await Product.find({
+        _id: { $in: ids },
+        displayOnWebsite: true,
+      });
+      const byId = Object.fromEntries(prods.map((p) => [String(p._id), p]));
+      let total = 0;
+      const orderItems = [];
+      for (const it of norm) {
+        const p = byId[String(it.productId)];
+        if (!p)
+          return res.status(400).json({ message: "One or more products not available" });
+        const qty = Math.max(1, Number(it.quantity || 1));
+        const unit = Number(p.price || 0);
+        total += unit * qty;
+        orderItems.push({
+          productId: p._id,
+          name: p.name || "",
+          price: unit,
+          quantity: qty,
+        });
+      }
+
+      const doc = new WebOrder({
+        customerName: `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || "Customer",
+        customerPhone: customer.phone || "",
+        customerId: customerId,
+        orderCountry: orderCountry.trim(),
+        city: city.trim(),
+        area: String(area || "").trim(),
+        address: address.trim(),
+        details: String(details || "").trim(),
+        items: orderItems,
+        total: Math.max(0, Number(total || 0)),
+        currency: String(currency || "SAR"),
+        status: "new",
+      });
+      await doc.save();
+      return res.status(201).json({ message: "Order placed successfully", order: doc });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to submit order", 
+        error: err?.message 
+      });
+    }
+  }
+);
 
 // Distinct options: countries and cities for ecommerce orders
 router.get(
@@ -443,6 +528,174 @@ router.post(
       return res
         .status(500)
         .json({ message: "Failed to assign driver", error: err?.message });
+    }
+  }
+);
+
+// ============================================
+// CUSTOMER PORTAL ENDPOINTS
+// ============================================
+
+// GET /api/ecommerce/customer/orders - Get logged-in customer's orders
+router.get(
+  "/customer/orders",
+  auth,
+  allowRoles("customer"),
+  async (req, res) => {
+    try {
+      const customerId = req.user.id;
+      const { status = "", page = 1, limit = 20 } = req.query || {};
+      
+      const match = { customerId };
+      if (status) match.status = status;
+      
+      const pageNum = Math.max(1, Number(page));
+      const limitNum = Math.min(50, Math.max(1, Number(limit)));
+      const skip = (pageNum - 1) * limitNum;
+      
+      const total = await WebOrder.countDocuments(match);
+      const orders = await WebOrder.find(match)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .populate("deliveryBoy", "firstName lastName phone")
+        .lean();
+      
+      const hasMore = skip + orders.length < total;
+      
+      return res.json({ orders, page: pageNum, limit: limitNum, total, hasMore });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load orders", 
+        error: err?.message 
+      });
+    }
+  }
+);
+
+// GET /api/ecommerce/customer/orders/:id - Get single order with tracking
+router.get(
+  "/customer/orders/:id",
+  auth,
+  allowRoles("customer"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const customerId = req.user.id;
+      
+      const order = await WebOrder.findOne({ _id: id, customerId })
+        .populate("deliveryBoy", "firstName lastName phone")
+        .lean();
+      
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+      
+      // Build tracking timeline
+      const timeline = [];
+      timeline.push({
+        status: "ordered",
+        label: "Order Placed",
+        date: order.createdAt,
+        completed: true
+      });
+      
+      if (order.status === "processing" || order.shipmentStatus !== "pending") {
+        timeline.push({
+          status: "processing",
+          label: "Order Confirmed",
+          date: order.updatedAt,
+          completed: true
+        });
+      }
+      
+      if (order.shipmentStatus === "assigned" || order.deliveryBoy) {
+        timeline.push({
+          status: "assigned",
+          label: "Driver Assigned",
+          date: order.updatedAt,
+          completed: true,
+          driver: order.deliveryBoy ? {
+            name: `${order.deliveryBoy.firstName || ''} ${order.deliveryBoy.lastName || ''}`.trim(),
+            phone: order.deliveryBoy.phone
+          } : null
+        });
+      }
+      
+      if (order.shipmentStatus === "picked_up" || order.shipmentStatus === "in_transit") {
+        timeline.push({
+          status: "in_transit",
+          label: "Out for Delivery",
+          date: order.updatedAt,
+          completed: true
+        });
+      }
+      
+      if (order.shipmentStatus === "delivered") {
+        timeline.push({
+          status: "delivered",
+          label: "Delivered",
+          date: order.updatedAt,
+          completed: true
+        });
+      }
+      
+      return res.json({ order, timeline });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load order", 
+        error: err?.message 
+      });
+    }
+  }
+);
+
+// GET /api/ecommerce/customer/profile - Get customer profile
+router.get(
+  "/customer/profile",
+  auth,
+  allowRoles("customer"),
+  async (req, res) => {
+    try {
+      const customer = await User.findById(req.user.id)
+        .select("-password")
+        .lean();
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      
+      // Get order stats
+      const orderStats = await WebOrder.aggregate([
+        { $match: { customerId: customer._id } },
+        {
+          $group: {
+            _id: null,
+            totalOrders: { $sum: 1 },
+            totalSpent: { $sum: "$total" },
+            pendingOrders: {
+              $sum: { $cond: [{ $in: ["$status", ["new", "processing"]] }, 1, 0] }
+            },
+            deliveredOrders: {
+              $sum: { $cond: [{ $eq: ["$shipmentStatus", "delivered"] }, 1, 0] }
+            }
+          }
+        }
+      ]);
+      
+      const stats = orderStats[0] || {
+        totalOrders: 0,
+        totalSpent: 0,
+        pendingOrders: 0,
+        deliveredOrders: 0
+      };
+      
+      return res.json({ customer, stats });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load profile", 
+        error: err?.message 
+      });
     }
   }
 );

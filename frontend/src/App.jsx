@@ -107,6 +107,15 @@ import DropshipperOrders from './pages/dropshipper/Orders.jsx'
 import DropshipperSubmitOrder from './pages/dropshipper/SubmitOrder.jsx'
 import DropshipperFinances from './pages/dropshipper/Finances.jsx'
 
+// Customer Portal
+import CustomerLayout from './layout/CustomerLayout.jsx'
+import CustomerDashboard from './pages/customer/Dashboard.jsx'
+import CustomerOrders from './pages/customer/Orders.jsx'
+import TrackOrder from './pages/customer/TrackOrder.jsx'
+import CustomerLogin from './pages/ecommerce/CustomerLogin.jsx'
+import Register from './pages/ecommerce/Register.jsx'
+import Customers from './pages/user/Customers.jsx'
+
 import AnalyticsDashboard from './components/analytics/AnalyticsDashboard'
 
 import { apiGet } from './api.js'
@@ -366,6 +375,24 @@ export default function App() {
               <Route path="profile" element={<InvestorProfile />} />
             </Route>
 
+            {/* Customer Portal with Layout */}
+            <Route path="/customer-login" element={<CustomerLogin />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/customer"
+              element={
+                <RequireAuth>
+                  <RequireRole roles={['customer']}>
+                    <CustomerLayout />
+                  </RequireRole>
+                </RequireAuth>
+              }
+            >
+              <Route index element={<CustomerDashboard />} />
+              <Route path="orders" element={<CustomerOrders />} />
+              <Route path="orders/:id" element={<TrackOrder />} />
+            </Route>
+
             {/* Redirects for Admin Shortcuts */}
             <Route path="/investors" element={<Navigate to="/user/investors" replace />} />
 
@@ -478,6 +505,7 @@ export default function App() {
               <Route path="drivers" element={<Drivers />} />
               <Route path="dropshippers" element={<Dropshippers />} />
               <Route path="investors" element={<Investors />} />
+              <Route path="customers" element={<Customers />} />
               <Route path="references" element={<References />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="campaigns" element={<Campaign />} />

@@ -61,8 +61,8 @@ export default function CustomerLogin() {
       
       toast.success('Welcome back!')
       
-      // Redirect to catalog for customers
-      window.location.href = '/catalog'
+      // Redirect to customer dashboard
+      window.location.href = '/customer'
     } catch (err) {
       const status = err?.status
       const msg = String(err?.message || '')

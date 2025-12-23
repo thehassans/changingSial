@@ -24,6 +24,13 @@ const WebOrderSchema = new mongoose.Schema(
     area: { type: String, default: "" },
     address: { type: String, default: "" },
     details: { type: String, default: "" },
+    // Link to customer account (if logged in during order)
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+      index: true,
+    },
     items: [WebOrderItemSchema],
     total: { type: Number, default: 0 },
     currency: { type: String, default: "SAR" },

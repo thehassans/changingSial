@@ -2779,3 +2779,127 @@ router.post("/:id/impersonate", auth, allowRoles("admin", "user"), async (req, r
   }
 });
 
+// ============================================
+// CUSTOMER MANAGEMENT ENDPOINTS
+// ============================================
+
+// GET /api/users/customers - List all customers with order stats
+router.get(
+  "/customers",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { q = "", page = 1, limit = 20 } = req.query || {};
+      
+      const match = { role: "customer" };
+      if (q) {
+        const rx = new RegExp(String(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        match.$or = [
+          { firstName: rx },
+          { lastName: rx },
+          { email: rx },
+          { phone: rx },
+        ];
+      }
+      
+      const pageNum = Math.max(1, Number(page));
+      const limitNum = Math.min(50, Math.max(1, Number(limit)));
+      const skip = (pageNum - 1) * limitNum;
+      
+      const total = await User.countDocuments(match);
+      const customers = await User.find(match)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean();
+      
+      // Get order stats for each customer
+      const WebOrder = (await import("../models/WebOrder.js")).default;
+      const customerIds = customers.map(c => c._id);
+      
+      const orderStats = await WebOrder.aggregate([
+        { $match: { customerId: { $in: customerIds } } },
+        {
+          $group: {
+            _id: "$customerId",
+            totalOrders: { $sum: 1 },
+            totalSpent: { $sum: "$total" },
+            lastOrderDate: { $max: "$createdAt" }
+          }
+        }
+      ]);
+      
+      const statsMap = Object.fromEntries(
+        orderStats.map(s => [String(s._id), s])
+      );
+      
+      const customersWithStats = customers.map(c => ({
+        ...c,
+        orderStats: statsMap[String(c._id)] || {
+          totalOrders: 0,
+          totalSpent: 0,
+          lastOrderDate: null
+        }
+      }));
+      
+      const hasMore = skip + customers.length < total;
+      
+      return res.json({ 
+        customers: customersWithStats, 
+        page: pageNum, 
+        limit: limitNum, 
+        total, 
+        hasMore 
+      });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load customers", 
+        error: err?.message 
+      });
+    }
+  }
+);
+
+// GET /api/users/customers/:id - Get single customer with full order history
+router.get(
+  "/customers/:id",
+  auth,
+  allowRoles("admin", "user"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const customer = await User.findOne({ _id: id, role: "customer" })
+        .select("-password")
+        .lean();
+      
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+      
+      const WebOrder = (await import("../models/WebOrder.js")).default;
+      
+      // Get all orders for this customer
+      const orders = await WebOrder.find({ customerId: id })
+        .sort({ createdAt: -1 })
+        .lean();
+      
+      // Calculate stats
+      const stats = {
+        totalOrders: orders.length,
+        totalSpent: orders.reduce((sum, o) => sum + (o.total || 0), 0),
+        deliveredOrders: orders.filter(o => o.shipmentStatus === "delivered").length,
+        pendingOrders: orders.filter(o => ["new", "processing"].includes(o.status)).length,
+      };
+      
+      return res.json({ customer, orders, stats });
+    } catch (err) {
+      return res.status(500).json({ 
+        message: "Failed to load customer", 
+        error: err?.message 
+      });
+    }
+  }
+);
