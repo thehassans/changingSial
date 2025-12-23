@@ -154,6 +154,7 @@ function appendErrorLog(entry) {
 async function handle(res) {
   if (res.ok) return res
   // Centralize auth failures: clear token and redirect to login
+  // But ONLY for protected areas, not public e-commerce pages
   if (res.status === 401) {
     try {
       localStorage.removeItem('token')
@@ -161,14 +162,27 @@ async function handle(res) {
     } catch {}
     // Determine which login page to redirect to
     const path = location.pathname || ''
-    const isCustomerArea = path.startsWith('/customer') || 
-                           path.startsWith('/catalog') || 
-                           path === '/' ||
-                           path.startsWith('/product')
-    const loginPath = isCustomerArea ? '/customer/login' : '/login'
-    if (!path.startsWith('/login') && !path.startsWith('/customer/login')) {
-      location.href = loginPath
+    // Public e-commerce pages should NOT redirect on 401
+    const isPublicEcommerce = path === '/' || 
+                               path.startsWith('/catalog') || 
+                               path.startsWith('/product') ||
+                               path.startsWith('/categories') ||
+                               path.startsWith('/about') ||
+                               path.startsWith('/contact')
+    // Only redirect for protected areas that require login
+    const isProtectedCustomer = path.startsWith('/customer')
+    const isProtectedAdmin = path.startsWith('/user') || 
+                             path.startsWith('/admin') ||
+                             path.startsWith('/manager') ||
+                             path.startsWith('/driver') ||
+                             path.startsWith('/investor')
+    
+    if (isProtectedCustomer && !path.includes('/login')) {
+      location.href = '/customer/login'
+    } else if (isProtectedAdmin && !path.includes('/login')) {
+      location.href = '/login'
     }
+    // For public pages, don't redirect - just let it fail silently
   }
   // Prefer JSON error bodies
   const ct = res.headers.get('content-type') || ''
