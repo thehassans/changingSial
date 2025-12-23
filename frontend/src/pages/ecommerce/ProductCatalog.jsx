@@ -11,6 +11,7 @@ import { detectCountryCode } from '../../utils/geo'
 import CategoryFilter from '../../components/ecommerce/CategoryFilter'
 import SearchBar from '../../components/ecommerce/SearchBar'
 import CountrySelector, { countries } from '../../components/ecommerce/CountrySelector'
+import PremiumHeroBanner from '../../components/ecommerce/PremiumHeroBanner'
 
 // Professional Stats and Categories Section
 function StatsAndCategories({ categoryCount = 0, categoryCounts = {}, selectedCategory = 'all', onCategoryClick }) {
@@ -640,26 +641,11 @@ export default function ProductCatalog() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 editable-area">
-        {/* Premium Stats and Categories Section */}
-        <div className="mb-8">
-          <StatsAndCategories 
-            categoryCount={Object.keys(categoryCounts).length} 
-            categoryCounts={categoryCounts}
-            selectedCategory={selectedCategory}
-            onCategoryClick={(category) => {
-              setSelectedCategory(category)
-              setCurrentPage(1)
-              // Scroll to products section
-              setTimeout(() => {
-                const productsSection = document.querySelector('.product-grid-section')
-                if (productsSection) {
-                  productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-              }, 100)
-            }}
-          />
-        </div>
+      <div className="editable-area">
+        {/* Premium Hero Banner */}
+        <PremiumHeroBanner />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Premium Filters Bar */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5 sm:p-6 mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -934,6 +920,7 @@ export default function ProductCatalog() {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Shopping Cart Sidebar */}

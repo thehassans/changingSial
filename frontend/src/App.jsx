@@ -604,7 +604,4 @@ export default function App() {
             </Route>
           </Routes>
         </CustomDomainRouter>
-      </ThemeProvider>
-    </ErrorBoundary>
-  )
-}
+      </Th
