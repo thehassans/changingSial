@@ -1,8 +1,11 @@
 import express from "express";
+import mongoose from "mongoose";
 import WebOrder from "../models/WebOrder.js";
 import Product from "../models/Product.js";
 import User from "../models/User.js";
 import { auth, allowRoles } from "../middleware/auth.js";
+
+const ObjectId = mongoose.Types.ObjectId;
 
 const router = express.Router();
 
@@ -73,7 +76,7 @@ router.post("/orders", async (req, res) => {
       area: String(area || "").trim(),
       address: address.trim(),
       details: String(details || "").trim(),
-      customerId: customerId || null, // Link to customer if provided
+      customerId: customerId && mongoose.isValidObjectId(customerId) ? new ObjectId(customerId) : null, // Link to customer if provided
       items: orderItems,
       total: Math.max(0, Number(total || 0)),
       currency: String(currency || "SAR"),
@@ -546,7 +549,7 @@ router.get(
       const customerId = req.user.id;
       const { status = "", page = 1, limit = 20 } = req.query || {};
       
-      const match = { customerId };
+      const match = { customerId: new ObjectId(customerId) };
       if (status) match.status = status;
       
       const pageNum = Math.max(1, Number(page));
