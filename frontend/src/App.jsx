@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import './styles/theme.css'
+import './styles/premium-ecommerce.css'
 
 import AdminLayout from './layout/AdminLayout.jsx'
 import UserLayout from './layout/UserLayout.jsx'
