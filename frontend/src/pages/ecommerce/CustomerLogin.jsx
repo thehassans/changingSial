@@ -335,7 +335,7 @@ export default function CustomerLogin() {
             </div>
 
             <div className="customer-login-staff-link">
-              Staff or Admin? <Link to="/admin-login">Sign in here</Link>
+              Staff or Admin? <Link to="/login">Sign in here</Link>
             </div>
           </form>
         </div>

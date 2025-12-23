@@ -344,13 +344,13 @@ function CustomDomainRouter({ children }) {
   )
 }
 
-// Smart Login component - shows customer login on e-commerce sites, staff login on admin
+// Smart Login component - redirects to customer login on e-commerce sites, shows staff login on admin
 function SmartLogin() {
   const isCustomDomain = useIsCustomDomain()
   
-  // On custom domains (e-commerce sites), show customer login
+  // On custom domains (e-commerce sites), redirect to customer login
   if (isCustomDomain) {
-    return <CustomerLogin />
+    return <Navigate to="/customer/login" replace />
   }
   
   // On admin/localhost, show staff login
@@ -399,8 +399,9 @@ export default function App() {
               <Route path="profile" element={<InvestorProfile />} />
             </Route>
 
-            {/* Customer Portal with Layout */}
-            <Route path="/customer-login" element={<CustomerLogin />} />
+            {/* Customer Portal */}
+            <Route path="/customer/login" element={<CustomerLogin />} />
+            <Route path="/customer-login" element={<Navigate to="/customer/login" replace />} />
             <Route path="/register" element={<Register />} />
             <Route
               path="/customer"

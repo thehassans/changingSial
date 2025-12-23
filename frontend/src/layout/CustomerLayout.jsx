@@ -212,7 +212,7 @@ export default function CustomerLayout() {
       localStorage.removeItem('token')
       localStorage.removeItem('me') 
     } catch {}
-    navigate('/customer-login', { replace: true })
+    navigate('/customer/login', { replace: true })
   }
 
   const links = [

@@ -124,7 +124,7 @@ export default function Register() {
           </svg>
           Back to Catalog
         </Link>
-        <Link to="/login" className="text-white hover:text-orange-200 transition-colors font-medium">
+        <Link to="/customer/login" className="text-white hover:text-orange-200 transition-colors font-medium">
           Already have an account? Sign In
         </Link>
       </div>
@@ -296,7 +296,7 @@ export default function Register() {
           {/* Login Link */}
           <div className="text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link to="/login" className="text-orange-600 hover:text-orange-700 font-medium">
+            <Link to="/customer/login" className="text-orange-600 hover:text-orange-700 font-medium">
               Sign in here
             </Link>
           </div>
