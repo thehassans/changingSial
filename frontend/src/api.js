@@ -159,9 +159,15 @@ async function handle(res) {
       localStorage.removeItem('token')
       localStorage.removeItem('me')
     } catch {}
-    if (!location.pathname.startsWith('/login')) {
-      // Suppressed toaster; update location directly
-      location.href = '/login'
+    // Determine which login page to redirect to
+    const path = location.pathname || ''
+    const isCustomerArea = path.startsWith('/customer') || 
+                           path.startsWith('/catalog') || 
+                           path === '/' ||
+                           path.startsWith('/product')
+    const loginPath = isCustomerArea ? '/customer/login' : '/login'
+    if (!path.startsWith('/login') && !path.startsWith('/customer/login')) {
+      location.href = loginPath
     }
   }
   // Prefer JSON error bodies
