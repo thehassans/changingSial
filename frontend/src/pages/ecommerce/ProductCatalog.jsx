@@ -738,20 +738,10 @@ export default function ProductCatalog() {
           </button>
         </div>
 
-        <div className="flex gap-8">
-          {/* Sidebar - Categories */}
-          <div className={`w-64 flex-shrink-0 ${showFilters ? 'block' : 'hidden'} lg:block`}>
-            <div className="sticky top-4">
-              <CategoryFilter
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                productCounts={getProductCounts()}
-              />
-            </div>
-          </div>
 
+        <div>
           {/* Main Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
                 <p className="text-red-700">{error}</p>

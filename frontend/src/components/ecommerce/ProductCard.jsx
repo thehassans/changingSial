@@ -119,7 +119,7 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
     : (product?.imagePath ? [product.imagePath] : [])
   const mainImagePath = images[0] || ''
   const hoverImagePath = images[1] || images[0] || ''
-  const hasDiscount = product.discount && product.discount > 0
+  const hasDiscount = (product.discount || 0) > 0
   const isOutOfStock = !product.inStock || product.stockQty === 0
 
   return (
@@ -168,7 +168,7 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
 
           {/* Premium E-commerce Badges */}
           <div className="premium-badges-stack">
-            {product.salePrice && Number(product.salePrice) < Number(product.price) && (
+            {product.salePrice > 0 && Number(product.salePrice) < Number(product.price) && (
               <div className="premium-badge sale-badge">
                 <span className="badge-text">
                   {Math.round(((Number(product.price) - Number(product.salePrice)) / Number(product.price)) * 100)}% OFF
