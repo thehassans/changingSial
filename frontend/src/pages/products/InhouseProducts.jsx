@@ -99,6 +99,13 @@ export default function InhouseProducts() {
     stockIndia: 0,
     stockKuwait: 0,
     stockQatar: 0,
+    // Premium E-commerce Features
+    sellByBuysial: false,
+    salePrice: '',
+    onSale: false,
+    isBestSelling: false,
+    isFeatured: false,
+    isLimitedStock: false,
     images: [],
   })
   const [imagePreviews, setImagePreviews] = useState([])
@@ -637,6 +644,13 @@ export default function InhouseProducts() {
       fd.append('stockIndia', String(form.stockIndia))
       fd.append('stockKuwait', String(form.stockKuwait))
       fd.append('stockQatar', String(form.stockQatar))
+      // Premium E-commerce Features
+      fd.append('sellByBuysial', String(!!form.sellByBuysial))
+      fd.append('salePrice', form.salePrice || '')
+      fd.append('onSale', String(!!form.onSale))
+      fd.append('isBestSelling', String(!!form.isBestSelling))
+      fd.append('isFeatured', String(!!form.isFeatured))
+      fd.append('isLimitedStock', String(!!form.isLimitedStock))
       for (const f of form.images || []) fd.append('images', f)
 
       const response = await apiUpload('/api/products', fd)
@@ -665,6 +679,12 @@ export default function InhouseProducts() {
           stockIndia: 0,
           stockKuwait: 0,
           stockQatar: 0,
+          sellByBuysial: false,
+          salePrice: '',
+          onSale: false,
+          isBestSelling: false,
+          isFeatured: false,
+          isLimitedStock: false,
           images: [],
         })
         setImagePreviews([])
@@ -1093,6 +1113,66 @@ export default function InhouseProducts() {
                     />
                   </div>
                 </div>
+                {/* Sale/Discount Price */}
+                <div>
+                  <div className="label" style={{ marginBottom: 8, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span>Sale Price (Optional)</span>
+                    {form.salePrice && form.price && Number(form.salePrice) < Number(form.price) && (
+                      <span style={{ 
+                        fontSize: 11, 
+                        background: 'linear-gradient(135deg, #10b981, #059669)',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: 12,
+                        fontWeight: 700
+                      }}>
+                        {Math.round(((Number(form.price) - Number(form.salePrice || 0)) / Number(form.price)) * 100)}% OFF
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ position: 'relative' }}>
+                    <span
+                      style={{
+                        position: 'absolute',
+                        left: 12,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        opacity: 0.5,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {form.baseCurrency}
+                    </span>
+                    <input
+                      className="input"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      name="salePrice"
+                      value={form.salePrice}
+                      onChange={(e) => {
+                        onChange(e)
+                        // Auto-enable onSale if salePrice is less than price
+                        if (e.target.value && Number(e.target.value) < Number(form.price)) {
+                          setForm(f => ({ ...f, onSale: true }))
+                        }
+                      }}
+                      placeholder="Enter discounted price"
+                      style={{
+                        paddingLeft: 50,
+                        paddingRight: 12,
+                        paddingTop: 12,
+                        paddingBottom: 12,
+                        borderColor: form.salePrice && Number(form.salePrice) < Number(form.price) ? '#10b981' : undefined
+                      }}
+                    />
+                  </div>
+                  {form.salePrice && Number(form.salePrice) >= Number(form.price) && (
+                    <div style={{ fontSize: 12, color: '#ef4444', marginTop: 4 }}>
+                      ⚠️ Sale price should be less than selling price
+                    </div>
+                  )}
+                </div>
                 <div>
                   <div className="label" style={{ marginBottom: 8, fontWeight: 600 }}>
                     Purchase Price (Batch)
@@ -1309,6 +1389,175 @@ export default function InhouseProducts() {
                   <span style={{ fontWeight: 500 }}>Public Website</span>
                   <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 4 }}>(& Mobile App)</span>
                 </label>
+              </div>
+
+              {/* Premium E-commerce Badges */}
+              <div style={{ 
+                background: 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)', 
+                padding: 20, 
+                borderRadius: 12, 
+                marginTop: 20,
+                border: '2px solid #f97316'
+              }}>
+                <div style={{ 
+                  fontSize: 14, 
+                  fontWeight: 700, 
+                  marginBottom: 16, 
+                  color: '#ea580c',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}>
+                  <svg style={{ width: 20, height: 20 }} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  PREMIUM BADGES (Shown on Website)
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
+                  {/* Sell by Buysial */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 40,
+                        height: 24,
+                        background: form.sellByBuysial ? '#f97316' : '#e5e7eb',
+                        borderRadius: 12,
+                        transition: '0.3s',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: form.sellByBuysial ? 18 : 2,
+                          top: 2,
+                          width: 20,
+                          height: 20,
+                          background: 'white',
+                          borderRadius: '50%',
+                          transition: '0.3s',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="checkbox"
+                      name="sellByBuysial"
+                      checked={!!form.sellByBuysial}
+                      onChange={onChange}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>🏪 Sell by Buysial</span>
+                  </label>
+
+                  {/* Best Selling */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 40,
+                        height: 24,
+                        background: form.isBestSelling ? '#10b981' : '#e5e7eb',
+                        borderRadius: 12,
+                        transition: '0.3s',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: form.isBestSelling ? 18 : 2,
+                          top: 2,
+                          width: 20,
+                          height: 20,
+                          background: 'white',
+                          borderRadius: '50%',
+                          transition: '0.3s',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="checkbox"
+                      name="isBestSelling"
+                      checked={!!form.isBestSelling}
+                      onChange={onChange}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>🔥 Best Selling</span>
+                  </label>
+
+                  {/* Featured */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 40,
+                        height: 24,
+                        background: form.isFeatured ? '#8b5cf6' : '#e5e7eb',
+                        borderRadius: 12,
+                        transition: '0.3s',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: form.isFeatured ? 18 : 2,
+                          top: 2,
+                          width: 20,
+                          height: 20,
+                          background: 'white',
+                          borderRadius: '50%',
+                          transition: '0.3s',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="checkbox"
+                      name="isFeatured"
+                      checked={!!form.isFeatured}
+                      onChange={onChange}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>⭐ Featured</span>
+                  </label>
+
+                  {/* Limited Stock */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: 40,
+                        height: 24,
+                        background: form.isLimitedStock ? '#ef4444' : '#e5e7eb',
+                        borderRadius: 12,
+                        transition: '0.3s',
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: form.isLimitedStock ? 18 : 2,
+                          top: 2,
+                          width: 20,
+                          height: 20,
+                          background: 'white',
+                          borderRadius: '50%',
+                          transition: '0.3s',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                        }}
+                      />
+                    </div>
+                    <input
+                      type="checkbox"
+                      name="isLimitedStock"
+                      checked={!!form.isLimitedStock}
+                      onChange={onChange}
+                      style={{ display: 'none' }}
+                    />
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>⏰ Limited Stock</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
