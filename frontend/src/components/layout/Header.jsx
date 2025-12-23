@@ -146,7 +146,7 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
                 </button>
 
                 <div className="auth-buttons">
-                  <Link to="/login" className="login-btn">Login</Link>
+                  <Link to="/customer/login" className="login-btn">Login</Link>
                   <Link to="/register" className="register-btn">Sign Up</Link>
                 </div>
               </>
@@ -231,7 +231,7 @@ export default function Header({ onCartClick, editMode = false, editState = {}, 
               </Link>
             </nav>
             <div className="mobile-auth">
-              <Link to="/login" className="mobile-login-btn" onClick={toggleMobileMenu}>Login</Link>
+              <Link to="/customer/login" className="mobile-login-btn" onClick={toggleMobileMenu}>Login</Link>
               <Link to="/register" className="mobile-register-btn" onClick={toggleMobileMenu}>Sign Up</Link>
             </div>
           </div>

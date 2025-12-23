@@ -375,7 +375,7 @@ export default function CustomerLogin() {
               <label className="cl-label">Password</label>
               <PasswordInput
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={setPassword}
                 placeholder="••••••••"
                 className="cl-input"
                 autoComplete="current-password"
