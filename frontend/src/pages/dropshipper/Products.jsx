@@ -430,4 +430,7 @@ export default function DropshipperProducts(){
              }}
              onSuccess={handleShopifySuccess}
            />
-         )
+         )}
+     </div>
+  )
+}
