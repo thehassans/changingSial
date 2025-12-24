@@ -65,6 +65,8 @@ import UserOrders from './pages/user/Orders.jsx'
 import UserAPISetup from './pages/user/APISetup.jsx'
 import ProfileSettings from './pages/user/ProfileSettings.jsx'
 import LabelSettings from './pages/user/LabelSettings.jsx'
+import UserShopifySettings from './pages/user/ShopifySettings.jsx'
+
 import ShopifyIntegration from './pages/user/ShopifyIntegration.jsx'
 import WebsiteModification from './pages/user/WebsiteModification.jsx'
 import ErrorLogs from './pages/user/ErrorLogs.jsx'
@@ -107,7 +109,6 @@ import DropshipperProducts from './pages/dropshipper/Products.jsx'
 import DropshipperOrders from './pages/dropshipper/Orders.jsx'
 import DropshipperSubmitOrder from './pages/dropshipper/SubmitOrder.jsx'
 import DropshipperFinances from './pages/dropshipper/Finances.jsx'
-import DropshipperShopifySettings from './pages/dropshipper/ShopifySettings.jsx'
 
 // Customer Portal
 import CustomerLayout from './layout/CustomerLayout.jsx'
@@ -558,6 +559,7 @@ export default function App() {
               <Route path="api-setup" element={<UserAPISetup />} />
               <Route path="profile-settings" element={<ProfileSettings />} />
               <Route path="label-settings" element={<LabelSettings />} />
+              <Route path="shopify-settings" element={<UserShopifySettings />} />
               <Route path="shopify" element={<ShopifyIntegration />} />
               <Route path="website-modification" element={<WebsiteModification />} />
               <Route path="error-logs" element={<ErrorLogs />} />
@@ -580,7 +582,6 @@ export default function App() {
               <Route path="orders" element={<DropshipperOrders />} />
               <Route path="submit-order" element={<DropshipperSubmitOrder />} />
               <Route path="finances" element={<DropshipperFinances />} />
-              <Route path="shopify-settings" element={<DropshipperShopifySettings />} />
             </Route>
 
             <Route

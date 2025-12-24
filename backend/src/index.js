@@ -25,6 +25,7 @@ import shopifyRoutes from "./modules/routes/shopify.js";
 import websiteSettingsRoutes from "./modules/routes/websiteSettings.js";
 import dropshipperRoutes from "./modules/routes/dropshippers.js";
 import dropshipperShopifyRoutes from "./modules/routes/dropshipperShopify.js";
+import settingsShopifyRoutes from "./modules/routes/settingsShopify.js";
 
 
 dotenv.config();
@@ -153,6 +154,7 @@ app.use("/api/reports", reportsRoutes);
 app.use("/api/geocode", geocodeRoutes);
 app.use("/api/ecommerce", ecommerceRoutes);
 app.use("/api/shopify", shopifyRoutes);
+app.use("/api/settings/shopify", settingsShopifyRoutes);
 app.use("/api/settings/website", websiteSettingsRoutes);
 app.use("/api/dropshippers", dropshipperRoutes);
 app.use("/api/dropshippers/shopify", dropshipperShopifyRoutes);

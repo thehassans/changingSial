@@ -96,10 +96,10 @@ router.post('/list-product', auth, allowRoles('dropshipper'), async (req, res) =
       return res.status(400).json({ error: 'Product ID and retail price are required' })
     }
 
-    // Get Shopify integration
-    const integration = await ShopifyIntegration.findOne({ userId: req.user._id })
+    // Get admin's Shopify integration (centralized)
+    const integration = await ShopifyIntegration.findOne().sort({ _id: -1 }).limit(1)
     if (!integration || !integration.connected) {
-      return res.status(400).json({ error: 'Shopify not connected. Please connect your Shopify store first.' })
+      return res.status(400).json({ error: 'Shopify not connected. Please contact admin to configure Shopify integration.' })
     }
 
     // Check if already listed

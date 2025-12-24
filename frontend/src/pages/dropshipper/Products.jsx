@@ -32,7 +32,7 @@ export default function DropshipperProducts(){
   
   async function checkShopifyConnection() {
     try {
-      const data = await apiGet('/api/dropshippers/shopify/settings')
+      const data = await apiGet('/api/settings/shopify/status')
       setShopifyConnected(data.connected || false)
     } catch (err) {
       setShopifyConnected(false)
@@ -41,8 +41,8 @@ export default function DropshipperProducts(){
   
   function handleListToShopify(product) {
     if (!shopifyConnected) {
-      if (confirm('Connect Shopify first to list products. Go to Shopify settings now?')) {
-        navigate('/dropshipper/shopify-settings')
+      if (confirm('Shopify integration not configured. Contact admin to set up Shopify integration first.')) {
+        // Could redirect to user panel if user is admin
       }
       return
     }

@@ -23,7 +23,7 @@ export default function ShopifySettings() {
   
   async function loadSettings() {
     try {
-      const data = await apiGet('/api/dropshippers/shopify/settings')
+      const data = await apiGet('/api/settings/shopify')
       setSettings(data)
       if (data.shopDomain) {
         setForm(f => ({ ...f, shopDomain: data.shopDomain }))
@@ -37,7 +37,7 @@ export default function ShopifySettings() {
   
   async function loadListedProducts() {
     try {
-      const data = await apiGet('/api/dropshippers/shopify/listed-products')
+      const data = await apiGet('/api/settings/shopify/listed-products')
       setListedProducts(data.products || [])
     } catch (err) {
       console.error(err)
@@ -50,7 +50,7 @@ export default function ShopifySettings() {
     setMsg({ text: '', type: '' })
     
     try {
-      const response = await apiPost('/api/dropshippers/shopify/settings', form)
+      const response = await apiPost('/api/settings/shopify', form)
       setMsg({ text: response.message || 'Shopify connected successfully!', type: 'success' })
       await loadSettings()
       setForm({ shopDomain: form.shopDomain, apiKey: '', apiSecret: '', accessToken: '' })
@@ -65,7 +65,7 @@ export default function ShopifySettings() {
     if (!confirm('Remove this product from your Shopify store?')) return
     
     try {
-      await apiDelete(`/api/dropshippers/shopify/unlist/${productId}`)
+      await apiDelete(`/api/settings/shopify/unlist/${productId}`)
       setMsg({ text: 'Product unlisted successfully!', type: 'success' })
       await loadListedProducts()
     } catch (err) {
