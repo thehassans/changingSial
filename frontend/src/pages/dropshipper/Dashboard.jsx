@@ -88,10 +88,7 @@ export default function DropshipperDashboard() {
          paddingBottom: 20, borderBottom: '1px solid var(--ds-border)'
        }}>
           <div>
-            <h1 style={{fontSize: 32, fontWeight: 800, margin: 0, 
-              background: 'linear-gradient(135deg, #fff 0%, #cbd5e1 100%)', 
-              WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent'
-            }}>
+            <h1 style={{fontSize: 32, fontWeight: 800, margin: 0, color: 'var(--ds-text-primary)'}}>
               Overview
             </h1>
             <div style={{color: 'var(--ds-text-secondary)', marginTop: 8, fontSize: 16}}>
@@ -122,7 +119,7 @@ export default function DropshipperDashboard() {
           padding: 24, display:'grid', gap: 24
        }}>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-             <h3 style={{margin:0, fontSize:18, fontWeight:700}}>Order Status</h3>
+             <h3 style={{margin:0, fontSize:18, fontWeight:700, color: 'var(--ds-text-primary)'}}>Order Status</h3>
              <Link to="/dropshipper/orders" style={{color:'var(--ds-accent)', textDecoration:'none', fontSize:14, fontWeight:600}}>View All &rarr;</Link>
           </div>
           

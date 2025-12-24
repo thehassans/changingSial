@@ -20,6 +20,14 @@ const PREMIUM_STYLES = `
     --border: rgba(0, 0, 0, 0.08);
     --sidebar-bg: #ffffff;
     --sidebar-border: #e2e8f0;
+    
+    /* Dropshipper Specific Variables (Light Mode) */
+    --ds-text-primary: #0f172a;
+    --ds-text-secondary: #64748b;
+    --ds-panel: #ffffff;
+    --ds-border: #e2e8f0;
+    --ds-glass: rgba(255, 255, 255, 0.9);
+    --ds-accent: #10b981;
   }
 
   [data-theme="dark"] .dropshipper-layout {
@@ -30,6 +38,14 @@ const PREMIUM_STYLES = `
     --border: rgba(255, 255, 255, 0.08);
     --sidebar-bg: rgba(15, 23, 42, 0.95);
     --sidebar-border: rgba(255, 255, 255, 0.1);
+
+    /* Dropshipper Specific Variables (Dark Mode) */
+    --ds-text-primary: #f8fafc;
+    --ds-text-secondary: #94a3b8;
+    --ds-panel: rgba(30, 41, 59, 0.7);
+    --ds-border: rgba(255, 255, 255, 0.1);
+    --ds-glass: rgba(15, 23, 42, 0.6);
+    --ds-accent: #10b981;
   }
 
   .dropshipper-topbar {
@@ -333,7 +349,7 @@ export default function DropshipperLayout() {
         <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
       </svg>
     )},
-    { to: '/dropshipper/submit-order', label: 'New Order', icon: (
+    { to: '/dropshipper/submit-order', label: 'Submit Your Order', icon: (
       <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
       </svg>
