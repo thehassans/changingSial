@@ -260,7 +260,7 @@ export default function DropshipperLayout() {
     } catch {}
     const root = document.documentElement
     if (theme === 'dark') root.setAttribute('data-theme', 'dark')
-    else root.removeAttribute('data-theme')
+    else root.setAttribute('data-theme', 'light')
   }, [theme])
 
   useEffect(() => {
