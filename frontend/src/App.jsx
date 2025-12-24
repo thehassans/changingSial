@@ -107,6 +107,7 @@ import DropshipperProducts from './pages/dropshipper/Products.jsx'
 import DropshipperOrders from './pages/dropshipper/Orders.jsx'
 import DropshipperSubmitOrder from './pages/dropshipper/SubmitOrder.jsx'
 import DropshipperFinances from './pages/dropshipper/Finances.jsx'
+import DropshipperShopifySettings from './pages/dropshipper/ShopifySettings.jsx'
 
 // Customer Portal
 import CustomerLayout from './layout/CustomerLayout.jsx'
@@ -579,6 +580,7 @@ export default function App() {
               <Route path="orders" element={<DropshipperOrders />} />
               <Route path="submit-order" element={<DropshipperSubmitOrder />} />
               <Route path="finances" element={<DropshipperFinances />} />
+              <Route path="shopify-settings" element={<DropshipperShopifySettings />} />
             </Route>
 
             <Route

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { apiGet, API_BASE } from '../../api'
 import { useNavigate } from 'react-router-dom'
 import { getCurrencyConfig, convert } from '../../util/currency'
+import ShopifyListModal from '../../components/dropshipper/ShopifyListModal'
 
 export default function DropshipperProducts(){
   const [rows, setRows] = useState([])
@@ -9,6 +10,9 @@ export default function DropshipperProducts(){
   const [loading, setLoading] = useState(false)
   const [currency, setCurrency] = useState('AED')
   const [currencyConfig, setCurrencyConfig] = useState(null)
+  const [showShopifyModal, setShowShopifyModal] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [shopifyConnected, setShopifyConnected] = useState(false)
   const navigate = useNavigate()
 
   async function load(){
@@ -25,8 +29,37 @@ export default function DropshipperProducts(){
     }catch(_e){ setRows([]) }
     finally{ setLoading(false) }
   }
+  
+  async function checkShopifyConnection() {
+    try {
+      const data = await apiGet('/api/dropshippers/shopify/settings')
+      setShopifyConnected(data.connected || false)
+    } catch (err) {
+      setShopifyConnected(false)
+    }
+  }
+  
+  function handleListToShopify(product) {
+    if (!shopifyConnected) {
+      if (confirm('Connect Shopify first to list products. Go to Shopify settings now?')) {
+        navigate('/dropshipper/shopify-settings')
+      }
+      return
+    }
+    setSelectedProduct(product)
+    setShowShopifyModal(true)
+  }
+  
+  function handleShopifySuccess(response) {
+    alert(`✅ Product listed to Shopify!\n\nView it at: ${response.shopifyProductUrl}`)
+    setShowShopifyModal(false)
+    setSelectedProduct(null)
+  }
 
-  useEffect(()=>{ load() },[])
+  useEffect(()=>{ 
+    load()
+    checkShopifyConnection()
+  },[])
 
   const filteredRows = useMemo(() => {
     return rows.filter(p => !query || p.name.toLowerCase().includes(query.toLowerCase()))
@@ -346,27 +379,38 @@ export default function DropshipperProducts(){
                                {p.stockQty || 0} left
                              </div>
 
-                             <button 
-                               onClick={() => navigate(`/dropshipper/submit-order?product=${p._id}`)}
-                               disabled={!p.inStock || p.stockQty <= 0}
-                               style={{
-                                  background: !p.inStock || p.stockQty <= 0 
-                                    ? 'var(--ds-border)' 
-                                    : 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
-                                  color: !p.inStock || p.stockQty <= 0 ? 'var(--ds-text-secondary)' : 'white', 
-                                  border: 'none', 
-                                  padding: '12px', 
-                                  borderRadius: 12,
-                                  fontWeight: 600, 
-                                  fontSize: 13,
-                                  cursor: !p.inStock || p.stockQty <= 0 ? 'not-allowed' : 'pointer',
-                                  boxShadow: !p.inStock || p.stockQty <= 0 ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.4)',
-                                  transition: 'all 0.2s',
-                                  whiteSpace: 'nowrap'
-                               }}
-                             >
-                                {p.inStock && p.stockQty > 0 ? 'Start Selling' : 'Unavailable'}
-                             </button>
+                              <button 
+                                onClick={() => handleListToShopify(p)}
+                                disabled={!p.inStock || p.stockQty <= 0}
+                                style={{
+                                   background: !p.inStock || p.stockQty <= 0 
+                                     ? 'var(--ds-border)' 
+                                     : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                                   color: !p.inStock || p.stockQty <= 0 ? 'var(--ds-text-secondary)' : 'white', 
+                                   border: 'none', 
+                                   padding: '12px', 
+                                   borderRadius: 12,
+                                   fontWeight: 600, 
+                                   fontSize: 13,
+                                   cursor: !p.inStock || p.stockQty <= 0 ? 'not-allowed' : 'pointer',
+                                   boxShadow: !p.inStock || p.stockQty <= 0 ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.4)',
+                                   transition: 'all 0.2s',
+                                   whiteSpace: 'nowrap',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   justifyContent: 'center',
+                                   gap: 6
+                                }}
+                              >
+                                 {p.inStock && p.stockQty > 0 ? (
+                                   <>
+                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                       <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                     </svg>
+                                     List to Shopify
+                                   </>
+                                 ) : 'Unavailable'}
+                              </button>
                           </div>
                        </div>
                     </div>
@@ -374,6 +418,19 @@ export default function DropshipperProducts(){
               })}
            </div>
         )}
-    </div>
+         
+         {/* Shopify List Modal */}
+         {showShopifyModal && selectedProduct && (
+           <ShopifyListModal
+             product={selectedProduct}
+             currency={currency}
+             onClose={() => {
+               setShowShopifyModal(false)
+               setSelectedProduct(null)
+             }}
+             onSuccess={handleShopifySuccess}
+           />
+         )}
+     </div>
   )
 }
