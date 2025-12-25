@@ -399,4 +399,18 @@ export default function CustomerLogin() {
           </form>
 
           <div className="cl-footer">
-            Don't 
+            Don't have an account? <Link to="/register">Create one</Link>
+          </div>
+
+          <div className="cl-staff-link">
+            <Link to="/login">Staff & Admin login →</Link>
+          </div>
+        </div>
+
+        <div className="cl-right">
+          <div className="cl-illustration">🛍️</div>
+        </div>
+      </div>
+    </>
+  )
+}

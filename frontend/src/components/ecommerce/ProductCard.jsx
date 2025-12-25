@@ -807,4 +807,84 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
         }
 
         .premium-badge {
-          
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 10px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          backdrop-filter: blur(8px);
+          animation: slideInLeft 0.4s ease-out;
+          width: fit-content;
+          max-width: 100%;
+        }
+
+        .badge-text {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .sale-badge {
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+        }
+
+        .buysial-badge {
+          background: linear-gradient(135deg, #f97316, #ea580c);
+          color: white;
+        }
+
+        .bestseller-badge {
+          background: linear-gradient(135deg, #ef4444, #dc2626);
+          color: white;
+        }
+
+        .featured-badge {
+          background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+          color: white;
+        }
+
+        .limited-badge {
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+        }
+
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        /* Mobile adjustments for badges */
+        @media (max-width: 768px) {
+          .premium-badges-stack {
+            top: 40px;
+            left: 6px;
+            gap: 4px;
+          }
+
+          .premium-badge {
+            padding: 3px 8px;
+            font-size: 9px;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .premium-badge {
+            font-size: 8px;
+            padding: 2px 6px;
+          }
+        }
+      `}</style>
+    </>
+  )
+}
