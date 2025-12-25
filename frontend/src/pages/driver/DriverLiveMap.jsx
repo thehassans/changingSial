@@ -321,4 +321,197 @@ export default function DriverLiveMapPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 40,
-                height: 4
+                height: 40,
+                borderRadius: 12,
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 18
+              }}>
+                📦
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: 'white' }}>
+                  {selectedOrder.invoiceNumber 
+                    ? `#${selectedOrder.invoiceNumber}` 
+                    : `#${(selectedOrder._id || '').slice(-5)}`}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+                  {selectedOrder.customerName || 'Customer'}
+                </div>
+              </div>
+            </div>
+            
+            {/* Quick Actions */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => {
+                  const phone = selectedOrder.customerPhone
+                  if (phone) {
+                    const cleanPhone = phone.replace(/[^\d+]/g, '')
+                    window.open(`https://wa.me/${cleanPhone}`, '_blank')
+                  }
+                }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #25d366, #128c7e)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 15
+                }}
+                title="WhatsApp"
+              >
+                💬
+              </button>
+              <button
+                onClick={() => {
+                  if (selectedOrder.customerPhone) {
+                    window.location.href = `tel:${selectedOrder.customerPhone}`
+                  }
+                }}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 15
+                }}
+                title="Call"
+              >
+                📞
+              </button>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.05)',
+                  color: 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: 13
+                }}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          {/* Address - Truncated */}
+          <div style={{ 
+            fontSize: 11, 
+            color: 'rgba(255,255,255,0.4)', 
+            marginBottom: 14,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}>
+            📍 {selectedOrder.customerAddress || selectedOrder.city || 'No address'}
+          </div>
+
+          {/* Ultra Minimal Status Row */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '10px 12px',
+            background: 'rgba(255,255,255,0.03)',
+            borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(0,0,0,0.3)',
+                color: 'white',
+                fontSize: 12,
+                fontWeight: 500,
+                appearance: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="">Status...</option>
+              <option value="picked_up">📦 Picked</option>
+              <option value="out_for_delivery">🚚 OFD</option>
+              <option value="contacted">📞 Contacted</option>
+              <option value="attempted">🔄 Attempted</option>
+              <option value="no_response">📵 No Resp</option>
+              <option value="delivered">✅ Delivered</option>
+              <option value="cancelled">❌ Cancelled</option>
+              <option value="returned">↩️ Returned</option>
+            </select>
+            
+            <input
+              type="text"
+              value={statusNote}
+              onChange={(e) => setStatusNote(e.target.value)}
+              placeholder="Note..."
+              style={{
+                flex: 1.5,
+                padding: '8px 10px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(0,0,0,0.3)',
+                color: 'white',
+                fontSize: 12
+              }}
+            />
+            
+            <button
+              onClick={saveStatus}
+              disabled={!selectedStatus || savingStatus}
+              style={{
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: 'none',
+                background: selectedStatus 
+                  ? 'linear-gradient(135deg, #10b981, #059669)' 
+                  : 'rgba(255,255,255,0.1)',
+                color: selectedStatus ? 'white' : 'rgba(255,255,255,0.4)',
+                fontWeight: 700,
+                cursor: selectedStatus ? 'pointer' : 'not-allowed',
+                fontSize: 11,
+                opacity: savingStatus ? 0.7 : 1,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {savingStatus ? '...' : 'Save'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* No Orders State */}
+      {orders.length === 0 && (
+        <div style={{
+          padding: 40,
+          textAlign: 'center',
+          color: 'var(--muted)'
+        }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>📍</div>
+          <div style={{ fontWeight: 600, marginBottom: 8 }}>No orders with locations</div>
+          <div style={{ fontSize: 14 }}>Your assigned orders will appear on the map when they have location data</div>
+        </div>
+      )}
+    </div>
+  )
+}
