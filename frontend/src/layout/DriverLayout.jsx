@@ -705,34 +705,4 @@ export default function DriverLayout() {
                   type="password"
                   className="input"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div style={{display: 'flex', gap: '8px', marginTop: '8px'}}>
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => setShowPassModal(false)}
-                  style={{flex: 1}}
-                  disabled={changingPass}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn primary"
-                  style={{flex: 1}}
-                  disabled={changingPass}
-                >
-                  {changingPass ? 'Changing...' : 'Change Password'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+                  onChange={(e) => setConfirmPassword
