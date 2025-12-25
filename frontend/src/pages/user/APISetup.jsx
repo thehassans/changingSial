@@ -39,13 +39,13 @@ export default function UserAPISetup() {
           geminiDescModel: r.geminiDescModel || 'gemini-1.5-pro',
           geminiImageModel: r.geminiImageModel || 'imagen-3.0-generate-001',
         }))
-        // Set Maps status indicator
-        if (r.googleMapsApiKey && r.googleMapsApiKey.includes('••••')) {
+        // Set Maps status indicator - check for any truthy masked value
+        if (r.googleMapsApiKey && r.googleMapsApiKey.length > 0) {
           setMapsStatus('active')
         } else {
           setMapsStatus('inactive')
         }
-        if (r.locationIQApiKey && r.locationIQApiKey.includes('••••')) {
+        if (r.locationIQApiKey && r.locationIQApiKey.length > 0) {
           setLocStatus('active')
         } else {
           setLocStatus('inactive')
