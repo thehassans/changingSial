@@ -125,6 +125,66 @@ export default function UserAPISetup() {
     }
   }
 
+  async function onSaveLocationIQ(e) {
+    e.preventDefault()
+    setSavingLocationIQ(true)
+    setLocMsg('')
+    try {
+      const body = {}
+      if (form.locationIQApiKey && !form.locationIQApiKey.includes('••••'))
+        body.locationIQApiKey = form.locationIQApiKey
+      const res = await apiPost('/api/settings/ai', body)
+      if (res?.success) {
+        setLocMsg('✅ LocationIQ API key saved successfully')
+        setLocStatus('active')
+        setTimeout(() => setLocMsg(''), 2000)
+      } else {
+        setLocMsg(res?.error || 'Failed to save')
+      }
+    } catch (err) {
+      setLocMsg(err?.message || 'Failed to save')
+    } finally {
+      setSavingLocationIQ(false)
+    }
+  }
+
+  async function testLocationIQ() {
+    setTestingLocationIQ(true)
+    setLocMsg('Testing LocationIQ API…')
+    try {
+      const apiKey = form.locationIQApiKey
+      if (!apiKey || apiKey.includes('••••')) {
+        setLocMsg('Please enter a valid API key first')
+        setTestingLocationIQ(false)
+        setTimeout(() => setLocMsg(''), 2500)
+        return
+      }
+
+      // Test with a simple reverse geocode request
+      const testLat = 25.2048
+      const testLng = 55.2708
+      const url = `https://us1.locationiq.com/v1/reverse?key=${encodeURIComponent(apiKey)}&lat=${testLat}&lon=${testLng}&format=json`
+      const r = await fetch(url)
+
+      if (r.ok) {
+        const data = await r.json()
+        if (data.display_name) {
+          setLocMsg('✅ LocationIQ API Connection Successful')
+        } else {
+          setLocMsg('❌ API response invalid')
+        }
+      } else {
+        const errData = await r.json().catch(() => ({}))
+        setLocMsg(`❌ Test failed: ${errData.error || r.statusText}`)
+      }
+    } catch (err) {
+      setLocMsg('❌ LocationIQ API test failed')
+    } finally {
+      setTestingLocationIQ(false)
+      setTimeout(() => setLocMsg(''), 4000)
+    }
+  }
+
   async function onTest() {
     setTesting(true)
     setMsg('')

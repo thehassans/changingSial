@@ -1827,6 +1827,63 @@ export default function UserLayout() {
                           <span>API Setup</span>
                         </button>
 
+                        <button
+                          onClick={() => {
+                            navigate('/user/shopify-settings')
+                            setShowSettingsMenu(false)
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            borderRadius: '12px',
+                            transition: 'all 0.2s ease',
+                            color: 'var(--text)',
+                            fontSize: '14px',
+                            fontWeight: 500,
+                          }}
+                          onMouseOver={(e) =>
+                            (e.currentTarget.style.background = 'var(--hover)')
+                          }
+                          onMouseOut={(e) => (e.currentTarget.style.background = 'none')}
+                          title="Shopify Settings"
+                        >
+                          <span
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 10,
+                              background: 'rgba(124, 58, 237, 0.1)',
+                              color: '#7c3aed',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                              <line x1="3" y1="6" x2="21" y2="6" />
+                              <path d="M16 10a4 4 0 0 1-8 0" />
+                            </svg>
+                          </span>
+                          <span>Shopify</span>
+                        </button>
+
                         <div
                           style={{
                             padding: '16px',
