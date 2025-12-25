@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { apiGet } from '../../api'
+import { apiGet, apiPost } from '../../api'
 import LiveMap from '../../components/driver/LiveMap'
 
 export default function DriverLiveMapPage() {
@@ -9,6 +9,11 @@ export default function DriverLiveMapPage() {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [lastUpdated, setLastUpdated] = useState(null)
+  
+  // Status change state
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [statusNote, setStatusNote] = useState('')
+  const [savingStatus, setSavingStatus] = useState(false)
 
   // Get driver's current location
   const refreshLocation = useCallback(() => {
@@ -78,6 +83,47 @@ export default function DriverLiveMapPage() {
     
     return () => navigator.geolocation.clearWatch(watchId)
   }, [])
+
+  // When order is selected, set its current status
+  useEffect(() => {
+    if (selectedOrder) {
+      setSelectedStatus(selectedOrder.shipmentStatus || '')
+      setStatusNote('')
+    }
+  }, [selectedOrder])
+
+  // Save status change
+  async function saveStatus() {
+    if (!selectedOrder || !selectedStatus) return
+    
+    setSavingStatus(true)
+    try {
+      const id = selectedOrder._id || selectedOrder.id
+      
+      if (selectedStatus === 'delivered') {
+        await apiPost(`/api/orders/${id}/deliver`, { note: statusNote || '' })
+      } else if (selectedStatus === 'cancelled') {
+        await apiPost(`/api/orders/${id}/cancel`, { reason: statusNote || '' })
+      } else if (selectedStatus === 'returned') {
+        await apiPost(`/api/orders/${id}/return`, { reason: statusNote || '' })
+      } else {
+        await apiPost(`/api/orders/${id}/shipment/update`, {
+          shipmentStatus: selectedStatus,
+          deliveryNotes: statusNote || ''
+        })
+      }
+      
+      // Refresh orders after save
+      await loadOrders()
+      setSelectedOrder(null)
+      setSelectedStatus('')
+      setStatusNote('')
+    } catch (err) {
+      alert(err?.message || 'Failed to update status')
+    } finally {
+      setSavingStatus(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -251,7 +297,7 @@ export default function DriverLiveMapPage() {
         />
       </div>
 
-      {/* Selected Order Quick View */}
+      {/* Selected Order Quick View with Status Change */}
       {selectedOrder && (
         <div style={{
           padding: 20,
@@ -259,76 +305,27 @@ export default function DriverLiveMapPage() {
           borderRadius: 16,
           border: '1px solid var(--border)',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
+          flexDirection: 'column',
           gap: 16
         }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 16 }}>
-              {selectedOrder.invoiceNumber 
-                ? `#${selectedOrder.invoiceNumber}` 
-                : `Order #${(selectedOrder._id || '').slice(-5)}`}
+          {/* Order Info */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 16 }}>
+                {selectedOrder.invoiceNumber 
+                  ? `#${selectedOrder.invoiceNumber}` 
+                  : `Order #${(selectedOrder._id || '').slice(-5)}`}
+              </div>
+              <div style={{ color: 'var(--muted)', marginTop: 4 }}>
+                {selectedOrder.customerName || 'Customer'} • {selectedOrder.customerAddress || selectedOrder.city || 'No address'}
+              </div>
             </div>
-            <div style={{ color: 'var(--muted)', marginTop: 4 }}>
-              {selectedOrder.customerName || 'Customer'} • {selectedOrder.customerAddress || selectedOrder.city || 'No address'}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
             <button
-              onClick={() => {
-                const lat = selectedOrder.locationLat
-                const lng = selectedOrder.locationLng
-                if (lat && lng) {
-                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank')
-                }
-              }}
+              onClick={() => setSelectedOrder(null)}
               style={{
-                padding: '10px 20px',
-                borderRadius: 10,
-                border: 'none',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
-                color: 'white',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              🧭 Navigate
-            </button>
-            <button
-              onClick={() => {
-                if (selectedOrder.customerPhone) {
-                  window.location.href = `tel:${selectedOrder.customerPhone}`
-                }
-              }}
-              style={{
-                padding: '10px 20px',
-                borderRadius: 10,
+                padding: '6px 12px',
+                borderRadius: 8,
                 border: '1px solid var(--border)',
                 background: 'var(--panel)',
-                color: 'var(--text)',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              📞 Call
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* No Orders State */}
-      {orders.length === 0 && (
-        <div style={{
-          padding: 40,
-          textAlign: 'center',
-          color: 'var(--muted)'
-        }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>📍</div>
-          <div style={{ fontWeight: 600, marginBottom: 8 }}>No orders with locations</div>
-          <div style={{ fontSize: 14 }}>Your assigned orders will appear on the map when they have location data</div>
-        </div>
-      )}
-    </div>
-  )
-}
+                color: 'var(--muted)',
+       

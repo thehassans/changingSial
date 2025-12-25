@@ -290,12 +290,11 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
           background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05))',
           borderTop: '1px solid rgba(16,185,129,0.2)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
+          flexDirection: 'column',
           gap: 12
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          {/* Top row - Distance, ETA, Customer */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
             <div>
               <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>Distance</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{routeInfo.distance}</div>
@@ -308,75 +307,78 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
               <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>Customer</div>
               <div style={{ fontSize: 16, fontWeight: 600 }}>{selectedOrder.customerName || 'Unknown'}</div>
             </div>
+            <button
+              onClick={clearRoute}
+              style={{
+                marginLeft: 'auto',
+                padding: '8px 16px',
+                borderRadius: 8,
+                border: '1px solid var(--border)',
+                background: 'var(--panel)',
+                color: 'var(--text)',
+                fontWeight: 500,
+                cursor: 'pointer',
+                fontSize: 13
+              }}
+            >
+              ✕ Clear
+            </button>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          
+          {/* Bottom row - Action buttons */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {/* WhatsApp */}
             <button
               onClick={() => {
-                const lat = selectedOrder.locationLat
-                const lng = selectedOrder.locationLng
-                if (lat && lng) {
-                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank')
+                const phone = selectedOrder.customerPhone
+                if (phone) {
+                  const cleanPhone = phone.replace(/[^\d+]/g, '')
+                  window.open(`https://wa.me/${cleanPhone}`, '_blank')
                 }
               }}
               style={{
-                padding: '10px 20px',
+                padding: '10px 16px',
                 borderRadius: 10,
                 border: 'none',
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: 'linear-gradient(135deg, #25d366, #128c7e)',
                 color: 'white',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6
+                gap: 6,
+                fontSize: 13
               }}
             >
-              🧭 Navigate
+              💬 WhatsApp
             </button>
+            
+            {/* Call */}
             <button
-              onClick={clearRoute}
+              onClick={() => {
+                if (selectedOrder.customerPhone) {
+                  window.location.href = `tel:${selectedOrder.customerPhone}`
+                }
+              }}
               style={{
-                padding: '10px 20px',
+                padding: '10px 16px',
                 borderRadius: 10,
-                border: '1px solid var(--border)',
-                background: 'var(--panel)',
-                color: 'var(--text)',
+                border: 'none',
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                color: 'white',
                 fontWeight: 600,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13
               }}
             >
-              Clear
+              📞 Call
             </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Legend */}
-      <div style={{
-        padding: 12,
-        borderTop: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 20,
-        fontSize: 13,
-        color: 'var(--muted)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#3b82f6', border: '2px solid white' }} />
-          <span>You</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444' }} />
-          <span>Delivery Points</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#10b981' }} />
-          <span>Selected</span>
-        </div>
-        <span style={{ marginLeft: 'auto', opacity: 0.7 }}>
-          {orders.length} orders • Tap marker for route
-        </span>
-      </div>
-    </div>
-  )
-}
+            
+            {/* SMS */}
+            <button
+              onClick={() => {
+                if (selectedOrder.customerPhone) {
+                  window.location.href = `sms:${selectedO
