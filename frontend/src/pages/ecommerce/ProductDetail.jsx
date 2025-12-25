@@ -165,7 +165,9 @@ const ProductDetail = () => {
       
       const existingItemIndex = cartItems.findIndex(item => item.id === product._id)
       const max = Number(product?.stockQty || 0)
-      const unitPrice = Number(product?.onSale ? (product?.salePrice ?? product?.price) : product?.price) || 0
+      // Use salePrice if available and less than price, otherwise use price
+      const hasSale = product?.salePrice != null && Number(product.salePrice) > 0 && Number(product.salePrice) < Number(product.price)
+      const unitPrice = hasSale ? Number(product.salePrice) : Number(product?.price) || 0
       const addQty = Math.max(1, Math.floor(Number(quantity) || 1))
       
       if (existingItemIndex >= 0) {
@@ -354,7 +356,11 @@ const ProductDetail = () => {
     : (product.imagePath ? [product.imagePath] : ['/placeholder-product.svg'])
   ).map(resolveImageUrl)
   
-  const originalPrice = product.onSale ? product.originalPrice : null
+  // Sale price detection: if salePrice exists and is less than price, it's a sale
+  const hasSalePrice = product.salePrice != null && Number(product.salePrice) > 0 && Number(product.salePrice) < Number(product.price)
+  const displayPrice = hasSalePrice ? Number(product.salePrice) : Number(product.price)
+  const originalPrice = hasSalePrice ? Number(product.price) : null
+  const discountPercentage = originalPrice ? Math.round(((originalPrice - displayPrice) / originalPrice) * 100) : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -415,11 +421,12 @@ const ProductDetail = () => {
                     </div>
 
                     {/* Sale Badge */}
-                    {product.onSale && (
+                    {hasSalePrice && (
                       <div className="absolute top-4 left-4">
-                        <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg shadow-red-500/30">
-                          SALE
-                        </span>
+                        <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg shadow-red-500/40 animate-pulse flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zm-2.207 5.207a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clipRule="evenodd" /></svg>
+                          {discountPercentage}% OFF
+                        </div>
                       </div>
                     )}
                   </div>
@@ -464,11 +471,12 @@ const ProductDetail = () => {
                       )}
 
                       {/* Sale Badge */}
-                      {product.onSale && (
+                      {hasSalePrice && (
                         <div className="absolute top-4 left-4">
-                            <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg shadow-red-500/30 animate-pulse">
-                            SALE
-                            </span>
+                          <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-red-500/40 animate-pulse flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zm-2.207 5.207a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clipRule="evenodd" /></svg>
+                            {discountPercentage}% OFF
+                          </div>
                         </div>
                       )}
                     </div>
@@ -561,36 +569,72 @@ const ProductDetail = () => {
               
               {/* Rating - Hidden for now */}
 
-              {/* Price Section */}
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-3xl sm:text-4xl font-bold text-gray-900">
-                      {formatPrice(
-                        convertPrice(product.price, product.baseCurrency || 'SAR', getDisplayCurrency()),
-                        getDisplayCurrency()
-                      )}
-                    </span>
-                    {originalPrice && (
-                      <span className="text-xl text-gray-500 line-through">
+              {/* Ultra-Premium Price Section */}
+              <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-5 sm:p-8 overflow-hidden">
+                {/* Animated background effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 via-transparent to-orange-500/10 animate-pulse"></div>
+                
+                {/* Sale Badge */}
+                {originalPrice && (
+                  <div className="absolute -top-1 -right-1 z-10">
+                    <div className="relative">
+                      <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold px-4 py-2 rounded-bl-2xl rounded-tr-2xl shadow-lg shadow-red-500/30">
+                        <span className="flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zm-2.207 5.207a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clipRule="evenodd" />
+                          </svg>
+                          {discountPercentage}% OFF
+                        </span>
+                      </div>
+                      <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-red-700 rounded-br-lg"></div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative flex flex-col gap-4">
+                  {/* Price Display */}
+                  <div className="flex flex-wrap items-end gap-4">
+                    {/* Current/Sale Price */}
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight">
                         {formatPrice(
-                          convertPrice(originalPrice, product.baseCurrency || 'SAR', getDisplayCurrency()),
+                          convertPrice(displayPrice, product.baseCurrency || 'SAR', getDisplayCurrency()),
                           getDisplayCurrency()
                         )}
                       </span>
+                    </div>
+                    
+                    {/* Original Price (struck through) */}
+                    {originalPrice && (
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-400 uppercase tracking-wider">Was</span>
+                        <span className="text-xl sm:text-2xl text-gray-400 line-through decoration-red-500 decoration-2">
+                          {formatPrice(
+                            convertPrice(originalPrice, product.baseCurrency || 'SAR', getDisplayCurrency()),
+                            getDisplayCurrency()
+                          )}
+                        </span>
+                      </div>
                     )}
                   </div>
+
+                  {/* Savings Info */}
                   {originalPrice && (
-                    <div className="text-right">
-                      <p className="text-sm text-green-600 font-semibold">
-                        {formatPrice(
-                          convertPrice(originalPrice - product.price, product.baseCurrency || 'SAR', getDisplayCurrency()),
-                          getDisplayCurrency()
-                        )} saved
-                      </p>
-                      <p className="text-xs text-green-500">
-                        {Math.round(((originalPrice - product.price) / originalPrice) * 100)}% off
-                      </p>
+                    <div className="flex items-center gap-3 bg-green-500/20 border border-green-500/30 rounded-xl px-4 py-3">
+                      <div className="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-green-400 font-bold text-lg">
+                          You Save {formatPrice(
+                            convertPrice(originalPrice - displayPrice, product.baseCurrency || 'SAR', getDisplayCurrency()),
+                            getDisplayCurrency()
+                          )}
+                        </p>
+                        <p className="text-green-300/80 text-sm">Limited time offer!</p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -654,21 +698,23 @@ const ProductDetail = () => {
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={handleAddToCart}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="relative flex-1 group overflow-hidden bg-gradient-to-r from-orange-500 via-orange-600 to-orange-500 text-white px-6 py-5 rounded-2xl font-bold text-lg hover:from-orange-600 hover:via-orange-700 hover:to-orange-600 focus:outline-none focus:ring-4 focus:ring-orange-500/50 transition-all duration-300 transform hover:scale-[1.02] shadow-xl shadow-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/40"
                     >
-                      <span className="flex items-center justify-center space-x-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01" />
+                      <span className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+                      <span className="relative flex items-center justify-center gap-3">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                         <span>Add to Cart</span>
                       </span>
                     </button>
                     <button
                       onClick={handleBuyNow}
-                      className="flex-1 bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 rounded-xl font-semibold hover:from-gray-900 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className="relative flex-1 group overflow-hidden bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 text-white px-6 py-5 rounded-2xl font-bold text-lg hover:from-slate-900 hover:via-black hover:to-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-500/50 transition-all duration-300 transform hover:scale-[1.02] shadow-xl hover:shadow-2xl border border-slate-700"
                     >
-                      <span className="flex items-center justify-center space-x-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></span>
+                      <span className="relative flex items-center justify-center gap-3">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                         <span>Buy Now</span>
