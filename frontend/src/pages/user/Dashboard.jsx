@@ -512,4 +512,107 @@ export default function Dashboard() {
               value={<LiveNumber value={statusTotals.delivered || 0} maximumFractionDigits={0} />}
               trend={
                 statusTotals.total > 0
-                  ? { value: Math.round((statusTotals.
+                  ? { value: Math.round((statusTotals.delivered / statusTotals.total) * 100), isPositive: true }
+                  : null
+              }
+              loading={loading}
+            />
+            <KpiCard
+              icon={Icons.pending}
+              label="Pending"
+              iconColor="text-amber-600"
+              value={<LiveNumber value={statusTotals.pending || 0} maximumFractionDigits={0} />}
+              loading={loading}
+            />
+            <KpiCard
+              icon={metrics?.profitLoss?.isProfit ? Icons.profit : Icons.loss}
+              label={metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
+              iconColor={metrics?.profitLoss?.isProfit ? 'text-emerald-600' : 'text-rose-600'}
+              value={
+                <span className="flex items-baseline gap-1">
+                  <span className="text-lg text-slate-400">AED</span>
+                  <LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} />
+                </span>
+              }
+              loading={loading}
+            />
+          </div>
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Sales Trend Chart */}
+            <Card title="Sales Trend" icon={Icons.chart} className="lg:col-span-2">
+              <div className="h-[350px]">
+                {!hydrated || loading ? (
+                  <div className="h-full w-full animate-pulse rounded-lg bg-slate-100 dark:bg-neutral-800" />
+                ) : (
+                  <Chart analytics={analytics} />
+                )}
+              </div>
+            </Card>
+
+            {/* Sales Summary */}
+            <BigValueCard
+              icon={Icons.sales}
+              title="Sales"
+              value={
+                <span className="flex items-baseline gap-2">
+                  <LiveNumber value={sumAmountAED('amountDelivered')} maximumFractionDigits={0} />
+                  <span className="text-lg font-normal text-slate-400">AED</span>
+                </span>
+              }
+              subtitle="Total delivered amount"
+              loading={loading}
+            />
+          </div>
+
+          {/* Bottom Row */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Order Status Pie */}
+            <Card title="Order Status" icon={Icons.clipboard}>
+              <PieChart data={pieData} loading={loading} />
+            </Card>
+
+            {/* Quick Stats */}
+            <Card title="Order Breakdown" icon={Icons.chart}>
+              <div className="space-y-1">
+                <StatBadge label="Open" value={fmtNum(statusTotals.pending)} color="#f59e0b" to="/user/orders?ship=open" />
+                <StatBadge label="Assigned" value={fmtNum(statusTotals.assigned)} color="#3b82f6" to="/user/orders?ship=assigned" />
+                <StatBadge label="Picked Up" value={fmtNum(statusTotals.picked_up)} color="#8b5cf6" to="/user/orders?ship=picked_up" />
+                <StatBadge label="Out for Delivery" value={fmtNum(statusTotals.out_for_delivery)} color="#f97316" to="/user/orders?ship=out_for_delivery" />
+                <StatBadge label="Delivered" value={fmtNum(statusTotals.delivered)} color="#10b981" to="/user/orders?ship=delivered" />
+                <StatBadge label="Cancelled" value={fmtNum(statusTotals.cancelled)} color="#ef4444" to="/user/orders?ship=cancelled" />
+                <StatBadge label="Returned" value={fmtNum(statusTotals.returned)} color="#64748b" to="/user/orders?ship=returned" />
+              </div>
+            </Card>
+
+            {/* Country Breakdown */}
+            <Card title="Countries" icon={Icons.globe}>
+              <div className="space-y-1">
+                {COUNTRY_LIST.slice(0, 5).map((c) => {
+                  const m = countryMetrics(c)
+                  const flag = COUNTRY_INFO[c]?.flag
+                  return (
+                    <NavLink
+                      key={c}
+                      to={`/user/orders?country=${encodeURIComponent(c)}`}
+                      className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-neutral-800/50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{flag}</span>
+                        <span className="text-sm font-medium text-slate-700 dark:text-neutral-200">{c}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                        {fmtNum(m?.orders || 0)}
+                      </span>
+                    </NavLink>
+                  )
+                })}
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
