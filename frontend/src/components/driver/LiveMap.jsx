@@ -283,51 +283,39 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
         }} 
       />
       
-      {/* Route Info Panel */}
+      {/* Ultra Premium Route Info Panel */}
       {routeInfo && selectedOrder && (
         <div style={{
-          padding: 16,
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05))',
-          borderTop: '1px solid rgba(16,185,129,0.2)',
+          padding: '12px 16px',
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
           display: 'flex',
-          flexDirection: 'column',
-          gap: 12
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16
         }}>
-          {/* Top row - Distance, ETA, Customer */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-            <div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>Distance</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#10b981' }}>{routeInfo.distance}</div>
+          {/* Stats */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#10b981', letterSpacing: '-0.5px' }}>{routeInfo.distance}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Distance</div>
             </div>
-            <div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>ETA</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#3b82f6' }}>{routeInfo.duration}</div>
+            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#3b82f6', letterSpacing: '-0.5px' }}>{routeInfo.duration}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ETA</div>
             </div>
+            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
             <div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2 }}>Customer</div>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>{selectedOrder.customerName || 'Unknown'}</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{selectedOrder.customerName || 'Customer'}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{selectedOrder.city || 'Location'}</div>
             </div>
-            <button
-              onClick={clearRoute}
-              style={{
-                marginLeft: 'auto',
-                padding: '8px 16px',
-                borderRadius: 8,
-                border: '1px solid var(--border)',
-                background: 'var(--panel)',
-                color: 'var(--text)',
-                fontWeight: 500,
-                cursor: 'pointer',
-                fontSize: 13
-              }}
-            >
-              ✕ Clear
-            </button>
           </div>
           
-          {/* Bottom row - Action buttons */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {/* WhatsApp */}
+          {/* Action Icons */}
+          <div style={{ display: 'flex', gap: 6 }}>
             <button
               onClick={() => {
                 const phone = selectedOrder.customerPhone
@@ -337,23 +325,21 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
                 }
               }}
               style={{
-                padding: '10px 16px',
+                width: 36,
+                height: 36,
                 borderRadius: 10,
                 border: 'none',
                 background: 'linear-gradient(135deg, #25d366, #128c7e)',
                 color: 'white',
-                fontWeight: 600,
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 13
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 16
               }}
+              title="WhatsApp"
             >
-              💬 WhatsApp
+              💬
             </button>
-            
-            {/* Call */}
             <button
               onClick={() => {
                 if (selectedOrder.customerPhone) {
@@ -361,24 +347,69 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
                 }
               }}
               style={{
-                padding: '10px 16px',
+                width: 36,
+                height: 36,
                 borderRadius: 10,
                 border: 'none',
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 color: 'white',
-                fontWeight: 600,
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 13
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 16
               }}
+              title="Call"
             >
-              📞 Call
+              📞
             </button>
-            
-            {/* SMS */}
             <button
-              onClick={() => {
-                if (selectedOrder.customerPhone) {
-                  window.location.href = `sms:${selectedO
+              onClick={clearRoute}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.05)',
+                color: 'rgba(255,255,255,0.7)',
+                cursor: 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 14
+              }}
+              title="Clear"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Minimal Legend */}
+      <div style={{
+        padding: '8px 16px',
+        background: 'rgba(0,0,0,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.5)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }} />
+          <span>You</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+          <span>Deliveries</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+          <span>Active</span>
+        </div>
+        <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10 }}>
+          {orders.length} • Tap to route
+        </span>
+      </div>
+    </div>
+  )
+}
