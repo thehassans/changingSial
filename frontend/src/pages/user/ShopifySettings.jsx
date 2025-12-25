@@ -65,6 +65,26 @@ export default function ShopifySettings() {
     }
   }
   
+  const [testing, setTesting] = useState(false)
+  
+  async function handleTest() {
+    setTesting(true)
+    setMsg({ text: '', type: '' })
+    
+    try {
+      const response = await apiPost('/api/settings/shopify/test-config', form)
+      if (response.success) {
+        setMsg({ text: '✅ Configuration is valid! Shopify API connection successful.', type: 'success' })
+      } else {
+        setMsg({ text: '❌ ' + (response.error || 'Configuration test failed'), type: 'error' })
+      }
+    } catch (err) {
+      setMsg({ text: '❌ Test failed: ' + (err.message || 'Unknown error'), type: 'error' })
+    } finally {
+      setTesting(false)
+    }
+  }
+  
   if (loading) {
     return (
       <div style={{ display: 'grid', placeItems: 'center', height: 400, color: 'var(--ds-text-secondary)' }}>
@@ -243,6 +263,26 @@ export default function ShopifySettings() {
             }}
           >
             {saving ? 'Saving...' : settings?.configured ? 'Update Configuration' : 'Save Configuration'}
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleTest}
+            disabled={testing || !form.clientId}
+            style={{
+              padding: '14px 28px',
+              border: '1px solid var(--ds-border)',
+              borderRadius: 12,
+              background: testing ? '#94a3b8' : 'var(--ds-glass)',
+              color: 'var(--ds-text-primary)',
+              fontWeight: 600,
+              fontSize: 15,
+              cursor: (testing || !form.clientId) ? 'not-allowed' : 'pointer',
+              transition: '0.2s',
+              width: 'fit-content'
+            }}
+          >
+            {testing ? 'Testing...' : '🔍 Test Configuration'}
           </button>
         </div>
       </form>

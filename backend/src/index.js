@@ -156,10 +156,11 @@ app.use("/api/geocode", geocodeRoutes);
 app.use("/api/ecommerce", ecommerceRoutes);
 app.use("/api/shopify", shopifyRoutes);
 app.use("/api/settings/shopify", settingsShopifyRoutes);
+app.use("/api/settings/shopify", shopifyOAuthRoutes); // OAuth app config routes
 app.use("/api/settings/website", websiteSettingsRoutes);
 app.use("/api/dropshippers", dropshipperRoutes);
 app.use("/api/dropshippers/shopify", dropshipperShopifyRoutes);
-app.use("/api/shopify", shopifyOAuthRoutes); // OAuth flow routes
+app.use("/api/shopify", shopifyOAuthRoutes); // OAuth flow routes (install/callback)
 
 // Serve uploaded product images from a robustly resolved directory
 function resolveUploadsDir() {

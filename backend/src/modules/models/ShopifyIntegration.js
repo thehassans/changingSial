@@ -25,36 +25,4 @@ const shopifyIntegrationSchema = new mongoose.Schema({
     ref: 'User'
   },
   
-  // Store details
-  shopDomain: String,
-  apiKey: String,
-  apiSecret: String, // encrypted
-  accessToken: String, // encrypted
-  
-  // Status
-  connected: {
-    type: Boolean,
-    default: false
-  },
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  
-  // Stats
-  productsListed: {
-    type: Number,
-    default: 0
-  },
-  lastSync: Date,
-  connectedAt: Date
-  
-}, {
-  timestamps: true
-})
-
-// Compound index for dropshipper stores
-shopifyIntegrationSchema.index({ type: 1, dropshipperId: 1, shopDomain: 1 })
-shopifyIntegrationSchema.index({ type: 1 })
-
-export default mongoose.model('ShopifyIntegration', shopifyIntegrationSchema)
+  // Store 

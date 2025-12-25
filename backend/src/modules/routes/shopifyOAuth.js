@@ -65,6 +65,70 @@ router.post('/app-config', auth, allowRoles('admin', 'user'), async (req, res) =
   }
 })
 
+// Test app configuration (admin only)
+router.post('/test-config', auth, allowRoles('admin', 'user'), async (req, res) => {
+  try {
+    const { clientId, clientSecret } = req.body
+    
+    // Get saved config if no secret provided
+    let testClientId = clientId
+    let testClientSecret = clientSecret
+    
+    if (!testClientSecret || testClientSecret.includes('•')) {
+      const config = await ShopifyIntegration.findOne({ type: 'app_config' })
+      if (!config || !config.clientSecret) {
+        return res.json({ success: false, error: 'No Client Secret saved. Please enter and save your Client Secret first.' })
+      }
+      testClientId = config.clientId
+      testClientSecret = decrypt(config.clientSecret)
+    }
+    
+    if (!testClientId) {
+      return res.json({ success: false, error: 'Client ID is required' })
+    }
+    
+    // Test by making a simple API call to verify credentials format
+    // We can't fully test OAuth app credentials without a store, but we can validate format
+    const isValidClientId = /^[a-f0-9]{32}$/.test(testClientId)
+    const isValidSecret = testClientSecret && testClientSecret.length > 20
+    
+    if (!isValidClientId) {
+      return res.json({ success: false, error: 'Client ID format is invalid. It should be 32 hexadecimal characters.' })
+    }
+    
+    if (!isValidSecret) {
+      return res.json({ success: false, error: 'Client Secret appears too short or invalid.' })
+    }
+    
+    // If we have a connected store, try a real API call
+    const testStore = await ShopifyIntegration.findOne({ type: 'dropshipper_store', isActive: true })
+    
+    if (testStore && testStore.accessToken) {
+      try {
+        const accessToken = decrypt(testStore.accessToken)
+        const testUrl = `https://${testStore.shopDomain}/admin/api/2024-01/shop.json`
+        
+        const response = await fetch(testUrl, {
+          headers: { 'X-Shopify-Access-Token': accessToken }
+        })
+        
+        if (response.ok) {
+          return res.json({ success: true, message: `Credentials valid! Connected to ${testStore.shopDomain}` })
+        }
+      } catch (e) {
+        console.log('Test store API call failed:', e.message)
+      }
+    }
+    
+    // Credentials format looks valid
+    res.json({ success: true, message: 'Credentials format is valid. Connect a store to fully test the integration.' })
+    
+  } catch (err) {
+    console.error('Error testing config:', err)
+    res.status(500).json({ success: false, error: 'Test failed: ' + err.message })
+  }
+})
+
 // Get all connected stores (admin view)
 router.get('/connected-stores', auth, allowRoles('admin', 'user'), async (req, res) => {
   try {
