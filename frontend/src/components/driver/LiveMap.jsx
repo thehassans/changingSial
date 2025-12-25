@@ -72,12 +72,32 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
       center: defaultCenter,
       zoom: 10,
       minZoom: 3,
-      maxZoom: 18,
+      maxZoom: 20,
       styles: getMapStyles(),
-      mapTypeControl: false,
+      // Enable all standard Google Maps controls
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        style: window.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: window.google.maps.ControlPosition.TOP_LEFT,
+        mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain']
+      },
       fullscreenControl: true,
-      streetViewControl: false,
+      fullscreenControlOptions: {
+        position: window.google.maps.ControlPosition.TOP_RIGHT
+      },
+      streetViewControl: true,
+      streetViewControlOptions: {
+        position: window.google.maps.ControlPosition.RIGHT_BOTTOM
+      },
       zoomControl: true,
+      zoomControlOptions: {
+        position: window.google.maps.ControlPosition.RIGHT_CENTER
+      },
+      scaleControl: true,
+      rotateControl: true,
+      gestureHandling: 'greedy',
+      clickableIcons: true,
+      keyboardShortcuts: true
     })
     
     directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
