@@ -38,8 +38,12 @@ export default function DriverLiveMapPage() {
   const loadOrders = useCallback(async () => {
     try {
       const data = await apiGet('/api/orders/driver/assigned')
+      // Filter: must have location AND not be delivered/cancelled/returned
+      const excludedStatuses = ['delivered', 'cancelled', 'returned']
       const ordersWithLocation = (data.orders || []).filter(
-        o => o.locationLat && o.locationLng
+        o => o.locationLat && o.locationLng && 
+             !excludedStatuses.includes(o.status) &&
+             !excludedStatuses.includes(o.shipmentStatus)
       )
       setOrders(ordersWithLocation)
       setLastUpdated(new Date())
