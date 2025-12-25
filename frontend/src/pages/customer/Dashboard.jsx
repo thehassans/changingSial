@@ -161,12 +161,18 @@ export default function CustomerDashboard() {
           </div>
 
           {orders.length === 0 ? (
-            <div className="empty-orders">
-              <div className="empty-icon">📦</div>
-              <h3>No orders yet</h3>
-              <p>Start shopping to see your orders here!</p>
-              <Link to="/catalog" className="browse-btn">
-                Browse Products
+            <div className="empty-orders-premium">
+              <div className="premium-icon-container">
+                <div className="floating-cart">🛒</div>
+                <div className="pulse-ring"></div>
+              </div>
+              <h3>Your Premium Journey Starts Here</h3>
+              <p>Experience our curated collection of verified products.</p>
+              <Link to="/catalog" className="premium-browse-btn">
+                <span>Start Shopping</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </Link>
             </div>
           ) : (
@@ -608,6 +614,91 @@ export default function CustomerDashboard() {
           font-size: 13px;
           font-weight: 600;
           color: #1f2937;
+        }
+
+        /* Premium Empty State */
+        .empty-orders-premium {
+          padding: 60px 24px;
+          text-align: center;
+          background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+          border-radius: 20px;
+          border: 1px dashed #e5e7eb;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .premium-icon-container {
+          position: relative;
+          width: 80px;
+          height: 80px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 8px;
+        }
+
+        .floating-cart {
+          font-size: 48px;
+          animation: float 3s ease-in-out infinite;
+          z-index: 2;
+        }
+
+        .pulse-ring {
+          position: absolute;
+          width: 60px;
+          height: 60px;
+          background: #f97316;
+          border-radius: 50%;
+          filter: blur(20px);
+          opacity: 0.2;
+          animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse-ring {
+          0%, 100% { transform: scale(1); opacity: 0.2; }
+          50% { transform: scale(1.5); opacity: 0.1; }
+        }
+
+        .empty-orders-premium h3 {
+          font-size: 20px;
+          font-weight: 700;
+          color: #1f2937;
+          margin: 0;
+        }
+
+        .empty-orders-premium p {
+          color: #64748b;
+          margin: 0;
+          max-width: 300px;
+        }
+
+        .premium-browse-btn {
+          margin-top: 16px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 14px 32px;
+          background: linear-gradient(135deg, #1f2937 0%, #000 100%);
+          color: white;
+          border-radius: 14px;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 15px;
+          transition: all 0.3s;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .premium-browse-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+          gap: 14px;
         }
 
         /* Mobile */

@@ -316,6 +316,17 @@ export default function CustomerLogin() {
       localStorage.setItem('me', JSON.stringify(data.user))
       
       toast.success('Welcome back!')
+      
+      // Check for pending cart item logic
+      try {
+        const pendingProductId = sessionStorage.getItem('pending_cart_product')
+        if (pendingProductId) {
+          sessionStorage.removeItem('pending_cart_product')
+          window.location.href = `/product/${pendingProductId}`
+          return
+        }
+      } catch {}
+
       window.location.href = '/customer'
     } catch (err) {
       const status = err?.status

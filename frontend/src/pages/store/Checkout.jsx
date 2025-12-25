@@ -11,6 +11,14 @@ export default function Checkout(){
   const [form, setForm] = useState({ name:'', phone:'', city:'', area:'', address:'', details:'' })
   const [submitting, setSubmitting] = useState(false)
   const phoneCode = COUNTRY_TO_CODE[country] || '+966'
+  
+  // Strict Auth Check
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      navigate('/customer/login', { replace: true })
+    }
+  }, [navigate])
 
   useEffect(()=>{ try{ localStorage.setItem('cart', JSON.stringify(cart)) }catch{} },[cart])
 

@@ -143,7 +143,16 @@ const ProductDetail = () => {
     }
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e) => {
+    // 1. Strict Auth Check
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.info('Please log in to add to cart')
+      try { sessionStorage.setItem('pending_cart_product', product._id) } catch {}
+      navigate('/customer/login')
+      return
+    }
+
     if (!product) return
     
     try {
@@ -188,12 +197,38 @@ const ProductDetail = () => {
       // Dispatch custom event to update cart count in header
       window.dispatchEvent(new CustomEvent('cartUpdated'))
       
+      // Premium Feedback with Ripple
+      if (e && e.currentTarget) createPremiumRipple(e)
       toast.success(`Added ${addQty} ${product.name} to cart`)
-      setIsCartOpen(true)
+      
+      // Slight delay to see animation before opening cart
+      setTimeout(() => setIsCartOpen(true), 300)
     } catch (error) {
       console.error('Error adding to cart:', error)
       toast.error('Failed to add item to cart')
     }
+  }
+
+  // Premium Ripple Helper
+  const createPremiumRipple = (event) => {
+    const btn = event.currentTarget
+    const rect = btn.getBoundingClientRect()
+    const circle = document.createElement('span')
+    const diameter = Math.max(rect.width, rect.height)
+    const radius = diameter / 2
+    
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    circle.style.width = circle.style.height = `${diameter}px`
+    circle.style.left = `${x - radius}px`
+    circle.style.top = `${y - radius}px`
+    circle.classList.add('premium-ripple')
+    
+    const existing = btn.getElementsByClassName('premium-ripple')[0]
+    if (existing) existing.remove()
+    
+    btn.appendChild(circle)
   }
 
   const handleReviewSubmit = (e) => {
@@ -946,6 +981,24 @@ const ProductDetail = () => {
       
       {/* Premium Footer */}
       <PremiumFooter />
+
+      <style jsx>{`
+        .premium-ripple {
+          position: absolute;
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple 0.6s linear;
+          background-color: rgba(255, 255, 255, 0.7);
+          pointer-events: none;
+        }
+
+        @keyframes ripple {
+          to {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }

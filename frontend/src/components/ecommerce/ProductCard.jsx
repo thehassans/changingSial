@@ -57,6 +57,19 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
 
   const handleAddToCart = (e) => {
     e.stopPropagation()
+
+    // 1. Strict Auth Check
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.info('Please log in to shop')
+      // Save intent (optional, but good UX)
+      try {
+        sessionStorage.setItem('pending_cart_product', product._id)
+      } catch {}
+      navigate('/customer/login')
+      return
+    }
+
     setAddingToCart(true)
     
     setTimeout(() => {
@@ -103,7 +116,16 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
         try { localStorage.setItem('last_added_product', String(product._id)) } catch {}
         trackAddToCart(product._id, product.name, unitPrice, addQty)
         window.dispatchEvent(new CustomEvent('cartUpdated'))
-        toast.success(`Added to cart`)
+        
+        // Premium Success Feedback
+        createPremiumRipple(e) // Visual effect
+        toast.success(
+          <div className="flex flex-col gap-1">
+            <span className="font-bold">Added to Cart!</span>
+            <span className="text-xs opacity-90">Continue shopping or checkout</span>
+          </div>
+        )
+        
         if (typeof onAddToCart === 'function') {
           try { onAddToCart(product) } catch {}
         }
@@ -111,7 +133,30 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
         console.error('Error adding to cart:', error)
       }
       setAddingToCart(false)
-    }, 300)
+    }, 400) // Slight delay for animation
+  }
+
+  // Helper for generic particle effect (embedded here for portability)
+  const createPremiumRipple = (event) => {
+    const btn = event.currentTarget
+    const rect = btn.getBoundingClientRect()
+    const circle = document.createElement('span')
+    const diameter = Math.max(rect.width, rect.height)
+    const radius = diameter / 2
+    
+    // Position relative to click
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+
+    circle.style.width = circle.style.height = `${diameter}px`
+    circle.style.left = `${x - radius}px`
+    circle.style.top = `${y - radius}px`
+    circle.classList.add('premium-ripple')
+    
+    const existing = btn.getElementsByClassName('premium-ripple')[0]
+    if (existing) existing.remove()
+    
+    btn.appendChild(circle)
   }
 
   const images = Array.isArray(product?.images) && product.images.length > 0
@@ -679,11 +724,29 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
           height: 18px;
         }
 
+        /* Spinner */
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
-        /* Desktop styles */
+        /* Premium Ripple Animation */
+        .premium-ripple {
+          position: absolute;
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple 0.6s linear;
+          background-color: rgba(255, 255, 255, 0.7);
+          pointer-events: none;
+        }
+
+        @keyframes ripple {
+          to {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
+
+        /* Desktop style */
         @media (min-width: 768px) {
           .product-card-ultra {
             border-radius: 20px;
