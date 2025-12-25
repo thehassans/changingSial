@@ -371,4 +371,45 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
                 border: '1px solid rgba(255,255,255,0.15)',
                 background: 'rgba(255,255,255,0.05)',
                 color: 'rgba(255,255,255,0.7)',
-                cursor: 'p
+                cursor: 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 14
+              }}
+              title="Clear"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Minimal Legend */}
+      <div style={{
+        padding: '8px 16px',
+        background: 'rgba(0,0,0,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.5)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }} />
+          <span>You</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+          <span>Deliveries</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+          <span>Active</span>
+        </div>
+        <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10 }}>
+          {orders.length} • Tap to route
+        </span>
+      </div>
+    </div>
+  )
+}
