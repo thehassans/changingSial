@@ -359,6 +359,24 @@ router.post(
   }
 );
 
+// GET /api/settings/maps-key - Get Google Maps API key for drivers/users (not masked)
+router.get("/maps-key", auth, async (_req, res) => {
+  try {
+    const doc = await Setting.findOne({ key: "ai" }).lean();
+    const val = (doc && doc.value) || {};
+    const apiKey = val.googleMapsApiKey || null;
+    if (!apiKey) {
+      return res.status(404).json({ 
+        error: "Google Maps API key not configured",
+        apiKey: null 
+      });
+    }
+    res.json({ apiKey });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || "failed" });
+  }
+});
+
 export default router;
 
 // AI settings: store/retrieve keys for Gemini and Image Generation

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { API_BASE, apiGet, apiPost } from '../../api'
 import { io } from 'socket.io-client'
 import { useToast } from '../../ui/Toast.jsx'
+import LiveMap from '../../components/driver/LiveMap'
 
 export default function DriverPanel() {
   const toast = useToast()
@@ -23,6 +24,7 @@ export default function DriverPanel() {
     }
   }) // nearest, farthest, newest, oldest
   const [driverLocation, setDriverLocation] = useState(null)
+  const [showMap, setShowMap] = useState(false)
   // Remittance UI moved to DriverMe.jsx
 
   // Get driver's current location
@@ -917,9 +919,78 @@ export default function DriverPanel() {
   return (
     <div className="driver-panel">
       <div className="panel-header">
-        <h1 className="panel-title">Driver Panel</h1>
+        <h1 className="panel-title">🚚 Deliveries</h1>
         <p className="panel-subtitle">Manage your delivery orders efficiently</p>
       </div>
+
+      {/* Live Map Toggle */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+        flexWrap: 'wrap',
+        gap: 12
+      }}>
+        <button
+          onClick={() => setShowMap(!showMap)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 20px',
+            borderRadius: 12,
+            border: 'none',
+            background: showMap 
+              ? 'linear-gradient(135deg, #10b981, #059669)' 
+              : 'var(--panel)',
+            color: showMap ? 'white' : 'var(--text)',
+            fontWeight: 600,
+            cursor: 'pointer',
+            boxShadow: showMap ? '0 4px 20px rgba(16,185,129,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          {showMap ? 'Hide Live Map' : 'Show Live Map'}
+        </button>
+        
+        <button
+          onClick={refreshLocation}
+          style={{
+            padding: '10px 16px',
+            borderRadius: 10,
+            border: '1px solid var(--border)',
+            background: 'var(--panel)',
+            color: 'var(--text)',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 13
+          }}
+        >
+          📍 Refresh Location
+        </button>
+      </div>
+
+      {/* Live Map Component */}
+      {showMap && (
+        <div style={{ marginBottom: 24 }}>
+          <LiveMap 
+            orders={activeOrders.filter(o => o.locationLat && o.locationLng)} 
+            driverLocation={driverLocation}
+            onSelectOrder={(order) => {
+              // Could scroll to order card or highlight it
+              console.log('Selected order:', order._id)
+            }}
+          />
+        </div>
+      )}
 
       {/* Remittance UI moved to Driver Me page */}
 
