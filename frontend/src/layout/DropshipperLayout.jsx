@@ -118,10 +118,12 @@ const PREMIUM_STYLES = `
   .dropshipper-content {
     margin-left: 260px;
     margin-top: 64px;
-    height: calc(100vh - 64px);
+    min-height: calc(100vh - 64px);
     overflow-y: auto;
     padding: 32px;
     background: var(--bg);
+    width: calc(100% - 260px);
+    flex: 1;
   }
 
   .dropshipper-mobile-tabs {
@@ -173,6 +175,7 @@ const PREMIUM_STYLES = `
       margin-left: 0;
       padding: 16px;
       padding-bottom: 88px;
+      width: 100%;
     }
     .dropshipper-mobile-tabs {
       display: flex;
