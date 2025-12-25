@@ -26,6 +26,7 @@ import websiteSettingsRoutes from "./modules/routes/websiteSettings.js";
 import dropshipperRoutes from "./modules/routes/dropshippers.js";
 import dropshipperShopifyRoutes from "./modules/routes/dropshipperShopify.js";
 import settingsShopifyRoutes from "./modules/routes/settingsShopify.js";
+import shopifyOAuthRoutes from "./modules/routes/shopifyOAuth.js";
 
 
 dotenv.config();
@@ -158,7 +159,7 @@ app.use("/api/settings/shopify", settingsShopifyRoutes);
 app.use("/api/settings/website", websiteSettingsRoutes);
 app.use("/api/dropshippers", dropshipperRoutes);
 app.use("/api/dropshippers/shopify", dropshipperShopifyRoutes);
-
+app.use("/api/shopify", shopifyOAuthRoutes); // OAuth flow routes
 
 // Serve uploaded product images from a robustly resolved directory
 function resolveUploadsDir() {

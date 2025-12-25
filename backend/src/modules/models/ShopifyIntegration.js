@@ -1,38 +1,60 @@
 import mongoose from 'mongoose'
 
 const shopifyIntegrationSchema = new mongoose.Schema({
+  // Type: 'app_config' for admin settings, 'dropshipper_store' for individual stores
+  type: {
+    type: String,
+    enum: ['app_config', 'dropshipper_store', 'legacy'],
+    default: 'legacy'
+  },
+  
+  // For app_config type
+  clientId: String,
+  clientSecret: String, // encrypted
+  scopes: String,
+  
+  // For dropshipper_store type
+  dropshipperId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  
+  // Legacy support - keep for old integration
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true
+    ref: 'User'
   },
-  shopDomain: {
-    type: String,
-    required: true
-  },
-  apiKey: {
-    type: String,
-    required: true
-  },
-  apiSecret: {
-    type: String,
-    required: true
-  },
-  accessToken: {
-    type: String,
-    required: true
-  },
+  
+  // Store details
+  shopDomain: String,
+  apiKey: String,
+  apiSecret: String, // encrypted
+  accessToken: String, // encrypted
+  
+  // Status
   connected: {
     type: Boolean,
     default: false
   },
-  lastSync: {
-    type: Date,
-    default: null
-  }
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  
+  // Stats
+  productsListed: {
+    type: Number,
+    default: 0
+  },
+  lastSync: Date,
+  connectedAt: Date
+  
 }, {
   timestamps: true
 })
+
+// Compound index for dropshipper stores
+shopifyIntegrationSchema.index({ type: 1, dropshipperId: 1, shopDomain: 1 })
+shopifyIntegrationSchema.index({ type: 1 })
 
 export default mongoose.model('ShopifyIntegration', shopifyIntegrationSchema)

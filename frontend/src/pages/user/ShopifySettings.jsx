@@ -1,32 +1,35 @@
 import React, { useEffect, useState } from 'react'
-import { apiGet, apiPost, apiDelete } from '../../api'
-import { Link } from 'react-router-dom'
+import { apiGet, apiPost } from '../../api'
 
 export default function ShopifySettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [settings, setSettings] = useState(null)
-  const [listedProducts, setListedProducts] = useState([])
+  const [connectedStores, setConnectedStores] = useState([])
   const [msg, setMsg] = useState({ text: '', type: '' })
   
+  // App configuration form (admin sets this once)
   const [form, setForm] = useState({
-    shopDomain: '',
-    apiKey: '',
-    apiSecret: '',
-    accessToken: ''
+    clientId: '',
+    clientSecret: '',
+    scopes: 'read_products,write_products,read_inventory,write_inventory,read_locations,read_orders,write_orders'
   })
   
   useEffect(() => {
     loadSettings()
-    loadListedProducts()
+    loadConnectedStores()
   }, [])
   
   async function loadSettings() {
     try {
-      const data = await apiGet('/api/settings/shopify')
+      const data = await apiGet('/api/settings/shopify/app-config')
       setSettings(data)
-      if (data.shopDomain) {
-        setForm(f => ({ ...f, shopDomain: data.shopDomain }))
+      if (data.clientId) {
+        setForm(f => ({ 
+          ...f, 
+          clientId: data.clientId || '',
+          scopes: data.scopes || f.scopes
+        }))
       }
     } catch (err) {
       console.error(err)
@@ -35,10 +38,10 @@ export default function ShopifySettings() {
     }
   }
   
-  async function loadListedProducts() {
+  async function loadConnectedStores() {
     try {
-      const data = await apiGet('/api/settings/shopify/listed-products')
-      setListedProducts(data.products || [])
+      const data = await apiGet('/api/settings/shopify/connected-stores')
+      setConnectedStores(data.stores || [])
     } catch (err) {
       console.error(err)
     }
@@ -50,26 +53,15 @@ export default function ShopifySettings() {
     setMsg({ text: '', type: '' })
     
     try {
-      const response = await apiPost('/api/settings/shopify', form)
-      setMsg({ text: response.message || 'Shopify connected successfully!', type: 'success' })
+      const response = await apiPost('/api/settings/shopify/app-config', form)
+      setMsg({ text: response.message || 'App configuration saved!', type: 'success' })
       await loadSettings()
-      setForm({ shopDomain: form.shopDomain, apiKey: '', apiSecret: '', accessToken: '' })
+      // Clear secret after save (don't show it again)
+      setForm(f => ({ ...f, clientSecret: '' }))
     } catch (err) {
-      setMsg({ text: err.message || 'Failed to connect to Shopify', type: 'error' })
+      setMsg({ text: err.message || 'Failed to save configuration', type: 'error' })
     } finally {
       setSaving(false)
-    }
-  }
-  
-  async function handleUnlist(productId) {
-    if (!confirm('Remove this product from your Shopify store?')) return
-    
-    try {
-      await apiDelete(`/api/settings/shopify/unlist/${productId}`)
-      setMsg({ text: 'Product unlisted successfully!', type: 'success' })
-      await loadListedProducts()
-    } catch (err) {
-      setMsg({ text: err.message || 'Failed to unlist product', type: 'error' })
     }
   }
   
@@ -86,20 +78,20 @@ export default function ShopifySettings() {
       {/* Header */}
       <div>
         <h1 style={{ fontSize: 32, fontWeight: 800, margin: 0, color: 'var(--ds-text-primary)' }}>
-          Shopify Integration
+          Shopify App Configuration
         </h1>
         <p style={{ color: 'var(--ds-text-secondary)', marginTop: 8, fontSize: 16 }}>
-          Connect your Shopify store to list products directly from BuySial
+          Configure your Shopify app credentials. Dropshippers will use these to connect their stores.
         </p>
       </div>
       
-      {/* Connection Status */}
+      {/* App Status */}
       <div style={{
         padding: 24,
-        background: settings?.connected 
+        background: settings?.configured 
           ? 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.05))' 
           : 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(220,38,38,0.05))',
-        border: `1px solid ${settings?.connected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
+        border: `1px solid ${settings?.configured ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`,
         borderRadius: 16,
         display: 'flex',
         alignItems: 'center',
@@ -109,25 +101,23 @@ export default function ShopifySettings() {
           width: 48,
           height: 48,
           borderRadius: 12,
-          background: settings?.connected ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+          background: settings?.configured ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
           display: 'grid',
           placeItems: 'center',
           fontSize: 24
         }}>
-          {settings?.connected ? '✓' : '⚠'}
+          {settings?.configured ? '✓' : '⚠'}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
-            {settings?.connected ? 'Connected to Shopify' : 'Not Connected'}
+            {settings?.configured ? 'App Configured' : 'App Not Configured'}
           </div>
-          {settings?.shopDomain && (
-            <div style={{ fontSize: 14, color: 'var(--ds-text-secondary)', marginTop: 4 }}>
-              Store: <span style={{ fontWeight: 600 }}>{settings.shopDomain}</span>
-              {settings.lastSync && (
-                <> • Last synced: {new Date(settings.lastSync).toLocaleString()}</>
-              )}
-            </div>
-          )}
+          <div style={{ fontSize: 14, color: 'var(--ds-text-secondary)', marginTop: 4 }}>
+            {settings?.configured 
+              ? `Client ID: ${settings.clientId?.slice(0, 10)}... • ${connectedStores.length} store(s) connected`
+              : 'Enter your Shopify app credentials to enable dropshipper connections'
+            }
+          </div>
         </div>
       </div>
       
@@ -145,7 +135,7 @@ export default function ShopifySettings() {
         </div>
       )}
       
-      {/* Credentials Form */}
+      {/* App Credentials Form */}
       <form onSubmit={handleSave} style={{
         background: 'var(--ds-panel)',
         border: '1px solid var(--ds-border)',
@@ -153,20 +143,47 @@ export default function ShopifySettings() {
         padding: 32
       }}>
         <h3 style={{ margin: '0 0 20px', fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
-          Shopify Credentials
+          Shopify App Credentials
         </h3>
         
         <div style={{ display: 'grid', gap: 20 }}>
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 8 }}>
-              Shop Domain *
+              Client ID (API Key) *
             </label>
             <input
               type="text"
               required
-              value={form.shopDomain}
-              onChange={e => setForm({ ...form, shopDomain: e.target.value })}
-              placeholder="yourstore.myshopify.com"
+              value={form.clientId}
+              onChange={e => setForm({ ...form, clientId: e.target.value })}
+              placeholder="076a19e7291e002e51535256e2de28b3"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '1px solid var(--ds-border)',
+                borderRadius: 12,
+                background: 'var(--ds-glass)',
+                color: 'var(--ds-text-primary)',
+                fontSize: 14,
+                outline: 'none',
+                fontFamily: 'monospace'
+              }}
+            />
+            <div style={{ fontSize: 12, color: 'var(--ds-text-secondary)', marginTop: 6 }}>
+              Found in Shopify Partners → Apps → Your App → Settings → Client credentials
+            </div>
+          </div>
+          
+          <div>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 8 }}>
+              Client Secret *
+            </label>
+            <input
+              type="password"
+              required={!settings?.configured}
+              value={form.clientSecret}
+              onChange={e => setForm({ ...form, clientSecret: e.target.value })}
+              placeholder={settings?.configured ? '•••••••••••••••••••••••' : 'Enter Client Secret'}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -178,18 +195,19 @@ export default function ShopifySettings() {
                 outline: 'none'
               }}
             />
+            <div style={{ fontSize: 12, color: 'var(--ds-text-secondary)', marginTop: 6 }}>
+              {settings?.configured ? 'Leave blank to keep existing secret' : 'Found next to Client ID in Shopify Partners'}
+            </div>
           </div>
           
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 8 }}>
-              API Key *
+              OAuth Scopes
             </label>
             <input
               type="text"
-              required
-              value={form.apiKey}
-              onChange={e => setForm({ ...form, apiKey: e.target.value })}
-              placeholder="Enter API Key"
+              value={form.scopes}
+              onChange={e => setForm({ ...form, scopes: e.target.value })}
               style={{
                 width: '100%',
                 padding: '12px 16px',
@@ -197,80 +215,39 @@ export default function ShopifySettings() {
                 borderRadius: 12,
                 background: 'var(--ds-glass)',
                 color: 'var(--ds-text-primary)',
-                fontSize: 14,
-                outline: 'none'
+                fontSize: 13,
+                outline: 'none',
+                fontFamily: 'monospace'
               }}
             />
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 8 }}>
-              API Secret *
-            </label>
-            <input
-              type="password"
-              required
-              value={form.apiSecret}
-              onChange={e => setForm({ ...form, apiSecret: e.target.value })}
-              placeholder="Enter API Secret"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid var(--ds-border)',
-                borderRadius: 12,
-                background: 'var(--ds-glass)',
-                color: 'var(--ds-text-primary)',
-                fontSize: 14,
-                outline: 'none'
-              }}
-            />
-          </div>
-          
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 8 }}>
-              Admin API Access Token *
-            </label>
-            <input
-              type="password"
-              required
-              value={form.accessToken}
-              onChange={e => setForm({ ...form, accessToken: e.target.value })}
-              placeholder="shpat_xxxxx"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid var(--ds-border)',
-                borderRadius: 12,
-                background: 'var(--ds-glass)',
-                color: 'var(--ds-text-primary)',
-                fontSize: 14,
-                outline: 'none'
-              }}
-            />
+            <div style={{ fontSize: 12, color: 'var(--ds-text-secondary)', marginTop: 6 }}>
+              Comma-separated list of scopes required for product sync
+            </div>
           </div>
           
           <button
             type="submit"
             disabled={saving}
             style={{
-              padding: '12px 24px',
+              padding: '14px 28px',
               border: 'none',
               borderRadius: 12,
               background: saving ? '#94a3b8' : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
               color: 'white',
               fontWeight: 600,
-              fontSize: 14,
+              fontSize: 15,
               cursor: saving ? 'not-allowed' : 'pointer',
               boxShadow: saving ? 'none' : '0 4px 12px rgba(99,102,241,0.3)',
-              transition: '0.2s'
+              transition: '0.2s',
+              width: 'fit-content'
             }}
           >
-            {saving ? 'Testing Connection...' : settings?.connected ? 'Update Connection' : 'Connect Shopify'}
+            {saving ? 'Saving...' : settings?.configured ? 'Update Configuration' : 'Save Configuration'}
           </button>
         </div>
       </form>
       
-      {/* Instructions */}
+      {/* OAuth URLs Info */}
       <div style={{
         background: 'var(--ds-panel)',
         border: '1px solid var(--ds-border)',
@@ -278,22 +255,31 @@ export default function ShopifySettings() {
         padding: 32
       }}>
         <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
-          How to Get Shopify API Credentials
+          📋 Shopify App Setup
         </h3>
-        <ol style={{ margin: 0, paddingLeft: 20, color: 'var(--ds-text-secondary)', lineHeight: 1.8, fontSize: 14 }}>
-          <li>Go to your Shopify Admin → Settings → Apps and sales channels</li>
-          <li>Click "Develop apps" → "Create an app"</li>
-          <li>Name it "BuySial Integration" and create the app</li>
-          <li>Go to "Configuration" tab → Configure Admin API scopes</li>
-          <li>Enable: <code style={{ background: 'var(--ds-glass)', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>write_products</code>, <code style={{ background: 'var(--ds-glass)', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>read_products</code></li>
-          <li>Save → Go to "API credentials" tab → Install app</li>
-          <li>Copy the Admin API access token (starts with "shpat_")</li>
-          <li>Paste all credentials above and click Connect</li>
-        </ol>
+        <p style={{ color: 'var(--ds-text-secondary)', marginBottom: 16, fontSize: 14 }}>
+          Configure these URLs in your Shopify Partners app settings:
+        </p>
+        
+        <div style={{ display: 'grid', gap: 16 }}>
+          <div style={{ background: 'var(--ds-glass)', padding: 16, borderRadius: 12, border: '1px solid var(--ds-border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 6 }}>App URL</div>
+            <code style={{ fontSize: 13, color: 'var(--ds-accent)', fontFamily: 'monospace' }}>
+              https://buysial.ae/api/shopify/install
+            </code>
+          </div>
+          
+          <div style={{ background: 'var(--ds-glass)', padding: 16, borderRadius: 12, border: '1px solid var(--ds-border)' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', marginBottom: 6 }}>Redirect URL</div>
+            <code style={{ fontSize: 13, color: 'var(--ds-accent)', fontFamily: 'monospace' }}>
+              https://buysial.ae/api/shopify/callback
+            </code>
+          </div>
+        </div>
       </div>
       
-      {/* Listed Products */}
-      {listedProducts.length > 0 && (
+      {/* Connected Stores */}
+      {connectedStores.length > 0 && (
         <div style={{
           background: 'var(--ds-panel)',
           border: '1px solid var(--ds-border)',
@@ -302,66 +288,33 @@ export default function ShopifySettings() {
         }}>
           <div style={{ padding: 24, borderBottom: '1px solid var(--ds-border)' }}>
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
-              Listed Products ({listedProducts.length})
+              Connected Stores ({connectedStores.length})
             </h3>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--ds-glass)', borderBottom: '1px solid var(--ds-border)' }}>
-                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Product</th>
-                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Price</th>
-                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Listed</th>
-                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
+                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase' }}>Store</th>
+                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase' }}>Dropshipper</th>
+                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase' }}>Products Listed</th>
+                  <th style={{ padding: 16, textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--ds-text-secondary)', textTransform: 'uppercase' }}>Connected</th>
                 </tr>
               </thead>
               <tbody>
-                {listedProducts.map(p => (
-                  <tr key={p._id} style={{ borderBottom: '1px solid var(--ds-border)' }}>
+                {connectedStores.map(s => (
+                  <tr key={s._id} style={{ borderBottom: '1px solid var(--ds-border)' }}>
                     <td style={{ padding: 16, fontSize: 14, fontWeight: 600, color: 'var(--ds-text-primary)' }}>
-                      {p.productName}
+                      {s.shopDomain}
                     </td>
                     <td style={{ padding: 16, fontSize: 14, color: 'var(--ds-text-secondary)' }}>
-                      {p.currency} {p.retailPrice}
+                      {s.dropshipperName || s.dropshipperId}
+                    </td>
+                    <td style={{ padding: 16, fontSize: 14, color: 'var(--ds-text-secondary)' }}>
+                      {s.productsListed || 0}
                     </td>
                     <td style={{ padding: 16, fontSize: 13, color: 'var(--ds-text-secondary)' }}>
-                      {new Date(p.listedAt).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: 16 }}>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <a
-                          href={p.shopifyUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            padding: '6px 12px',
-                            background: 'var(--ds-glass)',
-                            border: '1px solid var(--ds-border)',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: 'var(--ds-accent)',
-                            textDecoration: 'none'
-                          }}
-                        >
-                          View
-                        </a>
-                        <button
-                          onClick={() => handleUnlist(p.productId)}
-                          style={{
-                            padding: '6px 12px',
-                            background: 'rgba(239,68,68,0.1)',
-                            border: '1px solid rgba(239,68,68,0.2)',
-                            borderRadius: 8,
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: '#ef4444',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Unlist
-                        </button>
-                      </div>
+                      {new Date(s.connectedAt).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}
@@ -370,6 +323,25 @@ export default function ShopifySettings() {
           </div>
         </div>
       )}
+      
+      {/* How it Works */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05))',
+        border: '1px solid rgba(99,102,241,0.2)',
+        borderRadius: 16,
+        padding: 32
+      }}>
+        <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
+          🔄 How it Works (CJ Dropshipping Style)
+        </h3>
+        <ol style={{ margin: 0, paddingLeft: 20, color: 'var(--ds-text-secondary)', lineHeight: 2, fontSize: 14 }}>
+          <li><strong>You configure</strong> the Shopify app credentials above (one time)</li>
+          <li><strong>Dropshippers</strong> go to their panel and click "Connect Shopify"</li>
+          <li>They're redirected to Shopify to authorize your app</li>
+          <li>After approval, they can <strong>"Push to Shopify"</strong> any product</li>
+          <li>Products appear on their Shopify store with their custom pricing</li>
+        </ol>
+      </div>
     </div>
   )
 }
