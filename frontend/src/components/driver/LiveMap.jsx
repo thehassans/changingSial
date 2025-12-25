@@ -273,15 +273,59 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
       border: '1px solid var(--border)',
       overflow: 'hidden'
     }}>
-      {/* Map Container */}
-      <div 
-        ref={mapRef} 
-        style={{ 
-          width: '100%', 
-          height: 400,
-          background: '#1e293b'
-        }} 
-      />
+      {/* Map Container with hidden Google branding */}
+      <div style={{ position: 'relative' }}>
+        <div 
+          ref={mapRef} 
+          style={{ 
+            width: '100%', 
+            height: 400,
+            background: '#1e293b'
+          }} 
+        />
+        
+        {/* CSS to hide Google branding */}
+        <style>{`
+          .gm-style-cc, .gmnoprint, .gm-style a[href*="google"], 
+          .gm-style a[href*="terms"], .gm-style img[alt*="Google"],
+          .gm-style-cc + div { display: none !important; }
+          .gm-style > div:last-child { display: none !important; }
+        `}</style>
+        
+        {/* Buysial Logo Overlay */}
+        <div style={{
+          position: 'absolute',
+          bottom: 8,
+          left: 8,
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          borderRadius: 8,
+          padding: '4px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }}>
+          <img 
+            src="/buysiallogo.png" 
+            alt="Buysial" 
+            style={{ 
+              height: 16, 
+              opacity: 0.8,
+              filter: 'brightness(1.2)'
+            }} 
+            onError={(e) => { e.target.style.display = 'none' }}
+          />
+          <span style={{ 
+            fontSize: 10, 
+            color: 'rgba(255,255,255,0.6)',
+            fontWeight: 500,
+            letterSpacing: '0.5px'
+          }}>
+            Buysial
+          </span>
+        </div>
+      </div>
       
       {/* Ultra Premium Route Info Panel */}
       {routeInfo && selectedOrder && (
@@ -371,4 +415,45 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
                 border: '1px solid rgba(255,255,255,0.15)',
                 background: 'rgba(255,255,255,0.05)',
                 color: 'rgba(255,255,255,0.7)',
-                cursor: 'p
+                cursor: 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 14
+              }}
+              title="Clear"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Minimal Legend */}
+      <div style={{
+        padding: '8px 16px',
+        background: 'rgba(0,0,0,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.5)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }} />
+          <span>You</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+          <span>Deliveries</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
+          <span>Active</span>
+        </div>
+        <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10 }}>
+          {orders.length} • Tap to route
+        </span>
+      </div>
+    </div>
+  )
+}
