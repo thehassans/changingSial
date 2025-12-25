@@ -160,10 +160,4 @@ export default function Checkout(){
           </div>
           <div style={{display:'flex', justifyContent:'flex-end', gap:8}}>
             <button className="btn secondary" onClick={()=> navigate('/catalog')}>Back to Catalog</button>
-            <button className="btn" onClick={submitOrder} disabled={!cart.length || submitting}>{submitting? 'Submitting…' : 'Place Order'}</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
+            <button class
