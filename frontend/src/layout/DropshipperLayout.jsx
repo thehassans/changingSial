@@ -637,4 +637,18 @@ export default function DropshipperLayout() {
                   placeholder="Confirm new password"
                 />
               </div>
-              <div style={{display: 'flex', gap: 8, justifyContent: 'flex-end
+              <div style={{display: 'flex', gap: 8, justifyContent: 'flex-end'}}>
+                <button type="button" className="btn secondary" onClick={() => setShowPassModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn primary" disabled={changingPass}>
+                  {changingPass ? 'Changing...' : 'Change Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
