@@ -70,7 +70,9 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
     
     mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
       center: defaultCenter,
-      zoom: 13,
+      zoom: 10,
+      minZoom: 3,
+      maxZoom: 18,
       styles: getMapStyles(),
       mapTypeControl: false,
       fullscreenControl: true,
@@ -170,6 +172,13 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
     if (orders.length > 0 || driverLocation) {
       try {
         mapInstanceRef.current.fitBounds(bounds, { padding: 50 })
+        // Prevent too much zoom in
+        const listener = mapInstanceRef.current.addListener('idle', () => {
+          if (mapInstanceRef.current.getZoom() > 15) {
+            mapInstanceRef.current.setZoom(15)
+          }
+          window.google.maps.event.removeListener(listener)
+        })
       } catch {}
     }
   }, [orders, driverLocation, mapLoaded, selectedOrder])
@@ -325,6 +334,36 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
             Buysial
           </span>
         </div>
+        
+        {/* Center on Me Button */}
+        <button
+          onClick={() => {
+            if (mapInstanceRef.current && driverLocation) {
+              mapInstanceRef.current.panTo(driverLocation)
+              mapInstanceRef.current.setZoom(15)
+            }
+          }}
+          style={{
+            position: 'absolute',
+            bottom: 8,
+            right: 50,
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            border: 'none',
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'grid',
+            placeItems: 'center',
+            fontSize: 18
+          }}
+          title="Center on Me"
+        >
+          📍
+        </button>
       </div>
       
       {/* Ultra Premium Route Info Panel */}
@@ -348,112 +387,4 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
             </div>
             <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#3b82f6', letterSpacing: '-0.5px' }}>{routeInfo.duration}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>ETA</div>
-            </div>
-            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'white' }}>{selectedOrder.customerName || 'Customer'}</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{selectedOrder.city || 'Location'}</div>
-            </div>
-          </div>
-          
-          {/* Action Icons */}
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button
-              onClick={() => {
-                const phone = selectedOrder.customerPhone
-                if (phone) {
-                  const cleanPhone = phone.replace(/[^\d+]/g, '')
-                  window.open(`https://wa.me/${cleanPhone}`, '_blank')
-                }
-              }}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                border: 'none',
-                background: 'linear-gradient(135deg, #25d366, #128c7e)',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'grid',
-                placeItems: 'center',
-                fontSize: 16
-              }}
-              title="WhatsApp"
-            >
-              💬
-            </button>
-            <button
-              onClick={() => {
-                if (selectedOrder.customerPhone) {
-                  window.location.href = `tel:${selectedOrder.customerPhone}`
-                }
-              }}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                border: 'none',
-                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'grid',
-                placeItems: 'center',
-                fontSize: 16
-              }}
-              title="Call"
-            >
-              📞
-            </button>
-            <button
-              onClick={clearRoute}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'rgba(255,255,255,0.05)',
-                color: 'rgba(255,255,255,0.7)',
-                cursor: 'pointer',
-                display: 'grid',
-                placeItems: 'center',
-                fontSize: 14
-              }}
-              title="Clear"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-      
-      {/* Minimal Legend */}
-      <div style={{
-        padding: '8px 16px',
-        background: 'rgba(0,0,0,0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.5)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }} />
-          <span>You</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
-          <span>Deliveries</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
-          <span>Active</span>
-        </div>
-        <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 10 }}>
-          {orders.length} • Tap to route
-        </span>
-      </div>
-    </div>
-  )
-}
+              <div style={{ fontSize: 18, fontWeight
