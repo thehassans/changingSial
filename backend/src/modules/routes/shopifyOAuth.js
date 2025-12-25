@@ -274,4 +274,87 @@ router.get('/my-store', auth, allowRoles('dropshipper'), async (req, res) => {
   try {
     const store = await ShopifyIntegration.findOne({
       type: 'dropshipper_store',
-      dropshipperId: req.user.
+      dropshipperId: req.user._id,
+      isActive: true
+    })
+    
+    if (!store) {
+      return res.json({ connected: false })
+    }
+    
+    res.json({
+      connected: true,
+      shopDomain: store.shopDomain,
+      connectedAt: store.connectedAt,
+      productsListed: store.productsListed || 0
+    })
+  } catch (err) {
+    console.error('Error getting store:', err)
+    res.status(500).json({ error: 'Failed to get store info' })
+  }
+})
+
+// Generate OAuth URL for dropshipper
+router.get('/connect-url', auth, allowRoles('dropshipper'), async (req, res) => {
+  try {
+    const { shop } = req.query
+    
+    if (!shop) {
+      return res.status(400).json({ error: 'Shop domain is required' })
+    }
+    
+    // Clean shop domain
+    let shopDomain = shop.trim().toLowerCase()
+    if (!shopDomain.includes('.myshopify.com')) {
+      shopDomain = shopDomain.replace('.myshopify.com', '') + '.myshopify.com'
+    }
+    
+    // Check if app is configured
+    const config = await ShopifyIntegration.findOne({ type: 'app_config' })
+    if (!config || !config.clientId) {
+      return res.status(400).json({ 
+        error: 'Shopify app not configured',
+        message: 'Please ask admin to configure Shopify app credentials first'
+      })
+    }
+    
+    const apiBase = process.env.API_BASE || 'https://buysial.ae'
+    const connectUrl = `${apiBase}/api/shopify/install?shop=${encodeURIComponent(shopDomain)}&dropshipperId=${req.user._id}`
+    
+    res.json({ url: connectUrl })
+  } catch (err) {
+    console.error('Error generating connect URL:', err)
+    res.status(500).json({ error: 'Failed to generate connection URL' })
+  }
+})
+
+// Disconnect store
+router.delete('/disconnect', auth, allowRoles('dropshipper'), async (req, res) => {
+  try {
+    await ShopifyIntegration.findOneAndUpdate(
+      { type: 'dropshipper_store', dropshipperId: req.user._id },
+      { isActive: false }
+    )
+    
+    res.json({ success: true, message: 'Store disconnected' })
+  } catch (err) {
+    console.error('Error disconnecting:', err)
+    res.status(500).json({ error: 'Failed to disconnect store' })
+  }
+})
+
+// Check if app is configured (for dropshippers)
+router.get('/status', auth, async (req, res) => {
+  try {
+    const config = await ShopifyIntegration.findOne({ type: 'app_config' })
+    
+    res.json({
+      configured: !!(config && config.clientId),
+      message: config?.clientId ? 'Shopify integration is available' : 'Shopify not configured by admin'
+    })
+  } catch (err) {
+    res.json({ configured: false })
+  }
+})
+
+export default router

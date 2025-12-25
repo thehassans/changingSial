@@ -964,4 +964,77 @@ export default function DriverPanel() {
             padding: '10px 16px',
             borderRadius: 10,
             border: '1px solid var(--border)',
-            backgroun
+            background: 'var(--panel)',
+            color: 'var(--text)',
+            fontWeight: 500,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 13
+          }}
+        >
+          📍 Refresh Location
+        </button>
+      </div>
+
+      {/* Live Map Component */}
+      {showMap && (
+        <div style={{ marginBottom: 24 }}>
+          <LiveMap 
+            orders={activeOrders.filter(o => o.locationLat && o.locationLng)} 
+            driverLocation={driverLocation}
+            onSelectOrder={(order) => {
+              // Could scroll to order card or highlight it
+              console.log('Selected order:', order._id)
+            }}
+          />
+        </div>
+      )}
+
+      {/* Remittance UI moved to Driver Me page */}
+
+      <div className="orders-section">
+        <div className="section-header">
+          <h2 className="section-title">My Assigned Orders</h2>
+          <span className="order-count">{activeOrders.length}</span>
+        </div>
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: 16 }}>
+          <input
+            type="text"
+            className="input"
+            placeholder="🔍 Search by Invoice #, Area, Name, or Phone..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              fontSize: 15,
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+              background: 'var(--panel)',
+            }}
+          />
+        </div>
+
+        <div className="orders-list">
+          {loading ? (
+            <div className="loading-state">Loading assigned orders...</div>
+          ) : activeOrders.length === 0 ? (
+            <div className="empty-state">No assigned orders</div>
+          ) : (
+            activeOrders.map((order) => (
+              <OrderCard key={order._id || order.id} order={order} showActions={true} />
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* History removed: drivers access full history at /driver/orders/history */}
+
+      {/* Available orders section removed: drivers see only their assigned orders */}
+    </div>
+  )
+}

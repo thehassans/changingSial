@@ -132,4 +132,351 @@ export default function DropshipperFinances() {
           background: 'linear-gradient(135deg, #10b981, #059669)',
           borderRadius: 20,
           padding: 28,
-      
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 10px 40px rgba(16, 185, 129, 0.3)'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: -20,
+            right: -20,
+            width: 100,
+            height: 100,
+            borderRadius: '50%',
+            background: 'rgba(255,255,255,0.15)'
+          }} />
+          <div style={{ opacity: 0.9, fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
+            💎 Total Earnings
+          </div>
+          <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: '-0.02em' }}>
+            AED {(data?.totalProfit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ marginTop: 12, fontSize: 13, opacity: 0.8, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ 
+              background: 'rgba(255,255,255,0.2)', 
+              padding: '4px 10px', 
+              borderRadius: 6,
+              fontWeight: 600
+            }}>
+              {profitMargin}% margin
+            </span>
+            from {totalOrders} orders
+          </div>
+        </div>
+
+        {/* Paid Out */}
+        <div style={{
+          background: 'var(--ds-panel)',
+          border: '1px solid var(--ds-border)',
+          borderRadius: 20,
+          padding: 28,
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 4,
+            background: 'linear-gradient(90deg, #10b981, #34d399)',
+            borderRadius: '20px 20px 0 0'
+          }} />
+          <div style={{ color: 'var(--ds-text-secondary)', fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
+            ✅ Paid Out
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: '#10b981', letterSpacing: '-0.02em' }}>
+            AED {(data?.totalPaid || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ds-text-secondary)' }}>
+            Successfully withdrawn
+          </div>
+        </div>
+
+        {/* Pending Payout */}
+        <div style={{
+          background: 'var(--ds-panel)',
+          border: '1px solid var(--ds-border)',
+          borderRadius: 20,
+          padding: 28,
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 4,
+            background: 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+            borderRadius: '20px 20px 0 0'
+          }} />
+          <div style={{ color: 'var(--ds-text-secondary)', fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
+            ⏳ Pending Payout
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: '#f59e0b', letterSpacing: '-0.02em' }}>
+            AED {(data?.totalUnpaid || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ds-text-secondary)' }}>
+            Ready for withdrawal
+          </div>
+        </div>
+
+        {/* Total Orders Revenue */}
+        <div style={{
+          background: 'var(--ds-panel)',
+          border: '1px solid var(--ds-border)',
+          borderRadius: 20,
+          padding: 28,
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 4,
+            background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
+            borderRadius: '20px 20px 0 0'
+          }} />
+          <div style={{ color: 'var(--ds-text-secondary)', fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
+            📦 Total Order Value
+          </div>
+          <div style={{ fontSize: 32, fontWeight: 800, color: '#6366f1', letterSpacing: '-0.02em' }}>
+            AED {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <div style={{ marginTop: 8, fontSize: 13, color: 'var(--ds-text-secondary)' }}>
+            From {totalOrders} delivered orders
+          </div>
+        </div>
+      </div>
+
+      {/* Profit Breakdown Card */}
+      <div style={{
+        background: 'var(--ds-panel)',
+        border: '1px solid var(--ds-border)',
+        borderRadius: 20,
+        padding: 28,
+        width: '100%'
+      }}>
+        <h3 style={{ margin: '0 0 24px', fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
+          📊 Profit Breakdown
+        </h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 13, color: 'var(--ds-text-secondary)', marginBottom: 4 }}>Customer Paid (Total)</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
+                AED {totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: 'var(--ds-text-secondary)', marginBottom: 4 }}>Dropship Cost (Paid to BuySial)</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#ef4444' }}>
+                - AED {totalDropshipCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: 'var(--ds-text-secondary)', marginBottom: 4 }}>Shipping Cost</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#f59e0b' }}>
+                - AED {totalShipping.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            justifyContent: 'center',
+            padding: 24,
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05))',
+            borderRadius: 16,
+            border: '2px dashed rgba(16, 185, 129, 0.3)'
+          }}>
+            <div style={{ fontSize: 13, color: '#10b981', marginBottom: 4, fontWeight: 600 }}>= YOUR PROFIT</div>
+            <div style={{ fontSize: 36, fontWeight: 800, color: '#10b981' }}>
+              AED {(data?.totalProfit || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--ds-text-secondary)', marginTop: 8 }}>
+              Average: <strong>AED {totalOrders > 0 ? ((data?.totalProfit || 0) / totalOrders).toFixed(2) : '0.00'}</strong> per order
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Earnings History Table */}
+      <div style={{
+        background: 'var(--ds-panel)',
+        border: '1px solid var(--ds-border)',
+        borderRadius: 20,
+        overflow: 'hidden',
+        width: '100%'
+      }}>
+        <div style={{ 
+          padding: '20px 28px', 
+          borderBottom: '1px solid var(--ds-border)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
+            📋 Order Earnings History
+          </h3>
+          <span style={{ 
+            background: 'var(--ds-glass)', 
+            padding: '6px 14px', 
+            borderRadius: 8, 
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--ds-text-secondary)'
+          }}>
+            {data?.orders?.length || 0} orders
+          </span>
+        </div>
+        
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+            <thead>
+              <tr style={{ background: 'var(--ds-glass)' }}>
+                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</th>
+                <th style={{ padding: '16px 20px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Total</th>
+                <th style={{ padding: '16px 20px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Your Cost</th>
+                <th style={{ padding: '16px 20px', textAlign: 'right', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Your Profit</th>
+                <th style={{ padding: '16px 20px', textAlign: 'center', fontSize: 12, fontWeight: 700, color: 'var(--ds-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payout</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data?.orders?.length > 0 ? (
+                data.orders.map((o, i) => (
+                  <tr 
+                    key={o._id} 
+                    style={{ 
+                      borderBottom: '1px solid var(--ds-border)',
+                      background: i % 2 === 0 ? 'transparent' : 'var(--ds-glass)',
+                      transition: 'background 0.2s'
+                    }}
+                  >
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--ds-text-primary)' }}>#{o.orderId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--ds-text-secondary)', marginTop: 2 }}>
+                        {o.items?.length || 1} item(s)
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', fontSize: 14, color: 'var(--ds-text-secondary)' }}>
+                      {new Date(o.createdAt).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </td>
+                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--ds-text-primary)' }}>
+                        AED {(o.totalPrice || 0).toFixed(2)}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                      <div style={{ fontWeight: 600, color: '#ef4444' }}>
+                        AED {(o.dropshipCost || o.subtotal || 0).toFixed(2)}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                      <div style={{ 
+                        fontWeight: 700, 
+                        color: '#10b981',
+                        fontSize: 16
+                      }}>
+                        +AED {(o.dropshipperProfit?.amount || 0).toFixed(2)}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 20px', textAlign: 'center' }}>
+                      {o.dropshipperProfit?.isPaid ? (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '6px 14px',
+                          borderRadius: 8,
+                          background: 'rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          fontWeight: 600,
+                          fontSize: 12
+                        }}>
+                          ✓ PAID
+                        </span>
+                      ) : (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          padding: '6px 14px',
+                          borderRadius: 8,
+                          background: 'rgba(245, 158, 11, 0.15)',
+                          color: '#f59e0b',
+                          fontWeight: 600,
+                          fontSize: 12
+                        }}>
+                          ⏳ PENDING
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} style={{ 
+                    padding: 60, 
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ 
+                      width: 64, 
+                      height: 64, 
+                      borderRadius: 16, 
+                      background: 'var(--ds-glass)',
+                      display: 'grid',
+                      placeItems: 'center',
+                      margin: '0 auto 16px',
+                      fontSize: 28
+                    }}>
+                      📊
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--ds-text-primary)', marginBottom: 8 }}>
+                      No earnings yet
+                    </div>
+                    <div style={{ fontSize: 14, color: 'var(--ds-text-secondary)' }}>
+                      Submit orders to start earning profits
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Pro Tips */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05))',
+        border: '1px solid rgba(99, 102, 241, 0.2)',
+        borderRadius: 20,
+        padding: 28
+      }}>
+        <h3 style={{ margin: '0 0 16px', fontSize: 16, fontWeight: 700, color: '#6366f1' }}>
+          💡 Pro Tips to Maximize Earnings
+        </h3>
+        <ul style={{ 
+          margin: 0, 
+          paddingLeft: 20, 
+          color: 'var(--ds-text-secondary)', 
+          lineHeight: 2,
+          fontSize: 14
+        }}>
+          <li>Set competitive retail prices that give you <strong>30-50% profit margin</strong></li>
+          <li>Focus on high-margin products with good stock availability</li>
+          <li>Promote products on Shopify and social media for more sales</li>
+          <li>Earnings are available for withdrawal after order is <strong>delivered</strong></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
