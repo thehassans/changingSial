@@ -84,7 +84,7 @@ export default function DriverLayout() {
     },
     {
       to: '/driver/panel',
-      label: 'Panel',
+      label: 'Deliveries',
       icon: (
         <svg
           width="24"
