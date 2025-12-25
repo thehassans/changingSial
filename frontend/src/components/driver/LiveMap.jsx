@@ -381,4 +381,55 @@ export default function LiveMap({ orders = [], driverLocation, onSelectOrder }) 
             <button
               onClick={() => {
                 if (selectedOrder.customerPhone) {
-                  window.location.href = `sms:${selectedO
+                  window.location.href = `sms:${selectedOrder.customerPhone}`
+                }
+              }}
+              style={{
+                padding: '10px 16px',
+                borderRadius: 10,
+                border: '1px solid var(--border)',
+                background: 'var(--panel)',
+                color: 'var(--text)',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 13
+              }}
+            >
+              ✉️ SMS
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Legend */}
+      <div style={{
+        padding: 12,
+        borderTop: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+        fontSize: 13,
+        color: 'var(--muted)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#3b82f6', border: '2px solid white' }} />
+          <span>You</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444' }} />
+          <span>Delivery Points</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#10b981' }} />
+          <span>Selected</span>
+        </div>
+        <span style={{ marginLeft: 'auto', opacity: 0.7 }}>
+          {orders.length} orders • Tap marker for route
+        </span>
+      </div>
+    </div>
+  )
+}
