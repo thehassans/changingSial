@@ -236,6 +236,7 @@ router.post(
       if (typeof req.body?.appName === "string")
         value.appName = req.body.appName;
       doc.value = value;
+      doc.markModified('value');
       await doc.save();
 
       res.json({
@@ -351,6 +352,7 @@ router.post(
         value.accessToken = accessToken.trim();
       if (typeof appId === "string") value.appId = appId.trim();
       doc.value = value;
+      doc.markModified('value');
       await doc.save();
       res.json({ success: true });
     } catch (e) {
@@ -450,6 +452,7 @@ router.post("/ai", auth, allowRoles("admin", "user"), async (req, res) => {
     if (typeof defaultImagePrompt === "string")
       value.defaultImagePrompt = defaultImagePrompt;
     doc.value = value;
+    doc.markModified('value'); // Required for Mixed type nested changes
     await doc.save();
     console.log("AI settings saved successfully:", {
       googleMapsApiKey: value.googleMapsApiKey ? "saved" : "not saved",
@@ -524,6 +527,7 @@ router.post(
       }
 
       doc.value = value;
+      doc.markModified('value');
       await doc.save();
 
       res.json({ success: true });
@@ -592,6 +596,7 @@ router.post("/seo", auth, allowRoles("admin", "user"), async (req, res) => {
       value.structuredData = structuredData;
 
     doc.value = value;
+    doc.markModified('value');
     await doc.save();
 
     console.log("SEO settings saved successfully");
