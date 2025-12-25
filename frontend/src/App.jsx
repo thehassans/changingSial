@@ -604,4 +604,15 @@ export default function App() {
               <Route path="inbox/whatsapp" element={<WhatsAppInbox />} />
               <Route path="orders" element={<SubmitOrder />} />
               <Route path="orders/history" element={<AgentOrdersHistory />} />
-              <Route path="inhouse-products" element={<AgentInhouse
+              <Route path="inhouse-products" element={<AgentInhouseProducts />} />
+              <Route path="me" element={<AgentMe />} />
+              <Route path="profile" element={<AgentProfile />} />
+              <Route path="payout" element={<AgentPayout />} />
+              <Route path="support" element={<Support />} />
+            </Route>
+          </Routes>
+        </CustomDomainRouter>
+      </ThemeProvider>
+    </ErrorBoundary>
+  )
+}
