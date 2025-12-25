@@ -594,6 +594,4 @@ export default function UserAPISetup() {
           </div>
         </form>
       </div>
-    </div>
-  )
-}
+    </div

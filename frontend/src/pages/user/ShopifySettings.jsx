@@ -366,22 +366,4 @@ export default function ShopifySettings() {
       
       {/* How it Works */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05))',
-        border: '1px solid rgba(99,102,241,0.2)',
-        borderRadius: 16,
-        padding: 32
-      }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 700, color: 'var(--ds-text-primary)' }}>
-          🔄 How it Works (CJ Dropshipping Style)
-        </h3>
-        <ol style={{ margin: 0, paddingLeft: 20, color: 'var(--ds-text-secondary)', lineHeight: 2, fontSize: 14 }}>
-          <li><strong>You configure</strong> the Shopify app credentials above (one time)</li>
-          <li><strong>Dropshippers</strong> go to their panel and click "Connect Shopify"</li>
-          <li>They're redirected to Shopify to authorize your app</li>
-          <li>After approval, they can <strong>"Push to Shopify"</strong> any product</li>
-          <li>Products appear on their Shopify store with their custom pricing</li>
-        </ol>
-      </div>
-    </div>
-  )
-}
+        background: 'linear-gradient(135deg,
