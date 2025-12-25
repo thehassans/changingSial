@@ -384,14 +384,4 @@ async function registerOptionalRoutes() {
       console.log("Daily profit distribution job started");
     } catch (jobErr) {
       console.error(
-        "Failed to start daily profit job (continuing):",
-        jobErr?.message || jobErr
-      );
-    }
-  } catch (err) {
-    console.error(
-      "Failed to init WhatsApp routes (continuing):",
-      err?.message || err
-    );
-  }
-}
+     

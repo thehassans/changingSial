@@ -609,24 +609,36 @@ export default function DriverLayout() {
         </div>
       </div>
       {tabsVisible && (
-        <nav className="mobile-tabs" role="navigation" aria-label="Primary" style={{gap:6}}>
+        <nav className="mobile-tabs" role="navigation" aria-label="Primary" style={{
+          gap: 2,
+          display: 'flex',
+          flexWrap: 'nowrap',
+          justifyContent: 'space-around'
+        }}>
           {mobileTabs.map((tab) => {
             const isMe = tab.to.endsWith('/me')
-            const meBadge = isMe && levelIdx > 1 ? `Level ${levelIdx}` : ''
+            const meBadge = isMe && levelIdx > 1 ? `L${levelIdx}` : ''
             return (
               <NavLink
                 key={tab.to}
                 to={tab.to}
                 end={tab.to === '/driver'}
                 className={({ isActive }) => `tab ${isActive ? 'active' : ''}`}
-                style={{padding:'8px 6px'}}
+                style={{
+                  padding: '6px 4px',
+                  flex: '1 1 0',
+                  minWidth: 0,
+                  maxWidth: '16.66%'
+                }}
               >
                 <span className="icon" style={{position:'relative'}}>
-                  {tab.icon}
+                  {React.cloneElement(tab.icon, { width: 20, height: 20 })}
                 </span>
-                <span style={{ fontSize: 11 }}>{tab.label}</span>
+                <span style={{ fontSize: 9, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {tab.label}
+                </span>
                 {isMe && meBadge && (
-                  <span className="badge" style={{ marginLeft: 6, fontSize: 10 }}>{meBadge}</span>
+                  <span className="badge" style={{ marginLeft: 4, fontSize: 8, padding: '1px 4px' }}>{meBadge}</span>
                 )}
               </NavLink>
             )
@@ -693,34 +705,4 @@ export default function DriverLayout() {
                   type="password"
                   className="input"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div style={{display: 'flex', gap: '8px', marginTop: '8px'}}>
-                <button
-                  type="button"
-                  className="btn secondary"
-                  onClick={() => setShowPassModal(false)}
-                  style={{flex: 1}}
-                  disabled={changingPass}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn primary"
-                  style={{flex: 1}}
-                  disabled={changingPass}
-                >
-                  {changingPass ? 'Changing...' : 'Change Password'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+                  onChange={(e) => setConfirmPassword
