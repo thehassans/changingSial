@@ -736,6 +736,7 @@ export default function InhouseProducts() {
       price: p.price || '',
       dropshippingPrice: p.dropshippingPrice || '',
       purchasePrice: p.purchasePrice || '',
+      salePrice: p.salePrice || '',
       baseCurrency: p.baseCurrency || 'SAR',
       category: p.category || 'Other',
       sku: p.sku || '',
@@ -778,6 +779,7 @@ export default function InhouseProducts() {
       fd.append('price', editForm.price)
       fd.append('dropshippingPrice', editForm.dropshippingPrice)
       fd.append('purchasePrice', editForm.purchasePrice)
+      fd.append('salePrice', editForm.salePrice || '')
       fd.append('sku', editForm.sku)
       fd.append('availableCountries', (editForm.availableCountries || []).join(','))
       fd.append('baseCurrency', editForm.baseCurrency)
@@ -2565,6 +2567,20 @@ export default function InhouseProducts() {
                     name="purchasePrice"
                     value={editForm.purchasePrice}
                     onChange={onEditChange}
+                  />
+                </div>
+                <div>
+                  <div className="label" style={{ color: '#f97316', fontWeight: 600 }}>Sale Price</div>
+                  <input
+                    className="input"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="salePrice"
+                    value={editForm.salePrice}
+                    onChange={onEditChange}
+                    placeholder="Leave empty for no sale"
+                    style={{ borderColor: editForm.salePrice ? '#f97316' : undefined }}
                   />
                 </div>
                 <div>
