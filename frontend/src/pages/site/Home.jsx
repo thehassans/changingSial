@@ -7,6 +7,7 @@ import ShoppingCart from '../../components/ecommerce/ShoppingCart'
 import { categories } from '../../components/ecommerce/CategoryFilter'
 import { detectCountryCode } from '../../utils/geo'
 import { countries } from '../../components/ecommerce/CountrySelector'
+import BannerSlider from '../../components/ecommerce/BannerSlider'
 
 export default function Home(){
   const [featured, setFeatured] = useState([])
@@ -85,93 +86,125 @@ export default function Home(){
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <Header onCartClick={() => setIsCartOpen(true)} />
 
-      {/* Ultra-Premium Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-black z-0"></div>
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-40">
-            <div className="absolute -top-[40%] -left-[20%] w-[80%] h-[80%] rounded-full bg-orange-500 blur-[120px] animate-pulse"></div>
-            <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-indigo-600 blur-[120px] animate-pulse delay-1000"></div>
-            <div className="absolute -bottom-[20%] left-[20%] w-[60%] h-[60%] rounded-full bg-purple-600 blur-[120px] animate-pulse delay-2000"></div>
-          </div>
-          <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-20 z-0"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
-            {/* Hero Content */}
-            <div className="flex-1 text-center lg:text-left space-y-8 animate-fadeInUp">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-orange-400 text-sm font-medium mb-4">
-                <span className="flex h-2 w-2 relative mr-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                </span>
-                The Future of Dropshipping
+      {/* CJ-Style Functional Banner Section */}
+      <section className="bg-[#f2f3f7] pb-8 pt-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-auto lg:h-[500px]">
+            
+            {/* Left: Quick Categories (Hidden on mobile/tablet for space, or visible as menu) */}
+            <div className="hidden lg:flex lg:col-span-2 bg-white rounded-lg shadow-sm flex-col overflow-hidden border border-gray-100">
+              <div className="p-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm uppercase tracking-wide flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                Categories
               </div>
-              
-              <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight text-white leading-[1.1]">
-                Elevate Your <br/>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-500 to-indigo-500">
-                  Lifestyle
-                </span>
-              </h1>
-              
-              <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
-                Discover a curated collection of premium products from top global brands. Fast delivery across the Gulf, verified quality, and unbeatable wholesale prices.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start pt-4">
-                <Link 
-                  to="/catalog" 
-                  className="group relative inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-white text-black font-bold text-lg shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 transition-all duration-300"
-                >
-                  Shop Collection
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+              <div className="flex-1 overflow-y-auto py-2">
+                {topCategories.map(cat => (
+                  <Link 
+                    key={cat.id} 
+                    to={`/catalog?category=${encodeURIComponent(cat.id)}`}
+                    className="flex items-center px-4 py-3 hover:bg-orange-50 transition-colors group border-l-4 border-transparent hover:border-orange-500"
+                  >
+                    <span className="text-xl mr-3 group-hover:scale-110 transition-transform">{cat.icon}</span>
+                    <span className="text-sm text-gray-700 font-medium group-hover:text-orange-600">{cat.name}</span>
+                    <svg className="w-4 h-4 ml-auto text-gray-300 group-hover:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </Link>
+                ))}
+                <Link to="/categories" className="flex items-center px-4 py-3 text-sm text-orange-600 font-medium hover:bg-orange-50 border-t border-gray-50 mt-autp">
+                  See All Categories
                 </Link>
-                <Link 
-                  to="/about" 
-                  className="px-8 py-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-white font-semibold text-lg hover:bg-white/10 transition-all duration-300 hover:border-white/20"
-                >
-                  Our Story
-                </Link>
-              </div>
-
-              {/* Trust Badges */}
-              <div className="pt-8 flex items-center justify-center lg:justify-start gap-8 text-sm text-gray-500 font-medium">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                  Verified Quality
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  24h Dispatch
-                </div>
               </div>
             </div>
 
-            {/* Hero Visual/Card */}
-            <div className="flex-1 w-full relative hidden lg:block perspective-1000">
-              <div className="relative w-full aspect-square max-w-lg mx-auto transform rotate-y-12 rotate-x-6 hover:rotate-0 transition-transform duration-700 ease-out">
-                {/* Glass Card 1 */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl backdrop-blur-2xl border border-white/20 shadow-2xl p-6 flex flex-col justify-between z-20 animate-float">
-                  <div className="flex justify-between items-start">
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500"></div>
-                    <div className="px-3 py-1 rounded-full bg-white/10 text-xs text-white uppercase tracking-wider">New Arrival</div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 w-2/3 bg-white/20 rounded-full"></div>
-                    <div className="h-4 w-1/2 bg-white/10 rounded-full"></div>
-                  </div>
+            {/* Center: Main Banner Slider & Search */}
+            <div className="lg:col-span-8 flex flex-col gap-4 h-full relative group">
+              {/* Search Bar Overlay (CJ Style) */}
+              <div className="bg-white p-2 rounded-lg shadow-sm flex items-center border border-orange-200 focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500 transition-all">
+                <div className="pl-3 pr-2 border-r border-gray-200 hidden sm:block">
+                  <select className="text-sm bg-transparent border-none focus:ring-0 text-gray-600 font-medium cursor-pointer py-2">
+                    <option>All Categories</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
                 </div>
+                <input 
+                  type="text" 
+                  placeholder="Search 10,000+ products, SKUs, or keywords..." 
+                  className="flex-1 border-none focus:ring-0 text-sm px-4 py-2"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                       window.location.href = `/catalog?search=${encodeURIComponent(e.target.value)}`
+                    }
+                  }}
+                />
+                <button className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md font-medium transition-colors flex items-center">
+                  <svg className="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <span className="hidden sm:inline">Search</span>
+                </button>
+              </div>
+
+              {/* Slider Area */}
+              <div className="flex-1 relative rounded-xl overflow-hidden shadow-md bg-gray-900 group">
+                <BannerSlider />
                 
-                {/* Floating Elements */}
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl opacity-80 blur-lg animate-pulse"></div>
-                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-orange-500 to-red-500 rounded-full opacity-60 blur-lg animate-pulse delay-700"></div>
+                {/* Visual Overlay Gradients */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                <div className="absolute bottom-8 left-8 right-8 z-20 text-white pointer-events-none hidden sm:block">
+                   <div className="flex gap-4">
+                     <div className="flex items-center bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium border border-white/20">
+                       <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                       Live Stock
+                     </div>
+                     <div className="flex items-center bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium border border-white/20">
+                       <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
+                       Wholesale Pricing
+                     </div>
+                   </div>
+                </div>
               </div>
             </div>
+
+            {/* Right: User / Auth Panel (CJ Style) */}
+            <div className="hidden lg:flex lg:col-span-2 flex-col gap-4 h-full">
+               {/* Auth Card */}
+               <div className="bg-white rounded-lg shadow-sm p-6 flex flex-col items-center justify-center text-center border border-gray-100 flex-1">
+                 <div className="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mb-4 text-3xl">
+                   👤
+                 </div>
+                 <h3 className="font-bold text-gray-900 mb-1">Welcome!</h3>
+                 <p className="text-xs text-gray-500 mb-6 px-2">Sign in to access exclusive wholesale prices.</p>
+                 <div className="w-full space-y-3">
+                   <Link to="/login" className="block w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md font-bold text-sm transition-colors shadow-lg shadow-orange-500/30">
+                     Sign In
+                   </Link>
+                   <Link to="/register" className="block w-full py-2 bg-white text-orange-500 border border-orange-200 hover:bg-orange-50 rounded-md font-bold text-sm transition-colors">
+                     Register
+                   </Link>
+                 </div>
+               </div>
+
+               {/* Quick Stats or Promo */}
+               <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg shadow-sm p-6 text-white text-center flex-1 flex flex-col justify-center relative overflow-hidden">
+                 <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+                 <h4 className="font-bold text-lg mb-2 relative z-10">Premium Member?</h4>
+                 <p className="text-xs text-gray-400 mb-4 relative z-10">Get up to <span className="text-orange-400 font-bold">20% OFF</span> shipping fees.</p>
+                 <Link to="/premium" className="inline-block py-2 px-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md text-xs font-bold border border-white/20 transition-colors relative z-10">
+                   Upgrade Now
+                 </Link>
+               </div>
+            </div>
+          </div>
+
+          {/* Mobile Categories (Scrollable Pill List) */}
+          <div className="lg:hidden mt-4 overflow-x-auto scrollbar-hide flex gap-3 pb-2">
+             {categories.map(cat => (
+               <Link 
+                 key={cat.id} 
+                 to={`/catalog?category=${encodeURIComponent(cat.id)}`}
+                 className="flex-shrink-0 flex items-center px-4 py-2 bg-white rounded-full border border-gray-200 shadow-sm text-sm font-medium text-gray-700 whitespace-nowrap"
+               >
+                 <span className="mr-2">{cat.icon}</span>
+                 {cat.name}
+               </Link>
+             ))}
           </div>
         </div>
       </section>
@@ -190,122 +223,4 @@ export default function Home(){
               <div className={`text-3xl sm:text-4xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-1`}>
                 {stat.number}
               </div>
-              <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="bg-gradient-to-br from-gray-50 to-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Browse through our diverse range of product categories
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
-            {topCategories.map(cat => (
-              <Link 
-                key={cat.id} 
-                to={`/catalog?category=${encodeURIComponent(cat.id)}`} 
-                className="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 border border-gray-100 group text-center"
-              >
-                <div className="text-5xl mb-4 transform group-hover:scale-110 transition-transform">{cat.icon}</div>
-                <span className="font-bold text-lg text-gray-900">{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <Link 
-              to="/categories" 
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-            >
-              View All Categories
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">New Arrivals</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover our latest products fresh from top brands
-            </p>
-          </div>
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
-            </div>
-          ) : featured.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">No products available</h3>
-              <p className="text-gray-600 mb-6">Check back soon for new arrivals!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {featured.map(p => (
-                <ProductCard key={p._id} product={p} selectedCountry={selectedCountry} onAddToCart={() => setIsCartOpen(true)} />
-              ))}
-            </div>
-          )}
-          <div className="text-center mt-12">
-            <Link 
-              to="/catalog" 
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold text-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-            >
-              Browse All Products
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-20 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500 rounded-full filter blur-3xl opacity-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl opacity-10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Why Shop With Us?</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Experience the best in e-commerce with our premium services
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: '✓', title: 'Verified Quality', desc: 'All products quality-checked and verified' },
-              { icon: '🚚', title: 'Fast Delivery', desc: 'Quick shipping across the Gulf region' },
-              { icon: '💰', title: 'Best Prices', desc: 'Competitive wholesale & retail pricing' },
-              { icon: '💬', title: '24/7 Support', desc: 'Always here to help with your orders' },
-            ].map((feature, idx) => (
-              <div key={idx} className="text-center">
-                <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/20 text-4xl">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Shopping Cart Sidebar */}
-      <ShoppingCart 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-      />
-    </div>
-  )
-}
+              <div className="text-sm text-gray-600 font-medium">{stat.l
