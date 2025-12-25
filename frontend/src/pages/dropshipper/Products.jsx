@@ -3,6 +3,7 @@ import { apiGet, API_BASE } from '../../api'
 import { useNavigate } from 'react-router-dom'
 import { getCurrencyConfig, convert } from '../../util/currency'
 import ShopifyListModal from '../../components/dropshipper/ShopifyListModal'
+import NotificationModal, { Toast } from '../../components/ui/NotificationModal'
 
 export default function DropshipperProducts(){
   const [rows, setRows] = useState([])
@@ -14,6 +15,10 @@ export default function DropshipperProducts(){
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [shopifyConnected, setShopifyConnected] = useState(false)
   const navigate = useNavigate()
+  
+  // Premium notification state
+  const [notification, setNotification] = useState({ isOpen: false, type: 'info', title: '', message: '' })
+  const [toast, setToast] = useState({ isOpen: false, message: '', type: 'success' })
 
   async function load(){
     setLoading(true)
@@ -33,7 +38,7 @@ export default function DropshipperProducts(){
   async function checkShopifyConnection() {
     try {
       const data = await apiGet('/api/settings/shopify/status')
-      setShopifyConnected(data.connected || false)
+      setShopifyConnected(data.configured || false)
     } catch (err) {
       setShopifyConnected(false)
     }
@@ -41,9 +46,14 @@ export default function DropshipperProducts(){
   
   function handleListToShopify(product) {
     if (!shopifyConnected) {
-      if (confirm('Shopify integration not configured. Contact admin to set up Shopify integration first.')) {
-        // Could redirect to user panel if user is admin
-      }
+      setNotification({
+        isOpen: true,
+        type: 'shopify',
+        title: 'Shopify Not Configured',
+        message: 'The admin has not set up Shopify integration yet. Please contact your administrator to configure Shopify credentials in the User Panel settings.',
+        confirmText: 'Got it',
+        showCancel: false
+      })
       return
     }
     setSelectedProduct(product)
@@ -51,9 +61,18 @@ export default function DropshipperProducts(){
   }
   
   function handleShopifySuccess(response) {
-    alert(`✅ Product listed to Shopify!\n\nView it at: ${response.shopifyProductUrl}`)
     setShowShopifyModal(false)
     setSelectedProduct(null)
+    setNotification({
+      isOpen: true,
+      type: 'success',
+      title: 'Product Listed!',
+      message: `Your product has been successfully listed to Shopify.`,
+      confirmText: 'View on Shopify',
+      cancelText: 'Close',
+      showCancel: true,
+      onConfirm: () => window.open(response.shopifyProductUrl, '_blank')
+    })
   }
 
   useEffect(()=>{ 
@@ -431,6 +450,27 @@ export default function DropshipperProducts(){
              onSuccess={handleShopifySuccess}
            />
          )}
+         
+         {/* Premium Notification Modal */}
+         <NotificationModal
+           isOpen={notification.isOpen}
+           onClose={() => setNotification(n => ({ ...n, isOpen: false }))}
+           onConfirm={notification.onConfirm}
+           type={notification.type}
+           title={notification.title}
+           message={notification.message}
+           confirmText={notification.confirmText || 'OK'}
+           cancelText={notification.cancelText || 'Cancel'}
+           showCancel={notification.showCancel !== false}
+         />
+         
+         {/* Toast Notifications */}
+         <Toast
+           isOpen={toast.isOpen}
+           message={toast.message}
+           type={toast.type}
+           onClose={() => setToast(t => ({ ...t, isOpen: false }))}
+         />
      </div>
   )
 }
