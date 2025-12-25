@@ -144,14 +144,14 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = (e) => {
-    // 1. Strict Auth Check
-    const token = localStorage.getItem('token')
-    if (!token) {
-      toast.info('Please log in to add to cart')
-      try { sessionStorage.setItem('pending_cart_product', product._id) } catch {}
-      navigate('/customer/login')
-      return
-    }
+    // 1. Strict Auth Check Removed - Allowing Guest Cart
+    // const token = localStorage.getItem('token')
+    // if (!token) {
+    //   toast.info('Please log in to add to cart')
+    //   try { sessionStorage.setItem('pending_cart_product', product._id) } catch {}
+    //   navigate('/customer/login')
+    //   return
+    // }
 
     if (!product) return
     

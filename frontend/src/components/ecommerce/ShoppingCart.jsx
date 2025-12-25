@@ -191,6 +191,15 @@ export default function ShoppingCart({ isOpen, onClose }) {
   }
 
   async function submitOrder(){
+    // Strict Auth Check - Enforce Login at Checkout
+    const token = localStorage.getItem('token')
+    if (!token) {
+      toast.info('Please log in to complete your order')
+      navigate('/customer/login')
+      onClose && onClose()
+      return
+    }
+
     if (cartItems.length === 0){ toast.error('Your cart is empty'); return }
     if (!form.name.trim()){ toast.error('Please enter your full name'); return }
     if (!form.phone.trim()){ toast.error('Please enter your phone number'); return }

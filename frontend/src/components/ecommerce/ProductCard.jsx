@@ -58,17 +58,17 @@ export default function ProductCard({ product, onAddToCart, selectedCountry = 'S
   const handleAddToCart = (e) => {
     e.stopPropagation()
 
-    // 1. Strict Auth Check
-    const token = localStorage.getItem('token')
-    if (!token) {
-      toast.info('Please log in to shop')
-      // Save intent (optional, but good UX)
-      try {
-        sessionStorage.setItem('pending_cart_product', product._id)
-      } catch {}
-      navigate('/customer/login')
-      return
-    }
+    // 1. Strict Auth Check Removed - Allowing Guest Cart
+    // const token = localStorage.getItem('token')
+    // if (!token) {
+    //   toast.info('Please log in to shop')
+    //   // Save intent (optional, but good UX)
+    //   try {
+    //     sessionStorage.setItem('pending_cart_product', product._id)
+    //   } catch {}
+    //   navigate('/customer/login')
+    //   return
+    // }
 
     setAddingToCart(true)
     
