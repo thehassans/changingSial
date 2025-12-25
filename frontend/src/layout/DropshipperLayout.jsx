@@ -133,14 +133,15 @@ const PREMIUM_STYLES = `
     left: 0;
     right: 0;
     height: 72px;
-    background: var(--sidebar-bg, #0f172a);
+    background: var(--ds-panel, #1e293b);
     backdrop-filter: blur(20px);
-    border-top: 1px solid var(--sidebar-border, rgba(255, 255, 255, 0.1));
+    border-top: 1px solid var(--ds-border, rgba(255, 255, 255, 0.1));
     z-index: 100;
     justify-content: space-around;
     align-items: center;
-    padding: 0 8px;
+    padding: 0 4px;
     padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
   }
 
   .dropshipper-mobile-tab {
@@ -149,22 +150,36 @@ const PREMIUM_STYLES = `
     align-items: center;
     justify-content: center;
     gap: 4px;
-    color: var(--text-secondary, #94a3b8);
+    color: var(--ds-text-secondary, #94a3b8);
     text-decoration: none;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 10px;
+    font-weight: 600;
     flex: 1;
     height: 100%;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
+    padding: 8px 4px;
   }
 
   .dropshipper-mobile-tab.active {
     color: #10b981;
   }
 
-  .dropshipper-mobile-tab svg {
+  .dropshipper-mobile-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 24px;
-    height: 24px;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 0 0 4px 4px;
+  }
+
+  .dropshipper-mobile-tab svg {
+    width: 22px;
+    height: 22px;
   }
 
   @media (max-width: 768px) {
