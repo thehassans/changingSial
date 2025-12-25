@@ -39,6 +39,7 @@ import AgentPayout from './pages/agent/Payout.jsx'
 import DriverProfile from './pages/driver/Profile.jsx'
 import DriverDashboard from './pages/driver/Dashboard.jsx'
 import DriverPanel from './pages/driver/DriverPanel.jsx'
+import DriverLiveMap from './pages/driver/DriverLiveMap.jsx'
 import InvestorDashboard from './pages/investor/Dashboard.jsx'
 import InvestorLayout from './layout/InvestorLayout.jsx'
 import InvestorTransactions from './pages/investor/Transactions.jsx'
@@ -479,6 +480,7 @@ export default function App() {
             >
               <Route index element={<DriverDashboard />} />
               <Route path="panel" element={<DriverPanel />} />
+              <Route path="live-map" element={<DriverLiveMap />} />
               <Route path="orders/assigned" element={<DriverAssigned />} />
               <Route path="orders/picked" element={<DriverPicked />} />
               <Route path="orders/delivered" element={<DriverDelivered />} />
