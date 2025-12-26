@@ -243,41 +243,4 @@ const AnalyticsDashboard = () => {
                     {event.event_name === 'page_view' && (
                       <span>{event.properties.page} - {event.properties.title}</span>
                     )}
-                    {event.event_name === 'product_view' && (
-                      <span>{event.properties.product_name} (${event.properties.price})</span>
-                    )}
-                    {event.event_name === 'add_to_cart' && (
-                      <span>{event.properties.product_name} x{event.properties.quantity}</span>
-                    )}
-                    {event.event_name === 'search' && (
-                      <span>"{event.properties.query}" ({event.properties.results_count} results)</span>
-                    )}
-                    {event.event_name === 'checkout_complete' && (
-                      <span>Order {event.properties.order_id} - ${event.properties.cart_value}</span>
-                    )}
-                    {event.event_name === 'filter_usage' && (
-                      <span>{event.properties.filter_type}: {event.properties.filter_value}</span>
-                    )}
-                    {event.event_name === 'sort_usage' && (
-                      <span>Sort by: {event.properties.sort_by}</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                    {event.user_id.substring(0, 12)}...
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {events.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              No analytics events recorded yet. Start browsing the e-commerce site to see data here.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default AnalyticsDashboard
+         

@@ -122,6 +122,7 @@ import Register from './pages/ecommerce/Register.jsx'
 import Customers from './pages/user/Customers.jsx'
 
 import AnalyticsDashboard from './components/analytics/AnalyticsDashboard'
+import LiveTrackingView from './components/analytics/LiveTrackingView'
 
 import { apiGet } from './api.js'
 
@@ -551,6 +552,7 @@ export default function App() {
               <Route path="reports" element={<Reports />} />
               <Route path="driver-reports" element={<DriverReports />} />
               <Route path="insights" element={<AnalyticsDashboard />} />
+              <Route path="track-drivers" element={<LiveTrackingView />} />
               <Route path="expense" element={<Expenses />} />
               <Route path="transactions" element={<Transactions />} />
               <Route path="manager-finances" element={<UserManagerFinances />} />
@@ -608,11 +610,4 @@ export default function App() {
               <Route path="me" element={<AgentMe />} />
               <Route path="profile" element={<AgentProfile />} />
               <Route path="payout" element={<AgentPayout />} />
-              <Route path="support" element={<Support />} />
-            </Route>
-          </Routes>
-        </CustomDomainRouter>
-      </ThemeProvider>
-    </ErrorBoundary>
-  )
-}
+              <Route path="support"

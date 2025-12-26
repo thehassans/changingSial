@@ -30,29 +30,4 @@ frontend/build/
 backend/dist/
 backend/build/
 
-# Mobile app build artifacts
-buysial-store-mobile/ios/Pods/
-buysial-store-mobile/ios/build/
-buysial-store-mobile/android/.gradle/
-buysial-store-mobile/android/build/
-buysial-store-mobile/android/app/build/
-*.apk
-*.ipa
-
-# Uploads and runtime data
-backend/uploads/
-backend/.wa-auth/
-
-# Coverage / tooling / editors
-coverage/
-*.local
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Mobile app build artifac
