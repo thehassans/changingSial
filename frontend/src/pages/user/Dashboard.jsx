@@ -199,12 +199,23 @@ const MiniBarChart = ({ data, height = 60 }) => {
   )
 }
 
-// Pie Chart with Labels
+// Ultra-Premium Pie Chart with Shadows and Animations
 const PieChart = ({ data, loading }) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null)
+  
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="h-44 w-44 animate-pulse rounded-full" style={{ backgroundColor: '#f1f5f9' }} />
+      <div className="flex items-center justify-center py-10">
+        <div className="relative">
+          <div className="h-52 w-52 animate-pulse rounded-full" 
+            style={{ 
+              background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.08)'
+            }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-28 w-28 rounded-full bg-white" />
+          </div>
+        </div>
       </div>
     )
   }
@@ -212,44 +223,136 @@ const PieChart = ({ data, loading }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0)
   let cumulativePercent = 0
 
+  // Premium gradient colors for each status
+  const gradientColors = {
+    '#10b981': { start: '#10b981', end: '#059669', shadow: 'rgba(16, 185, 129, 0.4)' },
+    '#3b82f6': { start: '#3b82f6', end: '#2563eb', shadow: 'rgba(59, 130, 246, 0.4)' },
+    '#f59e0b': { start: '#f59e0b', end: '#d97706', shadow: 'rgba(245, 158, 11, 0.4)' },
+    '#ef4444': { start: '#ef4444', end: '#dc2626', shadow: 'rgba(239, 68, 68, 0.4)' },
+    '#64748b': { start: '#64748b', end: '#475569', shadow: 'rgba(100, 116, 139, 0.4)' },
+  }
+
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-6">
-      <div className="relative shrink-0">
-        <svg viewBox="0 0 100 100" className="w-44 h-44 rotate-[-90deg]">
+    <div className="flex flex-col items-center gap-6">
+      {/* Premium Donut Chart */}
+      <div className="relative" style={{ filter: 'drop-shadow(0 10px 25px rgba(0,0,0,0.1))' }}>
+        {/* Outer glow ring */}
+        <div className="absolute inset-0 rounded-full" 
+          style={{ 
+            background: 'linear-gradient(135deg, rgba(249,115,22,0.1) 0%, rgba(59,130,246,0.1) 100%)',
+            transform: 'scale(1.15)',
+            filter: 'blur(20px)'
+          }} />
+        
+        <svg viewBox="0 0 100 100" className="w-52 h-52 rotate-[-90deg] relative z-10">
+          {/* Background circle */}
+          <circle cx="50" cy="50" r="42" fill="none" stroke="#f1f5f9" strokeWidth="16" />
+          
+          {/* Data segments */}
           {data.map((item, i) => {
             const percent = total > 0 ? (item.value / total) * 100 : 0
             const offset = cumulativePercent
             cumulativePercent += percent
             if (percent === 0) return null
-            const circumference = 2 * Math.PI * 38
+            
+            const circumference = 2 * Math.PI * 42
             const strokeDasharray = `${(percent / 100) * circumference} ${circumference}`
             const strokeDashoffset = -(offset / 100) * circumference
+            const isHovered = hoveredIndex === i
+            
             return (
-              <circle key={i} cx="50" cy="50" r="38" fill="none"
-                stroke={item.color} strokeWidth="20"
-                strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset}
-                className="transition-all duration-700" />
+              <circle 
+                key={i} 
+                cx="50" 
+                cy="50" 
+                r="42" 
+                fill="none"
+                stroke={item.color} 
+                strokeWidth={isHovered ? 20 : 16}
+                strokeDasharray={strokeDasharray} 
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                className="transition-all duration-300 cursor-pointer"
+                style={{ 
+                  filter: isHovered ? `drop-shadow(0 0 8px ${gradientColors[item.color]?.shadow || item.color})` : 'none',
+                  opacity: hoveredIndex !== null && !isHovered ? 0.5 : 1
+                }}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
             )
           })}
-          <circle cx="50" cy="50" r="28" fill="#ffffff" />
+          
+          {/* Inner white circle */}
+          <circle cx="50" cy="50" r="30" fill="#ffffff" />
+          
+          {/* Decorative inner ring */}
+          <circle cx="50" cy="50" r="26" fill="none" stroke="#f8fafc" strokeWidth="1" />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
+        
+        {/* Center content */}
+        <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className="text-center">
-            <p className="text-2xl font-bold" style={{ color: '#0f172a' }}>{total}</p>
-            <p className="text-xs" style={{ color: '#64748b' }}>Total</p>
+            <p className="text-3xl font-black" style={{ 
+              color: '#0f172a',
+              textShadow: '0 2px 4px rgba(0,0,0,0.05)'
+            }}>
+              {hoveredIndex !== null ? data[hoveredIndex]?.value : total}
+            </p>
+            <p className="text-xs font-medium uppercase tracking-wider" style={{ color: '#94a3b8' }}>
+              {hoveredIndex !== null ? data[hoveredIndex]?.label : 'Total'}
+            </p>
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2 flex-1">
+      
+      {/* Premium Legend */}
+      <div className="w-full space-y-2">
         {data.map((item, i) => {
           const percent = total > 0 ? Math.round((item.value / total) * 100) : 0
+          const isHovered = hoveredIndex === i
           return (
-            <div key={i} className="flex items-center gap-3">
-              <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-              <span className="text-sm flex-1" style={{ color: '#475569' }}>{item.label}</span>
-              <span className="text-sm font-semibold" style={{ color: '#0f172a' }}>{item.value}</span>
-              <span className="text-xs px-2 py-0.5 rounded-full" 
-                style={{ backgroundColor: '#f1f5f9', color: '#64748b' }}>{percent}%</span>
+            <div 
+              key={i} 
+              className="flex items-center gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer"
+              style={{ 
+                backgroundColor: isHovered ? '#f8fafc' : 'transparent',
+                transform: isHovered ? 'translateX(8px)' : 'translateX(0)',
+                boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.05)' : 'none'
+              }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {/* Color indicator with gradient */}
+              <div className="relative">
+                <div className="h-4 w-4 rounded-full" 
+                  style={{ 
+                    background: `linear-gradient(135deg, ${gradientColors[item.color]?.start || item.color} 0%, ${gradientColors[item.color]?.end || item.color} 100%)`,
+                    boxShadow: isHovered ? `0 2px 8px ${gradientColors[item.color]?.shadow || item.color}` : 'none'
+                  }} />
+                {isHovered && (
+                  <div className="absolute inset-0 rounded-full animate-ping"
+                    style={{ backgroundColor: item.color, opacity: 0.4 }} />
+                )}
+              </div>
+              
+              <span className="text-sm font-medium flex-1 transition-colors" 
+                style={{ color: isHovered ? '#0f172a' : '#64748b' }}>
+                {item.label}
+              </span>
+              
+              <span className="text-sm font-bold" style={{ color: '#0f172a' }}>
+                {item.value}
+              </span>
+              
+              {/* Premium percentage badge */}
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full transition-all"
+                style={{ 
+                  backgroundColor: isHovered ? item.color : '#f1f5f9',
+                  color: isHovered ? '#ffffff' : '#64748b'
+                }}>
+                {percent}%
+              </span>
             </div>
           )
         })}
@@ -257,6 +360,7 @@ const PieChart = ({ data, loading }) => {
     </div>
   )
 }
+
 
 // Status Badge with hover effect
 const StatBadge = ({ label, value, color, to, percentage }) => {
