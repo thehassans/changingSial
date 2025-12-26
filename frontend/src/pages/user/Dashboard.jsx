@@ -80,30 +80,34 @@ const Icons = {
   ),
 }
 
-// Premium Minimal KPI Card - LIGHT in light mode, DARK in dark mode
-const KpiCard = ({ icon, label, value, trend, loading = false, iconColor = 'text-orange-600' }) => (
-  <div className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-300
-    bg-white dark:bg-neutral-900
-    border border-slate-200 dark:border-neutral-800
-    shadow-sm hover:shadow-lg dark:shadow-none
-    hover:border-slate-300 dark:hover:border-neutral-700">
-    
+// Premium Minimal KPI Card - ALWAYS LIGHT THEME
+const KpiCard = ({ icon, label, value, trend, loading = false, iconColor = 'text-orange-600', iconBg = 'bg-orange-50' }) => (
+  <div 
+    className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:shadow-lg"
+    style={{ 
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+    }}
+  >
     <div className="flex items-start justify-between mb-4">
-      <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${iconColor} bg-orange-50 dark:bg-orange-500/10`}>
+      <div 
+        className={`flex items-center justify-center w-10 h-10 rounded-xl ${iconColor}`}
+        style={{ backgroundColor: iconBg === 'bg-orange-50' ? '#fff7ed' : iconBg }}
+      >
         {icon}
       </div>
-      <span className="text-xs font-medium tracking-wide uppercase text-slate-400 dark:text-neutral-500">{label}</span>
+      <span className="text-xs font-medium tracking-wide uppercase" style={{ color: '#94a3b8' }}>{label}</span>
     </div>
     
     {loading ? (
-      <div className="h-10 w-24 animate-pulse rounded-lg bg-slate-100 dark:bg-neutral-800" />
+      <div className="h-10 w-24 animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
     ) : (
-      <p className="text-3xl font-bold text-slate-900 dark:text-white">{value}</p>
+      <p className="text-3xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
     )}
     
     {trend && (
       <div className={`mt-3 inline-flex items-center gap-1.5 text-sm font-medium ${
-        trend.isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+        trend.isPositive ? 'text-emerald-600' : 'text-rose-600'
       }`}>
         {trend.isPositive ? Icons.arrowUp : Icons.arrowDown}
         <span>{Math.abs(trend.value)}% {trend.isPositive ? 'increase' : 'decrease'}</span>
@@ -112,49 +116,54 @@ const KpiCard = ({ icon, label, value, trend, loading = false, iconColor = 'text
   </div>
 )
 
-// Premium Minimal Card
+// Premium Minimal Card - ALWAYS LIGHT THEME
 const Card = ({ children, className = '', title, icon }) => (
-  <div className={`rounded-2xl p-5 transition-all duration-300
-    bg-white dark:bg-neutral-900
-    border border-slate-200 dark:border-neutral-800
-    shadow-sm hover:shadow-lg dark:shadow-none
-    ${className}`}>
+  <div 
+    className={`rounded-2xl p-5 transition-all duration-300 hover:shadow-lg ${className}`}
+    style={{ 
+      backgroundColor: '#ffffff',
+      border: '1px solid #e2e8f0',
+    }}
+  >
     {title && (
       <div className="mb-5 flex items-center gap-3">
         {icon && (
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg text-orange-600 bg-orange-50 dark:bg-orange-500/10 dark:text-orange-400">
+          <div 
+            className="flex items-center justify-center w-9 h-9 rounded-lg text-orange-600"
+            style={{ backgroundColor: '#fff7ed' }}
+          >
             {icon}
           </div>
         )}
-        <h3 className="text-base font-semibold text-slate-800 dark:text-white">{title}</h3>
+        <h3 className="text-base font-semibold" style={{ color: '#1e293b' }}>{title}</h3>
       </div>
     )}
     {children}
   </div>
 )
 
-// Premium Big Value Card
+// Premium Big Value Card - ALWAYS LIGHT THEME
 const BigValueCard = ({ icon, title, value, subtitle, loading }) => (
   <Card title={title} icon={icon}>
     {loading ? (
-      <div className="h-12 w-32 animate-pulse rounded-lg bg-slate-100 dark:bg-neutral-800" />
+      <div className="h-12 w-32 animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
     ) : (
       <div className="space-y-1">
-        <p className="text-4xl font-bold text-slate-900 dark:text-white">{value}</p>
+        <p className="text-4xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
         {subtitle && (
-          <p className="text-sm text-slate-500 dark:text-neutral-400">{subtitle}</p>
+          <p className="text-sm" style={{ color: '#64748b' }}>{subtitle}</p>
         )}
       </div>
     )}
   </Card>
 )
 
-// Minimal Pie Chart
+// Minimal Pie Chart - ALWAYS LIGHT THEME
 const PieChart = ({ data, loading }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
-        <div className="h-40 w-40 animate-pulse rounded-full bg-slate-100 dark:bg-neutral-800" />
+        <div className="h-40 w-40 animate-pulse rounded-full" style={{ backgroundColor: '#f1f5f9' }} />
       </div>
     )
   }
@@ -189,12 +198,12 @@ const PieChart = ({ data, loading }) => {
               />
             )
           })}
-          <circle cx="50" cy="50" r="29" className="fill-white dark:fill-neutral-900" />
+          <circle cx="50" cy="50" r="29" fill="#ffffff" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-xl font-bold text-slate-900 dark:text-white">{total}</p>
-            <p className="text-xs text-slate-500 dark:text-neutral-400">Total</p>
+            <p className="text-xl font-bold" style={{ color: '#0f172a' }}>{total}</p>
+            <p className="text-xs" style={{ color: '#64748b' }}>Total</p>
           </div>
         </div>
       </div>
@@ -202,8 +211,8 @@ const PieChart = ({ data, loading }) => {
         {data.map((item, i) => (
           <div key={i} className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-sm text-slate-600 dark:text-neutral-300">{item.label}</span>
-            <span className="ml-auto text-sm font-semibold text-slate-900 dark:text-white">
+            <span className="text-sm" style={{ color: '#475569' }}>{item.label}</span>
+            <span className="ml-auto text-sm font-semibold" style={{ color: '#0f172a' }}>
               {item.value} ({total > 0 ? Math.round((item.value / total) * 100) : 0}%)
             </span>
           </div>
@@ -213,13 +222,18 @@ const PieChart = ({ data, loading }) => {
   )
 }
 
-// Status Badge
+// Status Badge - ALWAYS LIGHT THEME
 const StatBadge = ({ label, value, color, to }) => {
   const content = (
-    <div className="flex items-center gap-2 rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-neutral-800/50">
+    <div 
+      className="flex items-center gap-2 rounded-lg p-2 transition-colors"
+      style={{ ':hover': { backgroundColor: '#f8fafc' } }}
+      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+    >
       <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-      <span className="text-sm text-slate-600 dark:text-neutral-400">{label}</span>
-      <span className="ml-auto text-sm font-semibold text-slate-900 dark:text-white">{value}</span>
+      <span className="text-sm" style={{ color: '#475569' }}>{label}</span>
+      <span className="ml-auto text-sm font-semibold" style={{ color: '#0f172a' }}>{value}</span>
     </div>
   )
   return to ? <NavLink to={to}>{content}</NavLink> : content
@@ -440,20 +454,25 @@ export default function Dashboard() {
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-neutral-950 transition-colors">
+    <div className="min-h-screen transition-colors" style={{ backgroundColor: '#f8fafc' }}>
       <div className="px-6 py-6">
         <div className="mx-auto max-w-[1600px] space-y-6">
           {/* Header */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-neutral-400">
+              <h1 className="text-2xl font-bold" style={{ color: '#0f172a' }}>Dashboard</h1>
+              <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
                 Welcome back! Here's your business overview for {monthNames[selectedMonth - 1]} {selectedYear}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ 
+                  backgroundColor: '#ffffff', 
+                  border: '1px solid #e2e8f0',
+                  color: '#334155'
+                }}
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
               >
@@ -462,7 +481,12 @@ export default function Dashboard() {
                 ))}
               </select>
               <select
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ 
+                  backgroundColor: '#ffffff', 
+                  border: '1px solid #e2e8f0',
+                  color: '#334155'
+                }}
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
               >
@@ -485,9 +509,10 @@ export default function Dashboard() {
               icon={Icons.revenue}
               label="Revenue"
               iconColor="text-emerald-600"
+              iconBg="#ecfdf5"
               value={
                 <span className="flex items-baseline gap-1">
-                  <span className="text-lg text-slate-400">AED</span>
+                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
                   <LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} />
                 </span>
               }
@@ -497,9 +522,10 @@ export default function Dashboard() {
               icon={Icons.cost}
               label="Cost"
               iconColor="text-rose-600"
+              iconBg="#fef2f2"
               value={
                 <span className="flex items-baseline gap-1">
-                  <span className="text-lg text-slate-400">AED</span>
+                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
                   <LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} />
                 </span>
               }
@@ -509,6 +535,7 @@ export default function Dashboard() {
               icon={Icons.delivered}
               label="Delivered"
               iconColor="text-green-600"
+              iconBg="#f0fdf4"
               value={<LiveNumber value={statusTotals.delivered || 0} maximumFractionDigits={0} />}
               trend={
                 statusTotals.total > 0
@@ -521,6 +548,7 @@ export default function Dashboard() {
               icon={Icons.pending}
               label="Pending"
               iconColor="text-amber-600"
+              iconBg="#fffbeb"
               value={<LiveNumber value={statusTotals.pending || 0} maximumFractionDigits={0} />}
               loading={loading}
             />
@@ -528,9 +556,10 @@ export default function Dashboard() {
               icon={metrics?.profitLoss?.isProfit ? Icons.profit : Icons.loss}
               label={metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
               iconColor={metrics?.profitLoss?.isProfit ? 'text-emerald-600' : 'text-rose-600'}
+              iconBg={metrics?.profitLoss?.isProfit ? '#ecfdf5' : '#fef2f2'}
               value={
                 <span className="flex items-baseline gap-1">
-                  <span className="text-lg text-slate-400">AED</span>
+                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
                   <LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} />
                 </span>
               }
@@ -544,7 +573,7 @@ export default function Dashboard() {
             <Card title="Sales Trend" icon={Icons.chart} className="lg:col-span-2">
               <div className="h-[350px]">
                 {!hydrated || loading ? (
-                  <div className="h-full w-full animate-pulse rounded-lg bg-slate-100 dark:bg-neutral-800" />
+                  <div className="h-full w-full animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
                 ) : (
                   <Chart analytics={analytics} />
                 )}
@@ -558,7 +587,7 @@ export default function Dashboard() {
               value={
                 <span className="flex items-baseline gap-2">
                   <LiveNumber value={sumAmountAED('amountDelivered')} maximumFractionDigits={0} />
-                  <span className="text-lg font-normal text-slate-400">AED</span>
+                  <span className="text-lg font-normal" style={{ color: '#94a3b8' }}>AED</span>
                 </span>
               }
               subtitle="Total delivered amount"
@@ -596,13 +625,13 @@ export default function Dashboard() {
                     <NavLink
                       key={c}
                       to={`/user/orders?country=${encodeURIComponent(c)}`}
-                      className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50 dark:hover:bg-neutral-800/50"
+                      className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{flag}</span>
-                        <span className="text-sm font-medium text-slate-700 dark:text-neutral-200">{c}</span>
+                        <span className="text-sm font-medium" style={{ color: '#334155' }}>{c}</span>
                       </div>
-                      <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                      <span className="text-sm font-semibold" style={{ color: '#0f172a' }}>
                         {fmtNum(m?.orders || 0)}
                       </span>
                     </NavLink>
