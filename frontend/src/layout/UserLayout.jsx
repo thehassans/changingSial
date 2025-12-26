@@ -2151,4 +2151,26 @@ export default function UserLayout() {
                 className="btn"
                 type="button"
                 onClick={() => {
-                  setShowSettings
+                  setShowSettings(false)
+                  navigate('/user/error-logs')
+                }}
+                title="View Error Logs"
+              >
+                Open
+              </button>
+            </div>
+            <div className="card-subtitle">
+              View and manage system error logs and debugging information.
+            </div>
+          </div>
+
+          {testMsg && (
+            <div className="helper" style={{ fontWeight: 600 }}>
+              {testMsg}
+            </div>
+          )}
+        </div>
+      </Modal>
+    </div>
+  )
+}
