@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import analytics from '../../utils/analytics'
 import BusinessReports from './BusinessReports'
+import LiveTrackingView from './LiveTrackingView'
+
 
 const AnalyticsDashboard = () => {
   const [events, setEvents] = useState([])
@@ -67,6 +69,38 @@ const AnalyticsDashboard = () => {
     return <BusinessReports />
   }
 
+  // If live tracking view is active, render the LiveTrackingView component
+  if (activeView === 'tracking') {
+    return (
+      <div className="max-w-full mx-auto p-6" style={{ backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-3xl font-bold" style={{ color: '#0f172a' }}>Live Tracking</h1>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveView('dashboard')}
+              className="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              📊 Analytics
+            </button>
+            <button
+              onClick={() => setActiveView('reports')}
+              className="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              📈 Business Reports
+            </button>
+            <button
+              onClick={() => setActiveView('tracking')}
+              className="px-4 py-2 rounded-lg font-medium bg-orange-500 text-white"
+            >
+              🗺️ Live Tracking
+            </button>
+          </div>
+        </div>
+        <LiveTrackingView />
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6 flex justify-between items-center">
@@ -91,6 +125,16 @@ const AnalyticsDashboard = () => {
             }`}
           >
             📈 Business Reports
+          </button>
+          <button
+            onClick={() => setActiveView('tracking')}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeView === 'tracking'
+                ? 'bg-orange-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+          >
+            🗺️ Live Tracking
           </button>
           <button
             onClick={clearAnalytics}
