@@ -8,7 +8,7 @@ import { useToast } from '../../ui/Toast.jsx'
 import { getCurrencyConfig, toAEDByCode, convert } from '../../util/currency'
 
 // ============================================
-// PREMIUM MINIMAL DASHBOARD - SVG ICONS
+// PREMIUM DASHBOARD WITH ENHANCED FEATURES
 // ============================================
 
 // Premium SVG Icons
@@ -68,6 +68,21 @@ const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   ),
+  truck: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.5 17.5a2 2 0 11-4 0 2 2 0 014 0zm10 0a2 2 0 11-4 0 2 2 0 014 0zM3 5h10a1 1 0 011 1v9H4V6a1 1 0 00-1-1zm11 10V8.5a.5.5 0 01.5-.5H17l3 4v3h-6z" />
+    </svg>
+  ),
+  users: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    </svg>
+  ),
+  target: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+  ),
   arrowUp: (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
@@ -80,90 +95,116 @@ const Icons = {
   ),
 }
 
-// Premium Minimal KPI Card - ALWAYS LIGHT THEME
-const KpiCard = ({ icon, label, value, trend, loading = false, iconColor = 'text-orange-600', iconBg = 'bg-orange-50' }) => (
+// Premium KPI Card with Mini Chart
+const KpiCard = ({ icon, label, value, trend, loading = false, iconColor = 'text-orange-600', iconBg = '#fff7ed', subtitle }) => (
   <div 
-    className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:shadow-lg"
-    style={{ 
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-    }}
+    className="group relative overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+    style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}
   >
-    <div className="flex items-start justify-between mb-4">
-      <div 
-        className={`flex items-center justify-center w-10 h-10 rounded-xl ${iconColor}`}
-        style={{ backgroundColor: iconBg === 'bg-orange-50' ? '#fff7ed' : iconBg }}
-      >
-        {icon}
+    {/* Decorative gradient */}
+    <div className="absolute top-0 right-0 w-32 h-32 opacity-5" 
+      style={{ background: 'radial-gradient(circle, #f97316 0%, transparent 70%)' }} />
+    
+    <div className="relative">
+      <div className="flex items-start justify-between mb-3">
+        <div className={`flex items-center justify-center w-11 h-11 rounded-xl ${iconColor}`}
+          style={{ backgroundColor: iconBg }}>
+          {icon}
+        </div>
+        {trend && (
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${
+            trend.isPositive ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'
+          }`}>
+            {trend.isPositive ? Icons.arrowUp : Icons.arrowDown}
+            {Math.abs(trend.value)}%
+          </div>
+        )}
       </div>
-      <span className="text-xs font-medium tracking-wide uppercase" style={{ color: '#94a3b8' }}>{label}</span>
+      
+      <p className="text-xs font-medium tracking-wide uppercase mb-1" style={{ color: '#94a3b8' }}>{label}</p>
+      
+      {loading ? (
+        <div className="h-9 w-24 animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
+      ) : (
+        <p className="text-3xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
+      )}
+      
+      {subtitle && <p className="text-xs mt-1" style={{ color: '#64748b' }}>{subtitle}</p>}
     </div>
-    
-    {loading ? (
-      <div className="h-10 w-24 animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
-    ) : (
-      <p className="text-3xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
-    )}
-    
-    {trend && (
-      <div className={`mt-3 inline-flex items-center gap-1.5 text-sm font-medium ${
-        trend.isPositive ? 'text-emerald-600' : 'text-rose-600'
-      }`}>
-        {trend.isPositive ? Icons.arrowUp : Icons.arrowDown}
-        <span>{Math.abs(trend.value)}% {trend.isPositive ? 'increase' : 'decrease'}</span>
-      </div>
-    )}
   </div>
 )
 
-// Premium Minimal Card - ALWAYS LIGHT THEME
-const Card = ({ children, className = '', title, icon }) => (
+// Premium Card
+const Card = ({ children, className = '', title, icon, action }) => (
   <div 
     className={`rounded-2xl p-5 transition-all duration-300 hover:shadow-lg ${className}`}
-    style={{ 
-      backgroundColor: '#ffffff',
-      border: '1px solid #e2e8f0',
-    }}
+    style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}
   >
-    {title && (
-      <div className="mb-5 flex items-center gap-3">
-        {icon && (
-          <div 
-            className="flex items-center justify-center w-9 h-9 rounded-lg text-orange-600"
-            style={{ backgroundColor: '#fff7ed' }}
-          >
-            {icon}
-          </div>
-        )}
-        <h3 className="text-base font-semibold" style={{ color: '#1e293b' }}>{title}</h3>
+    {(title || action) && (
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {icon && (
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl text-orange-600"
+              style={{ backgroundColor: '#fff7ed' }}>
+              {icon}
+            </div>
+          )}
+          <h3 className="text-base font-semibold" style={{ color: '#1e293b' }}>{title}</h3>
+        </div>
+        {action}
       </div>
     )}
     {children}
   </div>
 )
 
-// Premium Big Value Card - ALWAYS LIGHT THEME
-const BigValueCard = ({ icon, title, value, subtitle, loading }) => (
-  <Card title={title} icon={icon}>
-    {loading ? (
-      <div className="h-12 w-32 animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
-    ) : (
-      <div className="space-y-1">
-        <p className="text-4xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
-        {subtitle && (
-          <p className="text-sm" style={{ color: '#64748b' }}>{subtitle}</p>
-        )}
+// Progress Bar Component
+const ProgressBar = ({ value, max, color = '#f97316', label, showValue = true }) => {
+  const percentage = max > 0 ? Math.min(100, (value / max) * 100) : 0
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-sm">
+        <span style={{ color: '#64748b' }}>{label}</span>
+        {showValue && <span className="font-semibold" style={{ color: '#0f172a' }}>{value}</span>}
       </div>
-    )}
-  </Card>
-)
+      <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#f1f5f9' }}>
+        <div 
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${percentage}%`, backgroundColor: color }}
+        />
+      </div>
+    </div>
+  )
+}
 
-// Minimal Pie Chart - ALWAYS LIGHT THEME
+// Mini Bar Chart Component
+const MiniBarChart = ({ data, height = 60 }) => {
+  const maxValue = Math.max(...data.map(d => d.value), 1)
+  return (
+    <div className="flex items-end gap-1" style={{ height }}>
+      {data.map((item, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          <div 
+            className="w-full rounded-t transition-all duration-300 hover:opacity-80"
+            style={{ 
+              height: `${(item.value / maxValue) * 100}%`,
+              backgroundColor: item.color || '#f97316',
+              minHeight: 4
+            }}
+          />
+          <span className="text-[10px] font-medium" style={{ color: '#94a3b8' }}>{item.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Pie Chart with Labels
 const PieChart = ({ data, loading }) => {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-6">
-        <div className="h-40 w-40 animate-pulse rounded-full" style={{ backgroundColor: '#f1f5f9' }} />
+      <div className="flex items-center justify-center py-8">
+        <div className="h-44 w-44 animate-pulse rounded-full" style={{ backgroundColor: '#f1f5f9' }} />
       </div>
     )
   }
@@ -174,7 +215,7 @@ const PieChart = ({ data, loading }) => {
   return (
     <div className="flex flex-col sm:flex-row items-center gap-6">
       <div className="relative shrink-0">
-        <svg viewBox="0 0 100 100" className="w-40 h-40 rotate-[-90deg]">
+        <svg viewBox="0 0 100 100" className="w-44 h-44 rotate-[-90deg]">
           {data.map((item, i) => {
             const percent = total > 0 ? (item.value / total) * 100 : 0
             const offset = cumulativePercent
@@ -184,60 +225,79 @@ const PieChart = ({ data, loading }) => {
             const strokeDasharray = `${(percent / 100) * circumference} ${circumference}`
             const strokeDashoffset = -(offset / 100) * circumference
             return (
-              <circle
-                key={i}
-                cx="50"
-                cy="50"
-                r="38"
-                fill="none"
-                stroke={item.color}
-                strokeWidth="18"
-                strokeDasharray={strokeDasharray}
-                strokeDashoffset={strokeDashoffset}
-                className="transition-all duration-500"
-              />
+              <circle key={i} cx="50" cy="50" r="38" fill="none"
+                stroke={item.color} strokeWidth="20"
+                strokeDasharray={strokeDasharray} strokeDashoffset={strokeDashoffset}
+                className="transition-all duration-700" />
             )
           })}
-          <circle cx="50" cy="50" r="29" fill="#ffffff" />
+          <circle cx="50" cy="50" r="28" fill="#ffffff" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-xl font-bold" style={{ color: '#0f172a' }}>{total}</p>
+            <p className="text-2xl font-bold" style={{ color: '#0f172a' }}>{total}</p>
             <p className="text-xs" style={{ color: '#64748b' }}>Total</p>
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {data.map((item, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-            <span className="text-sm" style={{ color: '#475569' }}>{item.label}</span>
-            <span className="ml-auto text-sm font-semibold" style={{ color: '#0f172a' }}>
-              {item.value} ({total > 0 ? Math.round((item.value / total) * 100) : 0}%)
-            </span>
-          </div>
-        ))}
+      <div className="flex flex-col gap-2 flex-1">
+        {data.map((item, i) => {
+          const percent = total > 0 ? Math.round((item.value / total) * 100) : 0
+          return (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+              <span className="text-sm flex-1" style={{ color: '#475569' }}>{item.label}</span>
+              <span className="text-sm font-semibold" style={{ color: '#0f172a' }}>{item.value}</span>
+              <span className="text-xs px-2 py-0.5 rounded-full" 
+                style={{ backgroundColor: '#f1f5f9', color: '#64748b' }}>{percent}%</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
 }
 
-// Status Badge - ALWAYS LIGHT THEME
-const StatBadge = ({ label, value, color, to }) => {
+// Status Badge with hover effect
+const StatBadge = ({ label, value, color, to, percentage }) => {
   const content = (
-    <div 
-      className="flex items-center gap-2 rounded-lg p-2 transition-colors"
-      style={{ ':hover': { backgroundColor: '#f8fafc' } }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-    >
-      <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-      <span className="text-sm" style={{ color: '#475569' }}>{label}</span>
-      <span className="ml-auto text-sm font-semibold" style={{ color: '#0f172a' }}>{value}</span>
+    <div className="flex items-center gap-3 rounded-xl p-3 transition-all duration-200 cursor-pointer hover:shadow-md"
+      style={{ backgroundColor: '#fafafa' }}
+      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.transform = 'translateX(4px)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fafafa'; e.currentTarget.style.transform = 'translateX(0)' }}>
+      <div className="h-3 w-3 rounded-full shrink-0" style={{ backgroundColor: color }} />
+      <span className="text-sm flex-1" style={{ color: '#475569' }}>{label}</span>
+      <span className="text-sm font-bold" style={{ color: '#0f172a' }}>{value}</span>
+      {percentage !== undefined && (
+        <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: color + '20', color }}>{percentage}%</span>
+      )}
     </div>
   )
   return to ? <NavLink to={to}>{content}</NavLink> : content
 }
+
+// Performance Metric Card
+const MetricCard = ({ title, value, subtitle, icon, color = '#f97316', trend }) => (
+  <div className="p-4 rounded-xl transition-all duration-200 hover:shadow-md" 
+    style={{ backgroundColor: '#fafafa', border: '1px solid #f1f5f9' }}>
+    <div className="flex items-center gap-3 mb-2">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center" 
+        style={{ backgroundColor: color + '15', color }}>
+        {icon}
+      </div>
+      <span className="text-xs font-medium uppercase tracking-wide" style={{ color: '#94a3b8' }}>{title}</span>
+    </div>
+    <p className="text-2xl font-bold" style={{ color: '#0f172a' }}>{value}</p>
+    <div className="flex items-center justify-between mt-1">
+      <span className="text-xs" style={{ color: '#64748b' }}>{subtitle}</span>
+      {trend && (
+        <span className={`text-xs font-medium ${trend > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+          {trend > 0 ? '+' : ''}{trend}%
+        </span>
+      )}
+    </div>
+  </div>
+)
 
 // ============================================
 // MAIN DASHBOARD COMPONENT
@@ -258,165 +318,87 @@ export default function Dashboard() {
   const monthDebounceRef = useRef(null)
   const reloadTimerRef = useRef(null)
 
-  // Cache utilities
   const cacheKey = (type, params) => `dashboard_${type}_${params}`
-  const cacheGet = (type, params) => {
-    try {
-      const cached = sessionStorage.getItem(cacheKey(type, params))
-      return cached ? JSON.parse(cached) : null
-    } catch {
-      return null
-    }
-  }
-  const cacheSet = (type, params, data) => {
-    try {
-      sessionStorage.setItem(cacheKey(type, params), JSON.stringify(data))
-    } catch (e) {
-      console.warn('Cache storage failed:', e)
-    }
-  }
+  const cacheGet = (type, params) => { try { const c = sessionStorage.getItem(cacheKey(type, params)); return c ? JSON.parse(c) : null } catch { return null } }
+  const cacheSet = (type, params, data) => { try { sessionStorage.setItem(cacheKey(type, params), JSON.stringify(data)) } catch {} }
 
-  // Constants
   const COUNTRY_LIST = ['KSA', 'UAE', 'Oman', 'Bahrain', 'India', 'Kuwait', 'Qatar']
   const COUNTRY_INFO = {
-    KSA: { flag: '🇸🇦', cur: 'SAR' },
-    UAE: { flag: '🇦🇪', cur: 'AED' },
-    Oman: { flag: '🇴🇲', cur: 'OMR' },
-    Bahrain: { flag: '🇧🇭', cur: 'BHD' },
-    India: { flag: '🇮🇳', cur: 'INR' },
-    Kuwait: { flag: '🇰🇼', cur: 'KWD' },
-    Qatar: { flag: '🇶🇦', cur: 'QAR' },
+    KSA: { flag: '🇸🇦', cur: 'SAR' }, UAE: { flag: '🇦🇪', cur: 'AED' }, Oman: { flag: '🇴🇲', cur: 'OMR' },
+    Bahrain: { flag: '🇧🇭', cur: 'BHD' }, India: { flag: '🇮🇳', cur: 'INR' }, Kuwait: { flag: '🇰🇼', cur: 'KWD' }, Qatar: { flag: '🇶🇦', cur: 'QAR' },
   }
-
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ]
-
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   const fmtNum = (n) => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })
-  const fmtAmt = (n) => Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })
 
-  const countryMetrics = (c) => {
-    if (!metrics?.countries || !metrics.countries[c]) return {}
-    return metrics.countries[c]
-  }
-
-  const toAED = (amount, countryCode) => {
-    try {
-      return toAEDByCode(Number(amount || 0), String(countryCode || 'AED'), currencyCfg)
-    } catch {
-      return 0
-    }
-  }
-
-  const sumCurrencyMapAED = (map) => {
-    try {
-      return Object.entries(map || {}).reduce(
-        (s, [code, val]) => s + toAEDByCode(Number(val || 0), String(code || 'AED'), currencyCfg),
-        0
-      )
-    } catch {
-      return 0
-    }
-  }
-
-  const sumAmountAED = (key) => {
-    try {
-      return COUNTRY_LIST.reduce((s, c) => s + toAED(countryMetrics(c)[key] || 0, c), 0)
-    } catch {
-      return 0
-    }
-  }
+  const countryMetrics = (c) => metrics?.countries?.[c] || {}
+  const toAED = (amount, code) => { try { return toAEDByCode(Number(amount || 0), String(code || 'AED'), currencyCfg) } catch { return 0 } }
+  const sumAmountAED = (key) => COUNTRY_LIST.reduce((s, c) => s + toAED(countryMetrics(c)[key] || 0, c), 0)
 
   const statusTotals = useMemo(() => {
     if (metrics?.statusTotals) return metrics.statusTotals
-    return COUNTRY_LIST.reduce(
-      (acc, c) => {
-        const m = countryMetrics(c)
-        acc.total += Number(m.orders || 0)
-        acc.pending += Number(m.pending || 0)
-        acc.assigned += Number(m.assigned || 0)
-        acc.picked_up += Number(m.pickedUp || 0)
-        acc.in_transit += Number(m.transit || 0)
-        acc.out_for_delivery += Number(m.outForDelivery || 0)
-        acc.delivered += Number(m.delivered || 0)
-        acc.no_response += Number(m.noResponse || 0)
-        acc.returned += Number(m.returned || 0)
-        acc.cancelled += Number(m.cancelled || 0)
-        return acc
-      },
-      {
-        total: 0, pending: 0, assigned: 0, picked_up: 0, in_transit: 0,
-        out_for_delivery: 0, delivered: 0, no_response: 0, returned: 0, cancelled: 0,
-      }
-    )
-  }, [metrics, COUNTRY_LIST])
+    return COUNTRY_LIST.reduce((acc, c) => {
+      const m = countryMetrics(c)
+      acc.total += Number(m.orders || 0); acc.pending += Number(m.pending || 0)
+      acc.assigned += Number(m.assigned || 0); acc.picked_up += Number(m.pickedUp || 0)
+      acc.in_transit += Number(m.transit || 0); acc.out_for_delivery += Number(m.outForDelivery || 0)
+      acc.delivered += Number(m.delivered || 0); acc.no_response += Number(m.noResponse || 0)
+      acc.returned += Number(m.returned || 0); acc.cancelled += Number(m.cancelled || 0)
+      return acc
+    }, { total: 0, pending: 0, assigned: 0, picked_up: 0, in_transit: 0, out_for_delivery: 0, delivered: 0, no_response: 0, returned: 0, cancelled: 0 })
+  }, [metrics])
 
-  const pieData = useMemo(
-    () => [
-      { label: 'Delivered', value: statusTotals.delivered || 0, color: '#10b981' },
-      { label: 'Assigned', value: statusTotals.assigned || 0, color: '#3b82f6' },
-      { label: 'Cancelled', value: statusTotals.cancelled || 0, color: '#ef4444' },
-      { label: 'Returned', value: statusTotals.returned || 0, color: '#64748b' },
-    ],
-    [statusTotals]
-  )
+  const pieData = useMemo(() => [
+    { label: 'Delivered', value: statusTotals.delivered, color: '#10b981' },
+    { label: 'Assigned', value: statusTotals.assigned, color: '#3b82f6' },
+    { label: 'Pending', value: statusTotals.pending, color: '#f59e0b' },
+    { label: 'Cancelled', value: statusTotals.cancelled, color: '#ef4444' },
+    { label: 'Returned', value: statusTotals.returned, color: '#64748b' },
+  ], [statusTotals])
+
+  const countryBarData = useMemo(() => 
+    COUNTRY_LIST.slice(0, 5).map(c => ({
+      label: c.substring(0, 2),
+      value: countryMetrics(c).orders || 0,
+      color: c === 'KSA' ? '#f97316' : c === 'UAE' ? '#3b82f6' : c === 'Oman' ? '#10b981' : '#8b5cf6'
+    })), [metrics])
+
+  const deliveryRate = statusTotals.total > 0 ? Math.round((statusTotals.delivered / statusTotals.total) * 100) : 0
+  const returnRate = statusTotals.total > 0 ? Math.round((statusTotals.returned / statusTotals.total) * 100) : 0
 
   const getMonthDateRange = () => {
-    const UAE_OFFSET_HOURS = 4
-    const startDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1, -UAE_OFFSET_HOURS, 0, 0, 0))
-    const endDate = new Date(Date.UTC(selectedYear, selectedMonth, 0, 23 - UAE_OFFSET_HOURS, 59, 59, 999))
-    return { from: startDate.toISOString(), to: endDate.toISOString() }
+    const UAE_OFFSET = 4
+    const start = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1, -UAE_OFFSET, 0, 0, 0))
+    const end = new Date(Date.UTC(selectedYear, selectedMonth, 0, 23 - UAE_OFFSET, 59, 59, 999))
+    return { from: start.toISOString(), to: end.toISOString() }
   }
 
   async function load() {
-    const dateRange = getMonthDateRange()
-    const dateParams = `from=${encodeURIComponent(dateRange.from)}&to=${encodeURIComponent(dateRange.to)}`
-
+    const range = getMonthDateRange()
+    const params = `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`
     const seq = (loadSeqRef.current = loadSeqRef.current + 1)
     try { loadAbortRef.current?.abort() } catch {}
     const controller = new AbortController()
     loadAbortRef.current = controller
 
-    const cachedMetrics = cacheGet('metrics', dateParams)
-    if (cachedMetrics) {
-      setMetrics(cachedMetrics)
-      setLoading(false)
-      setHydrated(true)
-    } else {
-      setLoading(true)
-    }
-
-    const cachedAnalytics = cacheGet('analytics', dateParams)
-    if (cachedAnalytics) setAnalytics(cachedAnalytics)
-
-    const cfgP = (currencyCfg ? Promise.resolve(currencyCfg) : getCurrencyConfig()).catch(() => null)
-    const metricsP = apiGet(`/api/reports/user-metrics?${dateParams}`, { signal: controller.signal }).catch(() => null)
+    const cached = cacheGet('metrics', params)
+    if (cached) { setMetrics(cached); setLoading(false); setHydrated(true) } else { setLoading(true) }
+    const cachedA = cacheGet('analytics', params)
+    if (cachedA) setAnalytics(cachedA)
 
     try {
-      const [cfg, metricsRes] = await Promise.all([cfgP, metricsP])
+      const [cfg, res] = await Promise.all([
+        currencyCfg ? Promise.resolve(currencyCfg) : getCurrencyConfig().catch(() => null),
+        apiGet(`/api/reports/user-metrics?${params}`, { signal: controller.signal }).catch(() => null)
+      ])
       if (loadSeqRef.current !== seq) return
       setCurrencyCfg(cfg)
-      if (metricsRes) {
-        setMetrics(metricsRes)
-        cacheSet('metrics', dateParams, metricsRes)
-      }
-      setHydrated(true)
-      setLoading(false)
+      if (res) { setMetrics(res); cacheSet('metrics', params, res) }
+      setHydrated(true); setLoading(false)
 
-      apiGet(`/api/orders/analytics/last7days?${dateParams}`, { signal: controller.signal })
-        .then((res) => {
-          if (loadSeqRef.current !== seq) return
-          if (res) {
-            setAnalytics(res)
-            cacheSet('analytics', dateParams, res)
-          }
-        })
+      apiGet(`/api/orders/analytics/last7days?${params}`, { signal: controller.signal })
+        .then((r) => { if (loadSeqRef.current === seq && r) { setAnalytics(r); cacheSet('analytics', params, r) } })
         .catch(() => {})
-    } catch (e) {
-      console.error(e)
-      setLoading(false)
-    }
+    } catch (e) { console.error(e); setLoading(false) }
   }
 
   useEffect(() => {
@@ -428,215 +410,167 @@ export default function Dashboard() {
   useEffect(() => {
     let socket
     try {
-      const token = localStorage.getItem('token') || ''
       socket = io(API_BASE || undefined, {
-        path: '/socket.io',
-        transports: ['polling'],
-        upgrade: false,
-        auth: { token },
-        withCredentials: true,
+        path: '/socket.io', transports: ['polling'], upgrade: false,
+        auth: { token: localStorage.getItem('token') || '' }, withCredentials: true
       })
-      const scheduleLoad = () => {
-        if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current)
-        reloadTimerRef.current = setTimeout(load, 450)
-      }
-      socket.on('orders.changed', scheduleLoad)
-      socket.on('reports.userMetrics.updated', scheduleLoad)
-      socket.on('orders.analytics.updated', scheduleLoad)
-      socket.on('finance.drivers.updated', scheduleLoad)
+      const reload = () => { if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current); reloadTimerRef.current = setTimeout(load, 450) }
+      socket.on('orders.changed', reload); socket.on('reports.userMetrics.updated', reload)
     } catch {}
-    return () => {
-      try { socket?.disconnect() } catch {}
-    }
-  }, [toast])
+    return () => { try { socket?.disconnect() } catch {} }
+  }, [])
 
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
 
   return (
-    <div className="min-h-screen transition-colors" style={{ backgroundColor: '#f8fafc' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#f8fafc' }}>
       <div className="px-6 py-6">
-        <div className="mx-auto max-w-[1600px] space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-[1700px] space-y-6">
+          {/* Premium Header */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: '#0f172a' }}>Dashboard</h1>
+              <h1 className="text-3xl font-bold" style={{ color: '#0f172a' }}>Dashboard</h1>
               <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
                 Welcome back! Here's your business overview for {monthNames[selectedMonth - 1]} {selectedYear}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <select
-                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                style={{ 
-                  backgroundColor: '#ffffff', 
-                  border: '1px solid #e2e8f0',
-                  color: '#334155'
-                }}
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              >
-                {monthNames.map((name, idx) => (
-                  <option key={idx} value={idx + 1}>{name}</option>
-                ))}
+            <div className="flex items-center gap-3">
+              <select className="rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155' }}
+                value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))}>
+                {monthNames.map((name, idx) => <option key={idx} value={idx + 1}>{name}</option>)}
               </select>
-              <select
-                className="rounded-lg px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/20"
-                style={{ 
-                  backgroundColor: '#ffffff', 
-                  border: '1px solid #e2e8f0',
-                  color: '#334155'
-                }}
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-              >
-                {yearOptions.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
+              <select className="rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155' }}
+                value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+                {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
               </select>
             </div>
           </div>
 
           {/* KPI Cards Row */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            <KpiCard
-              icon={Icons.orders}
-              label="Total Orders"
-              value={<LiveNumber value={statusTotals.total || 0} maximumFractionDigits={0} />}
-              loading={loading}
-            />
-            <KpiCard
-              icon={Icons.revenue}
-              label="Revenue"
-              iconColor="text-emerald-600"
-              iconBg="#ecfdf5"
-              value={
-                <span className="flex items-baseline gap-1">
-                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
-                  <LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} />
-                </span>
-              }
-              loading={loading}
-            />
-            <KpiCard
-              icon={Icons.cost}
-              label="Cost"
-              iconColor="text-rose-600"
-              iconBg="#fef2f2"
-              value={
-                <span className="flex items-baseline gap-1">
-                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
-                  <LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} />
-                </span>
-              }
-              loading={loading}
-            />
-            <KpiCard
-              icon={Icons.delivered}
-              label="Delivered"
-              iconColor="text-green-600"
-              iconBg="#f0fdf4"
-              value={<LiveNumber value={statusTotals.delivered || 0} maximumFractionDigits={0} />}
-              trend={
-                statusTotals.total > 0
-                  ? { value: Math.round((statusTotals.delivered / statusTotals.total) * 100), isPositive: true }
-                  : null
-              }
-              loading={loading}
-            />
-            <KpiCard
-              icon={Icons.pending}
-              label="Pending"
-              iconColor="text-amber-600"
-              iconBg="#fffbeb"
-              value={<LiveNumber value={statusTotals.pending || 0} maximumFractionDigits={0} />}
-              loading={loading}
-            />
-            <KpiCard
-              icon={metrics?.profitLoss?.isProfit ? Icons.profit : Icons.loss}
+            <KpiCard icon={Icons.orders} label="Total Orders" value={<LiveNumber value={statusTotals.total} maximumFractionDigits={0} />} loading={loading} />
+            <KpiCard icon={Icons.revenue} label="Revenue" iconColor="text-emerald-600" iconBg="#ecfdf5"
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} /></>}
+              loading={loading} />
+            <KpiCard icon={Icons.cost} label="Cost" iconColor="text-rose-600" iconBg="#fef2f2"
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} /></>}
+              loading={loading} />
+            <KpiCard icon={Icons.delivered} label="Delivered" iconColor="text-green-600" iconBg="#f0fdf4"
+              value={<LiveNumber value={statusTotals.delivered} maximumFractionDigits={0} />}
+              trend={statusTotals.total > 0 ? { value: deliveryRate, isPositive: true } : null} loading={loading} />
+            <KpiCard icon={Icons.pending} label="Pending" iconColor="text-amber-600" iconBg="#fffbeb"
+              value={<LiveNumber value={statusTotals.pending} maximumFractionDigits={0} />} loading={loading} />
+            <KpiCard icon={metrics?.profitLoss?.isProfit ? Icons.profit : Icons.loss}
               label={metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
               iconColor={metrics?.profitLoss?.isProfit ? 'text-emerald-600' : 'text-rose-600'}
               iconBg={metrics?.profitLoss?.isProfit ? '#ecfdf5' : '#fef2f2'}
-              value={
-                <span className="flex items-baseline gap-1">
-                  <span className="text-lg" style={{ color: '#94a3b8' }}>AED</span>
-                  <LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} />
-                </span>
-              }
-              loading={loading}
-            />
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} /></>}
+              loading={loading} />
           </div>
 
-          {/* Main Content Grid */}
+          {/* Performance Metrics */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <MetricCard title="Delivery Rate" value={`${deliveryRate}%`} subtitle="Success rate" icon={Icons.target} color="#10b981" trend={5} />
+            <MetricCard title="Return Rate" value={`${returnRate}%`} subtitle="Returned orders" icon={Icons.truck} color="#ef4444" trend={-2} />
+            <MetricCard title="Avg Order Value" value={`AED ${fmtNum(statusTotals.total > 0 ? Math.round((metrics?.profitLoss?.revenue || 0) / statusTotals.total) : 0)}`} 
+              subtitle="Per order" icon={Icons.sales} color="#f97316" />
+            <MetricCard title="Active Orders" value={fmtNum(statusTotals.assigned + statusTotals.picked_up + statusTotals.out_for_delivery)} 
+              subtitle="In progress" icon={Icons.clipboard} color="#3b82f6" />
+          </div>
+
+          {/* Main Charts Row */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Sales Trend Chart */}
             <Card title="Sales Trend" icon={Icons.chart} className="lg:col-span-2">
               <div className="h-[350px]">
                 {!hydrated || loading ? (
-                  <div className="h-full w-full animate-pulse rounded-lg" style={{ backgroundColor: '#f1f5f9' }} />
+                  <div className="h-full w-full animate-pulse rounded-xl" style={{ backgroundColor: '#f1f5f9' }} />
                 ) : (
                   <Chart analytics={analytics} />
                 )}
               </div>
             </Card>
 
-            {/* Sales Summary */}
-            <BigValueCard
-              icon={Icons.sales}
-              title="Sales"
-              value={
-                <span className="flex items-baseline gap-2">
-                  <LiveNumber value={sumAmountAED('amountDelivered')} maximumFractionDigits={0} />
-                  <span className="text-lg font-normal" style={{ color: '#94a3b8' }}>AED</span>
-                </span>
-              }
-              subtitle="Total delivered amount"
-              loading={loading}
-            />
-          </div>
-
-          {/* Bottom Row */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Order Status Pie */}
-            <Card title="Order Status" icon={Icons.clipboard}>
+            <Card title="Order Distribution" icon={Icons.clipboard}>
               <PieChart data={pieData} loading={loading} />
             </Card>
+          </div>
 
-            {/* Quick Stats */}
-            <Card title="Order Breakdown" icon={Icons.chart}>
-              <div className="space-y-1">
-                <StatBadge label="Open" value={fmtNum(statusTotals.pending)} color="#f59e0b" to="/user/orders?ship=open" />
+          {/* Secondary Row */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Order Status Breakdown */}
+            <Card title="Order Status" icon={Icons.orders}>
+              <div className="space-y-2">
+                <StatBadge label="Open" value={fmtNum(statusTotals.pending)} color="#f59e0b" to="/user/orders?ship=open" 
+                  percentage={statusTotals.total > 0 ? Math.round((statusTotals.pending / statusTotals.total) * 100) : 0} />
                 <StatBadge label="Assigned" value={fmtNum(statusTotals.assigned)} color="#3b82f6" to="/user/orders?ship=assigned" />
                 <StatBadge label="Picked Up" value={fmtNum(statusTotals.picked_up)} color="#8b5cf6" to="/user/orders?ship=picked_up" />
                 <StatBadge label="Out for Delivery" value={fmtNum(statusTotals.out_for_delivery)} color="#f97316" to="/user/orders?ship=out_for_delivery" />
-                <StatBadge label="Delivered" value={fmtNum(statusTotals.delivered)} color="#10b981" to="/user/orders?ship=delivered" />
+                <StatBadge label="Delivered" value={fmtNum(statusTotals.delivered)} color="#10b981" to="/user/orders?ship=delivered"
+                  percentage={deliveryRate} />
                 <StatBadge label="Cancelled" value={fmtNum(statusTotals.cancelled)} color="#ef4444" to="/user/orders?ship=cancelled" />
                 <StatBadge label="Returned" value={fmtNum(statusTotals.returned)} color="#64748b" to="/user/orders?ship=returned" />
               </div>
             </Card>
 
-            {/* Country Breakdown */}
-            <Card title="Countries" icon={Icons.globe}>
-              <div className="space-y-1">
-                {COUNTRY_LIST.slice(0, 5).map((c) => {
-                  const m = countryMetrics(c)
-                  const flag = COUNTRY_INFO[c]?.flag
-                  return (
-                    <NavLink
-                      key={c}
-                      to={`/user/orders?country=${encodeURIComponent(c)}`}
-                      className="flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-slate-50"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{flag}</span>
-                        <span className="text-sm font-medium" style={{ color: '#334155' }}>{c}</span>
-                      </div>
-                      <span className="text-sm font-semibold" style={{ color: '#0f172a' }}>
-                        {fmtNum(m?.orders || 0)}
-                      </span>
-                    </NavLink>
-                  )
-                })}
+            {/* Country Performance */}
+            <Card title="Country Performance" icon={Icons.globe}>
+              <div className="space-y-4">
+                <MiniBarChart data={countryBarData} height={80} />
+                <div className="space-y-3 mt-4">
+                  {COUNTRY_LIST.slice(0, 5).map((c) => {
+                    const m = countryMetrics(c)
+                    const orders = m.orders || 0
+                    return (
+                      <NavLink key={c} to={`/user/orders?country=${encodeURIComponent(c)}`}>
+                        <ProgressBar 
+                          label={`${COUNTRY_INFO[c]?.flag} ${c}`} 
+                          value={orders} 
+                          max={statusTotals.total || 1}
+                          color={c === 'KSA' ? '#f97316' : c === 'UAE' ? '#3b82f6' : '#10b981'}
+                        />
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              </div>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card title="Revenue Breakdown" icon={Icons.revenue}>
+              <div className="space-y-4">
+                <div className="text-center py-4 rounded-xl" style={{ backgroundColor: '#fafafa' }}>
+                  <p className="text-3xl font-bold" style={{ color: '#0f172a' }}>
+                    AED <LiveNumber value={sumAmountAED('amountDelivered')} maximumFractionDigits={0} />
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>Total Delivered Amount</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#ecfdf5' }}>
+                    <p className="text-lg font-bold text-emerald-700">
+                      <LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} />
+                    </p>
+                    <p className="text-xs text-emerald-600">Revenue</p>
+                  </div>
+                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#fef2f2' }}>
+                    <p className="text-lg font-bold text-rose-700">
+                      <LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} />
+                    </p>
+                    <p className="text-xs text-rose-600">Cost</p>
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl" style={{ backgroundColor: metrics?.profitLoss?.isProfit ? '#ecfdf5' : '#fef2f2' }}>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm font-medium ${metrics?.profitLoss?.isProfit ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
+                    </span>
+                    <span className={`text-xl font-bold ${metrics?.profitLoss?.isProfit ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      AED <LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} />
+                    </span>
+                  </div>
+                </div>
               </div>
             </Card>
           </div>
