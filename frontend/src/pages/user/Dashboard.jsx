@@ -448,4 +448,238 @@ export default function Dashboard() {
       acc.delivered += Number(m.delivered || 0); acc.no_response += Number(m.noResponse || 0)
       acc.returned += Number(m.returned || 0); acc.cancelled += Number(m.cancelled || 0)
       return acc
-    }, {
+    }, { total: 0, pending: 0, assigned: 0, picked_up: 0, in_transit: 0, out_for_delivery: 0, delivered: 0, no_response: 0, returned: 0, cancelled: 0 })
+  }, [metrics])
+
+  const pieData = useMemo(() => [
+    { label: 'Delivered', value: statusTotals.delivered, color: '#10b981' },
+    { label: 'Assigned', value: statusTotals.assigned, color: '#3b82f6' },
+    { label: 'Pending', value: statusTotals.pending, color: '#f59e0b' },
+    { label: 'Cancelled', value: statusTotals.cancelled, color: '#ef4444' },
+    { label: 'Returned', value: statusTotals.returned, color: '#64748b' },
+  ], [statusTotals])
+
+  const countryBarData = useMemo(() => 
+    COUNTRY_LIST.slice(0, 5).map(c => ({
+      label: c.substring(0, 2),
+      value: countryMetrics(c).orders || 0,
+      color: c === 'KSA' ? '#f97316' : c === 'UAE' ? '#3b82f6' : c === 'Oman' ? '#10b981' : '#8b5cf6'
+    })), [metrics])
+
+  const deliveryRate = statusTotals.total > 0 ? Math.round((statusTotals.delivered / statusTotals.total) * 100) : 0
+  const returnRate = statusTotals.total > 0 ? Math.round((statusTotals.returned / statusTotals.total) * 100) : 0
+
+  const getMonthDateRange = () => {
+    const UAE_OFFSET = 4
+    const start = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1, -UAE_OFFSET, 0, 0, 0))
+    const end = new Date(Date.UTC(selectedYear, selectedMonth, 0, 23 - UAE_OFFSET, 59, 59, 999))
+    return { from: start.toISOString(), to: end.toISOString() }
+  }
+
+  async function load() {
+    const range = getMonthDateRange()
+    const params = `from=${encodeURIComponent(range.from)}&to=${encodeURIComponent(range.to)}`
+    const seq = (loadSeqRef.current = loadSeqRef.current + 1)
+    try { loadAbortRef.current?.abort() } catch {}
+    const controller = new AbortController()
+    loadAbortRef.current = controller
+
+    const cached = cacheGet('metrics', params)
+    if (cached) { setMetrics(cached); setLoading(false); setHydrated(true) } else { setLoading(true) }
+    const cachedA = cacheGet('analytics', params)
+    if (cachedA) setAnalytics(cachedA)
+
+    try {
+      const [cfg, res] = await Promise.all([
+        currencyCfg ? Promise.resolve(currencyCfg) : getCurrencyConfig().catch(() => null),
+        apiGet(`/api/reports/user-metrics?${params}`, { signal: controller.signal }).catch(() => null)
+      ])
+      if (loadSeqRef.current !== seq) return
+      setCurrencyCfg(cfg)
+      if (res) { setMetrics(res); cacheSet('metrics', params, res) }
+      setHydrated(true); setLoading(false)
+
+      apiGet(`/api/orders/analytics/last7days?${params}`, { signal: controller.signal })
+        .then((r) => { if (loadSeqRef.current === seq && r) { setAnalytics(r); cacheSet('analytics', params, r) } })
+        .catch(() => {})
+    } catch (e) { console.error(e); setLoading(false) }
+  }
+
+  useEffect(() => {
+    if (monthDebounceRef.current) clearTimeout(monthDebounceRef.current)
+    monthDebounceRef.current = setTimeout(load, 250)
+    return () => clearTimeout(monthDebounceRef.current)
+  }, [selectedMonth, selectedYear])
+
+  useEffect(() => {
+    let socket
+    try {
+      socket = io(API_BASE || undefined, {
+        path: '/socket.io', transports: ['polling'], upgrade: false,
+        auth: { token: localStorage.getItem('token') || '' }, withCredentials: true
+      })
+      const reload = () => { if (reloadTimerRef.current) clearTimeout(reloadTimerRef.current); reloadTimerRef.current = setTimeout(load, 450) }
+      socket.on('orders.changed', reload); socket.on('reports.userMetrics.updated', reload)
+    } catch {}
+    return () => { try { socket?.disconnect() } catch {} }
+  }, [])
+
+  const currentYear = new Date().getFullYear()
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - i)
+
+  return (
+    <div className="min-h-screen" style={{ backgroundColor: '#f8fafc' }}>
+      <div className="px-6 py-6">
+        <div className="mx-auto max-w-[1700px] space-y-6">
+          {/* Premium Header */}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold" style={{ color: '#0f172a' }}>Dashboard</h1>
+              <p className="mt-1 text-sm" style={{ color: '#64748b' }}>
+                Welcome back! Here's your business overview for {monthNames[selectedMonth - 1]} {selectedYear}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <select className="rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155' }}
+                value={selectedMonth} onChange={(e) => setSelectedMonth(Number(e.target.value))}>
+                {monthNames.map((name, idx) => <option key={idx} value={idx + 1}>{name}</option>)}
+              </select>
+              <select className="rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20"
+                style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', color: '#334155' }}
+                value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+                {yearOptions.map((year) => <option key={year} value={year}>{year}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* KPI Cards Row */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+            <KpiCard icon={Icons.orders} label="Total Orders" value={<LiveNumber value={statusTotals.total} maximumFractionDigits={0} />} loading={loading} />
+            <KpiCard icon={Icons.revenue} label="Revenue" iconColor="text-emerald-600" iconBg="#ecfdf5"
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} /></>}
+              loading={loading} />
+            <KpiCard icon={Icons.cost} label="Cost" iconColor="text-rose-600" iconBg="#fef2f2"
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} /></>}
+              loading={loading} />
+            <KpiCard icon={Icons.delivered} label="Delivered" iconColor="text-green-600" iconBg="#f0fdf4"
+              value={<LiveNumber value={statusTotals.delivered} maximumFractionDigits={0} />}
+              trend={statusTotals.total > 0 ? { value: deliveryRate, isPositive: true } : null} loading={loading} />
+            <KpiCard icon={Icons.pending} label="Pending" iconColor="text-amber-600" iconBg="#fffbeb"
+              value={<LiveNumber value={statusTotals.pending} maximumFractionDigits={0} />} loading={loading} />
+            <KpiCard icon={metrics?.profitLoss?.isProfit ? Icons.profit : Icons.loss}
+              label={metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
+              iconColor={metrics?.profitLoss?.isProfit ? 'text-emerald-600' : 'text-rose-600'}
+              iconBg={metrics?.profitLoss?.isProfit ? '#ecfdf5' : '#fef2f2'}
+              value={<><span className="text-lg" style={{ color: '#94a3b8' }}>AED </span><LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} /></>}
+              loading={loading} />
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <MetricCard title="Delivery Rate" value={`${deliveryRate}%`} subtitle="Success rate" icon={Icons.target} color="#10b981" trend={5} />
+            <MetricCard title="Return Rate" value={`${returnRate}%`} subtitle="Returned orders" icon={Icons.truck} color="#ef4444" trend={-2} />
+            <MetricCard title="Avg Order Value" value={`AED ${fmtNum(statusTotals.total > 0 ? Math.round((metrics?.profitLoss?.revenue || 0) / statusTotals.total) : 0)}`} 
+              subtitle="Per order" icon={Icons.sales} color="#f97316" />
+            <MetricCard title="Active Orders" value={fmtNum(statusTotals.assigned + statusTotals.picked_up + statusTotals.out_for_delivery)} 
+              subtitle="In progress" icon={Icons.clipboard} color="#3b82f6" />
+          </div>
+
+          {/* Main Charts Row */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <Card title="Sales Trend" icon={Icons.chart} className="lg:col-span-2">
+              <div className="h-[350px]">
+                {!hydrated || loading ? (
+                  <div className="h-full w-full animate-pulse rounded-xl" style={{ backgroundColor: '#f1f5f9' }} />
+                ) : (
+                  <Chart analytics={analytics} />
+                )}
+              </div>
+            </Card>
+
+            <Card title="Order Distribution" icon={Icons.clipboard}>
+              <PieChart data={pieData} loading={loading} />
+            </Card>
+          </div>
+
+          {/* Secondary Row */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Order Status Breakdown */}
+            <Card title="Order Status" icon={Icons.orders}>
+              <div className="space-y-2">
+                <StatBadge label="Open" value={fmtNum(statusTotals.pending)} color="#f59e0b" to="/user/orders?ship=open" 
+                  percentage={statusTotals.total > 0 ? Math.round((statusTotals.pending / statusTotals.total) * 100) : 0} />
+                <StatBadge label="Assigned" value={fmtNum(statusTotals.assigned)} color="#3b82f6" to="/user/orders?ship=assigned" />
+                <StatBadge label="Picked Up" value={fmtNum(statusTotals.picked_up)} color="#8b5cf6" to="/user/orders?ship=picked_up" />
+                <StatBadge label="Out for Delivery" value={fmtNum(statusTotals.out_for_delivery)} color="#f97316" to="/user/orders?ship=out_for_delivery" />
+                <StatBadge label="Delivered" value={fmtNum(statusTotals.delivered)} color="#10b981" to="/user/orders?ship=delivered"
+                  percentage={deliveryRate} />
+                <StatBadge label="Cancelled" value={fmtNum(statusTotals.cancelled)} color="#ef4444" to="/user/orders?ship=cancelled" />
+                <StatBadge label="Returned" value={fmtNum(statusTotals.returned)} color="#64748b" to="/user/orders?ship=returned" />
+              </div>
+            </Card>
+
+            {/* Country Performance */}
+            <Card title="Country Performance" icon={Icons.globe}>
+              <div className="space-y-4">
+                <MiniBarChart data={countryBarData} height={80} />
+                <div className="space-y-3 mt-4">
+                  {COUNTRY_LIST.slice(0, 5).map((c) => {
+                    const m = countryMetrics(c)
+                    const orders = m.orders || 0
+                    return (
+                      <NavLink key={c} to={`/user/orders?country=${encodeURIComponent(c)}`}>
+                        <ProgressBar 
+                          label={`${COUNTRY_INFO[c]?.flag} ${c}`} 
+                          value={orders} 
+                          max={statusTotals.total || 1}
+                          color={c === 'KSA' ? '#f97316' : c === 'UAE' ? '#3b82f6' : '#10b981'}
+                        />
+                      </NavLink>
+                    )
+                  })}
+                </div>
+              </div>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card title="Revenue Breakdown" icon={Icons.revenue}>
+              <div className="space-y-4">
+                <div className="text-center py-4 rounded-xl" style={{ backgroundColor: '#fafafa' }}>
+                  <p className="text-3xl font-bold" style={{ color: '#0f172a' }}>
+                    AED <LiveNumber value={sumAmountAED('amountDelivered')} maximumFractionDigits={0} />
+                  </p>
+                  <p className="text-sm mt-1" style={{ color: '#64748b' }}>Total Delivered Amount</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#ecfdf5' }}>
+                    <p className="text-lg font-bold text-emerald-700">
+                      <LiveNumber value={metrics?.profitLoss?.revenue || 0} maximumFractionDigits={0} />
+                    </p>
+                    <p className="text-xs text-emerald-600">Revenue</p>
+                  </div>
+                  <div className="p-3 rounded-xl text-center" style={{ backgroundColor: '#fef2f2' }}>
+                    <p className="text-lg font-bold text-rose-700">
+                      <LiveNumber value={metrics?.profitLoss?.purchaseCost || 0} maximumFractionDigits={0} />
+                    </p>
+                    <p className="text-xs text-rose-600">Cost</p>
+                  </div>
+                </div>
+                <div className="p-3 rounded-xl" style={{ backgroundColor: metrics?.profitLoss?.isProfit ? '#ecfdf5' : '#fef2f2' }}>
+                  <div className="flex justify-between items-center">
+                    <span className={`text-sm font-medium ${metrics?.profitLoss?.isProfit ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {metrics?.profitLoss?.isProfit ? 'Net Profit' : 'Net Loss'}
+                    </span>
+                    <span className={`text-xl font-bold ${metrics?.profitLoss?.isProfit ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      AED <LiveNumber value={Math.abs(metrics?.profitLoss?.profit || 0)} maximumFractionDigits={0} />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

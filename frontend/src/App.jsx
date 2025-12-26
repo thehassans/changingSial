@@ -610,4 +610,12 @@ export default function App() {
               <Route path="me" element={<AgentMe />} />
               <Route path="profile" element={<AgentProfile />} />
               <Route path="payout" element={<AgentPayout />} />
-              <Route path="support"
+              <Route path="support" element={<Support />} />
+            </Route>
+          </Routes>
+        </CustomDomainRouter>
+      </ThemeProvider>
+    </ErrorBoundary>
+  )
+}
+// End of App.jsx
